@@ -30,6 +30,18 @@
   .catbtn { transition: transform .08s ease, background-color .15s ease, border-color .15s ease; }
   .catbtn:active, .prodcard:active, .qty-btn:active, #btnCheckout:active { transform: scale(0.96); }
   .prodcard { transition: transform .08s ease, border-color .15s ease; }
+
+  /* Dynamic layout: driven by orientation + fluid sizing, works across phone and tablet without fixed breakpoints */
+  #mainLayout { display: flex; flex-direction: column; flex: 1 1 0%; min-height: 0; }
+  #productSection { border-bottom: 1px solid #1e293b; }
+  #cartAside { width: 100%; max-height: 42vh; }
+  #productGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+  @media (orientation: landscape) {
+    #mainLayout { flex-direction: row; }
+    #productSection { border-bottom: none; border-right: 1px solid #1e293b; }
+    #cartAside { width: clamp(260px, 30vw, 460px); max-height: none; }
+    #productGrid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+  }
 </style>
 </head>
 <body class="bg-slate-950 text-slate-100">
@@ -49,21 +61,21 @@
   </header>
 
   <!-- MAIN -->
-  <main class="flex-1 flex flex-col lg:flex-row min-h-0">
+  <main id="mainLayout" class="min-h-0">
 
     <!-- LEFT: products -->
-    <section class="flex-1 min-h-0 flex flex-col overflow-hidden border-b lg:border-b-0 lg:border-r border-slate-800">
+    <section id="productSection" class="flex-1 min-h-0 flex flex-col overflow-hidden">
       <div id="catTabs" class="flex gap-2 overflow-x-auto px-3 py-3 shrink-0"></div>
       <div class="px-3 pb-2 shrink-0">
         <input id="searchInput" type="search" placeholder="🔍 Keresés a termékek között..."
           class="w-full px-4 py-2.5 rounded-lg bg-slate-900 border border-slate-800 text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500" />
       </div>
       <div id="categoryNote" class="hidden mx-3 mb-2 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold shrink-0"></div>
-      <div id="productGrid" class="flex-1 overflow-y-auto p-3 pt-1 grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 content-start"></div>
+      <div id="productGrid" class="flex-1 overflow-y-auto p-3 pt-1 gap-3 content-start"></div>
     </section>
 
     <!-- RIGHT: cart -->
-    <aside class="w-full lg:w-[420px] xl:w-[460px] shrink-0 flex flex-col bg-slate-900 min-h-0 max-h-[42vh] lg:max-h-none">
+    <aside id="cartAside" class="shrink-0 flex flex-col bg-slate-900 min-h-0">
       <div class="flex items-center justify-between px-4 py-3 border-b border-slate-800 shrink-0">
         <h2 class="font-bold">Rendelés <span id="cartCount" class="text-slate-500 font-medium text-sm"></span></h2>
         <button id="btnClearCart" class="text-xs text-slate-500 hover:text-rose-400 font-semibold">Kosár ürítése</button>
