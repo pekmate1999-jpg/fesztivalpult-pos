@@ -52,7 +52,7 @@
   <main class="flex-1 flex flex-col lg:flex-row min-h-0">
 
     <!-- LEFT: products -->
-    <section class="flex-1 min-h-0 flex flex-col border-b lg:border-b-0 lg:border-r border-slate-800">
+    <section class="flex-1 min-h-0 flex flex-col overflow-hidden border-b lg:border-b-0 lg:border-r border-slate-800">
       <div id="catTabs" class="flex gap-2 overflow-x-auto px-3 py-3 shrink-0"></div>
       <div class="px-3 pb-2 shrink-0">
         <input id="searchInput" type="search" placeholder="🔍 Keresés a termékek között..."
@@ -63,7 +63,7 @@
     </section>
 
     <!-- RIGHT: cart -->
-    <aside class="w-full lg:w-[420px] xl:w-[460px] shrink-0 flex flex-col bg-slate-900 min-h-0 max-h-[55vh] lg:max-h-none">
+    <aside class="w-full lg:w-[420px] xl:w-[460px] shrink-0 flex flex-col bg-slate-900 min-h-0 max-h-[42vh] lg:max-h-none">
       <div class="flex items-center justify-between px-4 py-3 border-b border-slate-800 shrink-0">
         <h2 class="font-bold">Rendelés <span id="cartCount" class="text-slate-500 font-medium text-sm"></span></h2>
         <button id="btnClearCart" class="text-xs text-slate-500 hover:text-rose-400 font-semibold">Kosár ürítése</button>
