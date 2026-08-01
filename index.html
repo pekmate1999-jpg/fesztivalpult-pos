@@ -29,7 +29,11 @@
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
   .catbtn { transition: transform .08s ease, background-color .15s ease, border-color .15s ease; }
   .catbtn:active, .prodcard:active, .qty-btn:active, #btnCheckout:active { transform: scale(0.96); }
-  .prodcard { transition: transform .08s ease, border-color .15s ease; }
+  .prodcard { transition: transform .08s ease, border-color .15s ease; position: relative; }
+  .prodcard-body { padding-right: 30px; }
+  .fav-star { position: absolute; top: 6px; right: 6px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 19px; line-height: 1; border-radius: 9999px; border: none; background: rgba(15,23,42,0.6); z-index: 2; padding: 0; cursor: pointer; }
+  .fav-star.is-fav { color: #fbbf24; }
+  .fav-star:not(.is-fav) { color: #64748b; }
 
   /* Dynamic layout: driven by orientation + fluid sizing, works across phone and tablet without fixed breakpoints */
   #mainLayout { display: flex; flex-direction: column; flex: 1 1 0%; min-height: 0; }
@@ -87,6 +91,15 @@
         <div class="flex items-baseline justify-between">
           <span class="text-slate-400 text-sm font-semibold">Végösszeg</span>
           <span id="cartTotal" class="text-3xl font-black tabular-nums">0 Ft</span>
+        </div>
+
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-slate-400 text-xs font-semibold shrink-0">💰 Jatt</span>
+          <div class="flex items-center gap-1.5">
+            <input id="tipInput" type="number" inputmode="numeric" placeholder="0"
+              class="w-28 px-2.5 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-right font-bold tabular-nums focus:outline-none focus:ring-2 focus:ring-amber-500" />
+            <button id="btnTipReset" class="px-2.5 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-xs hover:bg-slate-700 shrink-0">✕</button>
+          </div>
         </div>
 
         <div class="grid grid-cols-2 gap-2">
@@ -301,6 +314,7 @@ const LS_CART = "pos_cart_v1";
 const LS_PIN = "pos_admin_pin_v1";
 const LS_HISTORY = "pos_shift_history_v1";
 const LS_FAV = "pos_favorites_v1";
+const LS_TIP = "pos_tip_v1";
 const DEFAULT_PIN = "1234";
 
 function loadJSON(key, fallback) {
@@ -327,7 +341,8 @@ const state = {
   category: "ALL",
   search: "",
   payment: null,
-  received: 0
+  received: 0,
+  tip: loadJSON(LS_TIP, 0)
 };
 if (!localStorage.getItem(LS_PRODUCTS)) saveJSON(LS_PRODUCTS, state.products);
 
@@ -337,6 +352,7 @@ function persistCart() { saveJSON(LS_CART, state.cart); }
 function persistHistory() { saveJSON(LS_HISTORY, state.shiftHistory); }
 function persistPin() { saveJSON(LS_PIN, state.pin); }
 function persistFavorites() { saveJSON(LS_FAV, state.favorites); }
+function persistTip() { saveJSON(LS_TIP, state.tip); }
 
 let adminUnlocked = false;
 let pinBuffer = "";
@@ -353,6 +369,7 @@ function getCategories() {
   return seen;
 }
 function cartTotal() { return state.cart.reduce((s, l) => s + l.price * l.qty, 0); }
+function grandTotal() { return cartTotal() + (Number(state.tip) || 0); }
 function cartCount() { return state.cart.reduce((s, l) => s + l.qty, 0); }
 
 function isToday(dateStr) {
@@ -370,10 +387,11 @@ function getDailyTransactions() {
 }
 function computeStats(txs) {
   const total = txs.reduce((s, t) => s + t.total, 0);
+  const tip = txs.reduce((s, t) => s + (t.tip || 0), 0);
   const kp = txs.filter(t => t.payment === "KP").reduce((s, t) => s + t.total, 0);
   const rv = txs.filter(t => t.payment === "REVOLUT").reduce((s, t) => s + t.total, 0);
   const itemsSold = txs.reduce((s, t) => s + t.items.reduce((a, i) => a + i.qty, 0), 0);
-  return { total, kp, rv, itemsSold, count: txs.length };
+  return { total, tip, kp, rv, itemsSold, count: txs.length };
 }
 
 /* ======================= RENDER: CATEGORY TABS ======================= */
@@ -429,12 +447,12 @@ function renderProducts() {
   }
   grid.innerHTML = list.map(p => {
     const isFav = state.favorites.includes(p.id);
+    const starColor = isFav ? "#fbbf24" : "#64748b";
+    const starStyle = `position:absolute;top:-8px;right:-8px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:16px;line-height:1;border-radius:9999px;border:2px solid #0f172a;background:#1e293b;color:${starColor};z-index:5;padding:0;cursor:pointer;`;
     return `
-    <div data-id="${p.id}" class="prodcard relative text-left rounded-xl bg-slate-900 border-2 p-3 flex flex-col justify-between min-h-[92px] active:brightness-90 cursor-pointer"
-      style="border-left-width:5px; border-color:#1e293b; border-left-color:${catColor(p.category)};">
-      <button type="button" data-fav="${p.id}" aria-label="Kedvencekhez adás"
-        class="absolute top-1 right-1 w-7 h-7 flex items-center justify-center text-lg leading-none rounded-full ${isFav ? "text-amber-400" : "text-slate-600 hover:text-amber-300"}">${isFav ? "★" : "☆"}</button>
-      <div class="pr-6">
+    <div data-id="${p.id}" class="prodcard text-left rounded-xl bg-slate-900 border-2 p-3 flex flex-col justify-between min-h-[92px] active:brightness-90 cursor-pointer" style="position:relative; overflow:visible; border-left-width:5px; border-color:#1e293b; border-left-color:${catColor(p.category)};">
+      <button type="button" data-fav="${p.id}" aria-label="Kedvencekhez adás" style="${starStyle}">${isFav ? "★" : "☆"}</button>
+      <div style="padding-right:6px;">
         <div class="text-sm font-bold leading-snug line-clamp-2">${esc(p.name)}</div>
         <div class="text-lg font-black tabular-nums mt-1" style="color:${catColor(p.category)}">${fmtFt(p.price)}</div>
       </div>
@@ -505,7 +523,7 @@ function renderPayment() {
 }
 
 function renderChangeAndCheckout() {
-  const total = cartTotal();
+  const total = grandTotal();
   const box = document.getElementById("changeBox");
   const label = document.getElementById("changeLabel");
   const value = document.getElementById("changeValue");
@@ -513,6 +531,8 @@ function renderChangeAndCheckout() {
 
   let effectiveReceived = state.payment === "REVOLUT" ? total : state.received;
   const diff = effectiveReceived - total;
+  const tip = Number(state.tip) || 0;
+  const tipNote = tip > 0 ? `<div class="text-[11px] text-amber-400 font-semibold mt-0.5">ebből jatt: ${fmtFt(tip)}</div>` : "";
 
   if (state.payment === "REVOLUT") {
     label.textContent = "Kártyás fizetés";
@@ -539,9 +559,19 @@ function renderChangeAndCheckout() {
     box.classList.add("glow-ok");
     box.style.borderColor = "#10b981";
   }
+  const existingNote = box.querySelector(".tip-note");
+  if (existingNote) existingNote.remove();
+  if (tipNote) {
+    const noteEl = document.createElement("div");
+    noteEl.className = "tip-note";
+    noteEl.innerHTML = tipNote;
+    box.appendChild(noteEl);
+  }
 
   const receivedInput = document.getElementById("receivedInput");
   if (document.activeElement !== receivedInput) receivedInput.value = state.received || "";
+  const tipInput = document.getElementById("tipInput");
+  if (document.activeElement !== tipInput) tipInput.value = state.tip || "";
 
   const checkoutBtn = document.getElementById("btnCheckout");
   const canCheckout = state.cart.length > 0 && state.payment &&
@@ -578,14 +608,18 @@ function clearCart() {
   if (!confirm("Biztosan kiüríted a kosarat?")) return;
   state.cart = [];
   state.received = 0;
+  state.tip = 0;
   persistCart();
+  persistTip();
   renderCart();
 }
 
 /* ======================= CHECKOUT ======================= */
 
 function checkout() {
-  const total = cartTotal();
+  const itemsTotal = cartTotal();
+  const tip = Number(state.tip) || 0;
+  const total = itemsTotal + tip;
   if (!state.cart.length || !state.payment) return;
   if (state.payment === "KP" && state.received < total) return;
 
@@ -593,7 +627,9 @@ function checkout() {
     id: "t" + Date.now() + Math.random().toString(36).slice(2, 6),
     time: new Date().toISOString(),
     items: state.cart.map(l => ({ name: l.name, category: l.category, price: l.price, qty: l.qty })),
-    total,
+    total: itemsTotal,
+    tip,
+    grandTotal: total,
     payment: state.payment,
     received: state.payment === "KP" ? state.received : total,
     change: state.payment === "KP" ? (state.received - total) : 0
@@ -603,7 +639,9 @@ function checkout() {
 
   state.cart = [];
   state.received = 0;
+  state.tip = 0;
   persistCart();
+  persistTip();
   renderCart();
 }
 
@@ -646,7 +684,7 @@ document.getElementById("btnClearCart").addEventListener("click", clearCart);
 document.querySelectorAll(".pay-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     state.payment = btn.dataset.pay;
-    if (state.payment === "REVOLUT") state.received = cartTotal();
+    if (state.payment === "REVOLUT") state.received = grandTotal();
     renderPayment();
     renderChangeAndCheckout();
   });
@@ -663,11 +701,23 @@ document.getElementById("receivedInput").addEventListener("input", e => {
   renderChangeAndCheckout();
 });
 document.getElementById("btnExact").addEventListener("click", () => {
-  state.received = cartTotal();
+  state.received = grandTotal();
   renderChangeAndCheckout();
 });
 document.getElementById("btnResetReceived").addEventListener("click", () => {
   state.received = 0;
+  renderChangeAndCheckout();
+});
+document.getElementById("tipInput").addEventListener("input", e => {
+  state.tip = Number(e.target.value) || 0;
+  persistTip();
+  if (state.payment === "REVOLUT") state.received = grandTotal();
+  renderChangeAndCheckout();
+});
+document.getElementById("btnTipReset").addEventListener("click", () => {
+  state.tip = 0;
+  persistTip();
+  if (state.payment === "REVOLUT") state.received = grandTotal();
   renderChangeAndCheckout();
 });
 document.getElementById("btnCheckout").addEventListener("click", checkout);
@@ -822,10 +872,11 @@ function renderAdminStats() {
 
   const statBlock = (title, s, hint) => `
     <h3 class="text-lg font-bold mb-4">${title}</h3>
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
       ${card("Teljes bevétel", fmtFt(s.total), "#f59e0b")}
       ${card("KP bevétel", fmtFt(s.kp), "#10b981")}
       ${card("REVOLUT bevétel", fmtFt(s.rv), "#6366f1")}
+      ${card("Borravaló összesen", fmtFt(s.tip), "#fbbf24")}
       ${card("Tranzakciók / eladott tételek", s.count + " db / " + s.itemsSold + " db", "#e2e8f0")}
     </div>
     <p class="text-slate-500 text-xs mt-3 mb-8">${hint}</p>`;
@@ -840,6 +891,7 @@ function renderAdminStats() {
           <th class="text-right px-3 py-2 font-semibold">Bevétel</th>
           <th class="text-right px-3 py-2 font-semibold">KP</th>
           <th class="text-right px-3 py-2 font-semibold">REVOLUT</th>
+          <th class="text-right px-3 py-2 font-semibold">Jatt</th>
           <th class="text-right px-3 py-2 font-semibold">Tételek</th>
         </tr></thead>
         <tbody>
@@ -851,6 +903,7 @@ function renderAdminStats() {
               <td class="px-3 py-2 text-right tabular-nums font-bold">${fmtFt(st.total)}</td>
               <td class="px-3 py-2 text-right tabular-nums text-emerald-400">${fmtFt(st.kp)}</td>
               <td class="px-3 py-2 text-right tabular-nums text-indigo-300">${fmtFt(st.rv)}</td>
+              <td class="px-3 py-2 text-right tabular-nums text-amber-400">${fmtFt(st.tip)}</td>
               <td class="px-3 py-2 text-right tabular-nums">${st.itemsSold} db</td>
             </tr>`;
           }).join("")}
@@ -900,11 +953,13 @@ function renderAdminLog() {
     const time = new Date(t.time).toLocaleTimeString("hu-HU", { hour: "2-digit", minute: "2-digit" });
     const itemsStr = t.items.map(i => `${i.qty}× ${esc(i.name)}`).join(", ");
     const badgeColor = t.payment === "KP" ? "#10b981" : "#6366f1";
+    const tipStr = t.tip ? `<span class="text-xs font-bold px-2 py-0.5 rounded bg-amber-500/15 text-amber-400">+${fmtFt(t.tip)} jatt</span>` : "";
     return `
       <div class="rounded-lg bg-slate-800/60 border border-slate-700 p-3">
-        <div class="flex items-center justify-between gap-2 mb-1">
+        <div class="flex items-center justify-between gap-2 mb-1 flex-wrap">
           <span class="text-xs text-slate-400 tabular-nums">${time}</span>
           <span class="text-xs font-bold px-2 py-0.5 rounded" style="background:${badgeColor}33; color:${badgeColor}">${t.payment}</span>
+          ${tipStr}
           <span class="font-black tabular-nums">${fmtFt(t.total)}</span>
         </div>
         <div class="text-sm text-slate-300">${itemsStr}</div>
@@ -1022,10 +1077,10 @@ function renderAdminProducts() {
 /* ======================= ADMIN: DATA MANAGEMENT ======================= */
 
 function exportCSV() {
-  const rows = [["Tranzakció ID", "Időpont", "Fizetési mód", "Tételek", "Kapott (Ft)", "Visszajáró (Ft)", "Végösszeg (Ft)"]];
+  const rows = [["Tranzakció ID", "Időpont", "Fizetési mód", "Tételek", "Jatt (Ft)", "Kapott (Ft)", "Visszajáró (Ft)", "Végösszeg (Ft)"]];
   state.transactions.forEach(t => {
     const itemsStr = t.items.map(i => `${i.name} x${i.qty} (${i.price} Ft/db)`).join(" | ");
-    rows.push([t.id, new Date(t.time).toLocaleString("hu-HU"), t.payment, itemsStr, t.received, t.change, t.total]);
+    rows.push([t.id, new Date(t.time).toLocaleString("hu-HU"), t.payment, itemsStr, t.tip || 0, t.received, t.change, t.total]);
   });
   const csv = rows.map(r => r.map(cell => {
     const s = String(cell).replace(/"/g, '""');
@@ -1121,9 +1176,11 @@ function renderAdminData() {
     state.transactions = [];
     state.cart = [];
     state.received = 0;
+    state.tip = 0;
     state.payment = null;
     persistTx();
     persistCart();
+    persistTip();
     renderCart();
     renderPayment();
     renderAdminAll();
