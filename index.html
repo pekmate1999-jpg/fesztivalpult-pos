@@ -157,6 +157,33 @@
   </div>
 </div>
 
+<!-- CUSTOM REVENUE MODAL -->
+<div id="customModal" class="fixed inset-0 z-[60] hidden">
+  <div id="customOverlay" class="absolute inset-0 bg-black/80"></div>
+  <div class="absolute inset-0 flex items-center justify-center p-4">
+    <div class="w-full max-w-xs bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl p-5">
+      <div class="flex items-center justify-between mb-1">
+        <h3 class="font-bold text-lg">➕ Egyéb bevétel</h3>
+        <button id="btnCloseCustom" class="text-slate-500 hover:text-slate-300 px-2">✕</button>
+      </div>
+      <p class="text-xs text-slate-500 mb-4">Rögzíts olyan tételt, ami nincs a listában.</p>
+      <div class="space-y-3">
+        <div>
+          <label class="text-xs text-slate-400 block mb-1">Megnevezés</label>
+          <input id="customName" type="text" placeholder="pl. Egyéb"
+            class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
+        </div>
+        <div>
+          <label class="text-xs text-slate-400 block mb-1">Összeg (Ft)</label>
+          <input id="customAmount" type="number" inputmode="numeric" placeholder="0"
+            class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm text-right tabular-nums focus:outline-none focus:ring-2 focus:ring-amber-500" />
+        </div>
+      </div>
+      <button id="btnAddCustom" class="w-full mt-4 py-3 rounded-xl bg-amber-500 text-slate-950 font-extrabold hover:bg-amber-400 active:scale-[0.98] transition">Hozzáadás a kosárhoz</button>
+    </div>
+  </div>
+</div>
+
 <script>
 "use strict";
 
@@ -213,10 +240,10 @@ const DEFAULT_PRODUCTS = [
   {"category": "Fröccsök", "name": "Vice", "price": 800, "recipe": "2dl bor + 3dl szóda"},
   {"category": "Fröccsök", "name": "Házmester", "price": 990, "recipe": "3dl bor + 2dl szóda"},
   {"category": "Fröccsök", "name": "Maci (málna, bodza)", "price": 100, "recipe": "Felár egy fröccshöz: +100 Ft, málna vagy bodza szirup választható"},
-  {"category": "A kedvenceink", "name": "Tequila sunrise", "price": 1490, "recipe": "4cl gold tequila + 2dl narancslé + grenadine"},
-  {"category": "A kedvenceink", "name": "Bloody mary", "price": 1490, "recipe": "4cl vodka + 2dl paradicsomlé"},
-  {"category": "A kedvenceink", "name": "Tubi szóda", "price": 1590, "recipe": "4cl Tubi + 2,5dl szóda"},
-  {"category": "A kedvenceink", "name": "Limonádé", "price": 590},
+  {"category": "Koktélok", "name": "Tequila sunrise", "price": 1490, "recipe": "4cl gold tequila + 2dl narancslé + grenadine"},
+  {"category": "Koktélok", "name": "Bloody mary", "price": 1490, "recipe": "4cl vodka + 2dl paradicsomlé"},
+  {"category": "Koktélok", "name": "Tubi szóda", "price": 1590, "recipe": "4cl Tubi + 2,5dl szóda"},
+  {"category": "Koktélok", "name": "Limonádé", "price": 590},
   {"category": "Kávék", "name": "Espresso / presszó", "price": 300},
   {"category": "Kávék", "name": "Hosszú kávé", "price": 400},
   {"category": "Kávék", "name": "Tej", "price": 100},
@@ -243,13 +270,14 @@ const DEFAULT_PRODUCTS = [
   {"category": "Jegyek & Egyéb", "name": "Bor", "price": 300}
 ].map((p, i) => ({ id: "p" + (i + 1), ...p }));
 
-const CATEGORY_ORDER = ["Csapolt sörök","Üdítők","Gyümölcslevek","Felesek","Long drinkek","Shotok","Fröccsök","A kedvenceink","Kávék","Ételek","Jegyek & Egyéb"];
+const CATEGORY_ORDER = ["Csapolt sörök","Üdítők","Ételek","Fröccsök","Felesek","Kávék","Long drinkek","Gyümölcslevek","Jegyek & Egyéb","Shotok","Koktélok"];
 const CATEGORY_COLORS = {
   "Csapolt sörök": "#f59e0b", "Üdítők": "#38bdf8", "Gyümölcslevek": "#fb923c",
   "Felesek": "#a78bfa", "Long drinkek": "#f472b6", "Shotok": "#f87171",
-  "Fröccsök": "#a3e635", "A kedvenceink": "#facc15", "Kávék": "#b45309",
+  "Fröccsök": "#a3e635", "Koktélok": "#facc15", "Kávék": "#b45309",
   "Ételek": "#2dd4bf", "Jegyek & Egyéb": "#94a3b8"
 };
+const FAV_TAB_COLOR = "#facc15";
 const QUICK_CASH = [1000, 2000, 5000, 10000, 20000];
 
 const CATEGORY_NOTES = {
@@ -272,6 +300,7 @@ const LS_TX = "pos_transactions_v1";
 const LS_CART = "pos_cart_v1";
 const LS_PIN = "pos_admin_pin_v1";
 const LS_HISTORY = "pos_shift_history_v1";
+const LS_FAV = "pos_favorites_v1";
 const DEFAULT_PIN = "1234";
 
 function loadJSON(key, fallback) {
@@ -293,6 +322,7 @@ const state = {
   transactions: loadJSON(LS_TX, []),
   cart: loadJSON(LS_CART, []),
   shiftHistory: loadJSON(LS_HISTORY, []),
+  favorites: loadJSON(LS_FAV, []),
   pin: loadJSON(LS_PIN, DEFAULT_PIN),
   category: "ALL",
   search: "",
@@ -306,6 +336,7 @@ function persistTx() { saveJSON(LS_TX, state.transactions); }
 function persistCart() { saveJSON(LS_CART, state.cart); }
 function persistHistory() { saveJSON(LS_HISTORY, state.shiftHistory); }
 function persistPin() { saveJSON(LS_PIN, state.pin); }
+function persistFavorites() { saveJSON(LS_FAV, state.favorites); }
 
 let adminUnlocked = false;
 let pinBuffer = "";
@@ -349,8 +380,10 @@ function computeStats(txs) {
 
 function renderCatTabs() {
   const cats = getCategories();
-  const all = [{ name: "ALL", label: "Összes", color: "#e2e8f0" }, ...cats.map(c => ({ name: c, label: c, color: catColor(c) }))];
-  document.getElementById("catTabs").innerHTML = all.map(c => {
+  const favTab = { name: "FAV", label: "⭐ Kedvencek", color: FAV_TAB_COLOR };
+  const allTab = { name: "ALL", label: "Összes", color: "#e2e8f0" };
+  const all = [favTab, ...cats.map(c => ({ name: c, label: c, color: catColor(c) })), allTab];
+  const tabsHtml = all.map(c => {
     const active = state.category === c.name;
     return `<button data-cat="${esc(c.name)}"
       class="catbtn shrink-0 px-4 py-2.5 rounded-xl text-sm font-bold border-2 whitespace-nowrap"
@@ -360,6 +393,12 @@ function renderCatTabs() {
       ${esc(c.label)}
     </button>`;
   }).join("");
+  const customBtn = `<button id="btnCustomRevenue" type="button"
+      class="catbtn shrink-0 px-4 py-2.5 rounded-xl text-sm font-bold border-2 border-dashed whitespace-nowrap"
+      style="background-color:#0f172a; border-color:#f59e0b99; color:#fbbf24;">
+      ➕ Egyéb bevétel
+    </button>`;
+  document.getElementById("catTabs").innerHTML = tabsHtml + customBtn;
 }
 
 /* ======================= RENDER: PRODUCT GRID ======================= */
@@ -367,7 +406,8 @@ function renderCatTabs() {
 function renderProducts() {
   const q = state.search.trim().toLowerCase();
   let list = state.products;
-  if (state.category !== "ALL") list = list.filter(p => p.category === state.category);
+  if (state.category === "FAV") list = list.filter(p => state.favorites.includes(p.id));
+  else if (state.category !== "ALL") list = list.filter(p => p.category === state.category);
   if (q) list = list.filter(p => p.name.toLowerCase().includes(q));
 
   const noteEl = document.getElementById("categoryNote");
@@ -377,20 +417,39 @@ function renderProducts() {
 
   const grid = document.getElementById("productGrid");
   if (!list.length) {
-    grid.innerHTML = `<div class="col-span-full flex flex-col items-center justify-center py-16 text-slate-500">
-      <div class="text-4xl mb-2">🔍</div><div class="font-semibold">Nincs találat</div></div>`;
+    const empty = state.category === "FAV"
+      ? { icon: "⭐", text: "Még nincs kedvenc tétel", hint: "Csillagozz meg egy terméket a hozzáadáshoz" }
+      : { icon: "🔍", text: "Nincs találat", hint: "" };
+    grid.innerHTML = `<div class="col-span-full flex flex-col items-center justify-center py-16 text-slate-500 text-center px-4">
+      <div class="text-4xl mb-2">${empty.icon}</div>
+      <div class="font-semibold">${empty.text}</div>
+      ${empty.hint ? `<div class="text-xs mt-1">${empty.hint}</div>` : ""}
+    </div>`;
     return;
   }
-  grid.innerHTML = list.map(p => `
-    <button data-id="${p.id}" class="prodcard text-left rounded-xl bg-slate-900 border-2 p-3 flex flex-col justify-between min-h-[92px] active:brightness-90"
+  grid.innerHTML = list.map(p => {
+    const isFav = state.favorites.includes(p.id);
+    return `
+    <div data-id="${p.id}" class="prodcard relative text-left rounded-xl bg-slate-900 border-2 p-3 flex flex-col justify-between min-h-[92px] active:brightness-90 cursor-pointer"
       style="border-left-width:5px; border-color:#1e293b; border-left-color:${catColor(p.category)};">
-      <div>
+      <button type="button" data-fav="${p.id}" aria-label="Kedvencekhez adás"
+        class="absolute top-1 right-1 w-7 h-7 flex items-center justify-center text-lg leading-none rounded-full ${isFav ? "text-amber-400" : "text-slate-600 hover:text-amber-300"}">${isFav ? "★" : "☆"}</button>
+      <div class="pr-6">
         <div class="text-sm font-bold leading-snug line-clamp-2">${esc(p.name)}</div>
         <div class="text-lg font-black tabular-nums mt-1" style="color:${catColor(p.category)}">${fmtFt(p.price)}</div>
       </div>
       ${p.recipe ? `<div class="text-[10.5px] leading-snug text-slate-500 border-t border-slate-800 mt-2 pt-1.5 line-clamp-3">🧪 ${esc(p.recipe)}</div>` : ""}
-    </button>
-  `).join("");
+    </div>
+  `;
+  }).join("");
+}
+
+function toggleFavorite(productId) {
+  const idx = state.favorites.indexOf(productId);
+  if (idx >= 0) state.favorites.splice(idx, 1);
+  else state.favorites.push(productId);
+  persistFavorites();
+  renderProducts();
 }
 
 /* ======================= RENDER: CART ======================= */
@@ -551,6 +610,8 @@ function checkout() {
 /* ======================= EVENT WIRING: MAIN UI ======================= */
 
 document.getElementById("catTabs").addEventListener("click", e => {
+  const customBtn = e.target.closest("#btnCustomRevenue");
+  if (customBtn) { openCustomRevenueModal(); return; }
   const btn = e.target.closest("[data-cat]");
   if (!btn) return;
   state.category = btn.dataset.cat;
@@ -564,9 +625,11 @@ document.getElementById("searchInput").addEventListener("input", e => {
 });
 
 document.getElementById("productGrid").addEventListener("click", e => {
-  const btn = e.target.closest("[data-id]");
-  if (!btn) return;
-  addToCart(btn.dataset.id);
+  const favBtn = e.target.closest("[data-fav]");
+  if (favBtn) { toggleFavorite(favBtn.dataset.fav); return; }
+  const card = e.target.closest("[data-id]");
+  if (!card) return;
+  addToCart(card.dataset.id);
 });
 
 document.getElementById("cartItems").addEventListener("click", e => {
@@ -618,6 +681,40 @@ function tickClock() {
 tickClock();
 setInterval(tickClock, 1000 * 15);
 
+/* ======================= CUSTOM REVENUE (nem listázott tétel) ======================= */
+
+const customModal = document.getElementById("customModal");
+function openCustomRevenueModal() {
+  document.getElementById("customName").value = "";
+  document.getElementById("customAmount").value = "";
+  customModal.classList.remove("hidden");
+  setTimeout(() => document.getElementById("customName").focus(), 50);
+}
+function closeCustomRevenueModal() {
+  customModal.classList.add("hidden");
+}
+document.getElementById("btnCloseCustom").addEventListener("click", closeCustomRevenueModal);
+document.getElementById("customOverlay").addEventListener("click", closeCustomRevenueModal);
+document.getElementById("btnAddCustom").addEventListener("click", () => {
+  const name = document.getElementById("customName").value.trim() || "Egyéb";
+  const amount = Number(document.getElementById("customAmount").value);
+  if (!(amount > 0)) { alert("Adj meg egy érvényes, nullánál nagyobb összeget."); return; }
+  state.cart.push({
+    id: "l" + Date.now() + Math.random().toString(36).slice(2, 6),
+    productId: "custom",
+    name,
+    price: amount,
+    category: "Egyéb bevétel",
+    qty: 1
+  });
+  persistCart();
+  renderCart();
+  closeCustomRevenueModal();
+});
+document.getElementById("customAmount").addEventListener("keydown", e => {
+  if (e.key === "Enter") document.getElementById("btnAddCustom").click();
+});
+
 /* ======================= ADMIN: OPEN / CLOSE / TABS ======================= */
 
 const adminModal = document.getElementById("adminModal");
@@ -633,7 +730,7 @@ document.getElementById("btnAdmin").addEventListener("click", () => {
 });
 document.getElementById("btnCloseAdmin").addEventListener("click", closeAdmin);
 document.getElementById("adminOverlay").addEventListener("click", closeAdmin);
-document.addEventListener("keydown", e => { if (e.key === "Escape") { closeAdmin(); closePinModal(); } });
+document.addEventListener("keydown", e => { if (e.key === "Escape") { closeAdmin(); closePinModal(); closeCustomRevenueModal(); } });
 
 /* ======================= ADMIN: PIN LOCK ======================= */
 
