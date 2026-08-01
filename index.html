@@ -34,12 +34,12 @@
   /* Dynamic layout: driven by orientation + fluid sizing, works across phone and tablet without fixed breakpoints */
   #mainLayout { display: flex; flex-direction: column; flex: 1 1 0%; min-height: 0; }
   #productSection { border-bottom: 1px solid #1e293b; }
-  #cartAside { width: 100%; max-height: 42vh; }
+  #cartAside { width: 100%; max-height: 42vh; overflow-y: auto; }
   #productGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
   @media (orientation: landscape) {
     #mainLayout { flex-direction: row; }
     #productSection { border-bottom: none; border-right: 1px solid #1e293b; }
-    #cartAside { width: clamp(260px, 30vw, 460px); max-height: none; }
+    #cartAside { width: clamp(260px, 30vw, 460px); max-height: none; overflow-y: auto; }
     #productGrid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
   }
 </style>
@@ -81,7 +81,7 @@
         <button id="btnClearCart" class="text-xs text-slate-500 hover:text-rose-400 font-semibold">Kosár ürítése</button>
       </div>
 
-      <div id="cartItems" class="flex-1 overflow-y-auto px-3 py-2 space-y-2 min-h-[80px]"></div>
+      <div id="cartItems" class="px-3 py-2 space-y-2 min-h-[60px]"></div>
 
       <div class="shrink-0 border-t border-slate-800 p-3.5 space-y-3">
         <div class="flex items-baseline justify-between">
