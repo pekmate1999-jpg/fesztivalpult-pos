@@ -525,7 +525,7 @@ function getAccountTotalConsumption(accountId) {
 /* ======================= SZINKRONIZÁCIÓ (Google Sheets) ======================= */
 
 // A webhook URL-t a felhasználónak kell beállítania – itt egy placeholder
-const SYNC_WEBHOOK_URL = "https://script.google.com/macros/s/your-script-id/exec"; // cseréld ki!
+const SYNC_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbw0uoOoJwc6w4JnUWGd-z3lRpKbr9fDBpAwUn0LUS-7uLjatloQP-G-eTBccpxBE2yi/exec"; // cseréld ki!
 
 function addToSyncQueue(eventType, data) {
   const entry = {
@@ -554,7 +554,7 @@ async function processSyncQueue() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          secret: "your-secret-key", // opcionális, de ajánlott
+          secret: "paradicsom", // opcionális, de ajánlott
           entry: entry
         })
       });
