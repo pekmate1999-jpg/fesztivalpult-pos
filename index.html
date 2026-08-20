@@ -531,24 +531,12 @@ const DEFAULT_ACCOUNTS = [
   { id: "acc_seed_p008", type: "person", name: "Ágoston Rebeka", tier: "XL", unlimited: false, balance: 0, note: "" },
   { id: "acc_seed_p009", type: "person", name: "Bojti Tádé", tier: "XL", unlimited: false, balance: 0, note: "" },
   { id: "acc_seed_p010", type: "person", name: "Dombi Ágoston", tier: "XL", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p011", type: "person", name: "Dombi Eszti", tier: "XL", unlimited: false, balance: 0, note: "" },
   { id: "acc_seed_p012", type: "person", name: "Dravecz Enikő", tier: "XL", unlimited: false, balance: 0, note: "" },
   { id: "acc_seed_p013", type: "person", name: "Pfeiffer Dániel", tier: "XL", unlimited: false, balance: 0, note: "" },
   { id: "acc_seed_p014", type: "person", name: "Sóbujtó Ármin", tier: "XL", unlimited: false, balance: 0, note: "" },
   { id: "acc_seed_p015", type: "person", name: "Sóbujtó Regő", tier: "XL", unlimited: false, balance: 0, note: "" },
   { id: "acc_seed_p016", type: "person", name: "Pék Máté", tier: "XL", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p017", type: "person", name: "Német Csanád", tier: "XL", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p018", type: "person", name: "Németh Barna András", tier: "XL", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p019", type: "person", name: "Bedő Bella", tier: "XL", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p020", type: "person", name: "Berty Csongor", tier: "XL", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p021", type: "person", name: "Csabai Bálint", tier: "XL", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p022", type: "person", name: "Hegedűs Réka", tier: "XL", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p023", type: "person", name: "Hegedűs Sári", tier: "XL", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p024", type: "person", name: "Hevesi Eszter", tier: "XL", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p025", type: "person", name: "Mészáros Levente", tier: "XL", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p026", type: "person", name: "Szlávik Veronika", tier: "XL", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p027", type: "person", name: "Varga Dorottya", tier: "XL", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p028", type: "person", name: "Varga Szemes Lázár", tier: "XL", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p024", type: "person", name: "Hevesi Eszter", tier: "L", unlimited: false, balance: 3000, note: "" },
   { id: "acc_seed_p029", type: "person", name: "Garamszegi Balázs", tier: "L", unlimited: false, balance: 3000, note: "" },
   { id: "acc_seed_p030", type: "person", name: "Pozsonyi Zsombor", tier: "L", unlimited: false, balance: 3000, note: "" },
   { id: "acc_seed_p031", type: "person", name: "Pozsonyi Nóra", tier: "M", unlimited: false, balance: 0, note: "" },
@@ -564,7 +552,6 @@ const DEFAULT_ACCOUNTS = [
   { id: "acc_seed_p055", type: "person", name: "Martincsák Anna", tier: null, unlimited: false, balance: 0, note: "fél áron bérlet" },
   { id: "acc_seed_p056", type: "person", name: "Ágoston Béla", tier: "M", unlimited: false, balance: 0, note: "" },
   { id: "acc_seed_p057", type: "person", name: "Dombi Anna", tier: null, unlimited: false, balance: 3000, note: "2 ingyen kaja és 3000 Ft pia" },
-  { id: "acc_seed_p058", type: "person", name: "Horváth Ábel", tier: "XL", unlimited: false, balance: 0, note: "" },
   { id: "acc_seed_b059", type: "band", name: "Sezlony", tier: "L", unlimited: false, balance: 18000, note: "6 fő × 3000 Ft" },
   { id: "acc_seed_b060", type: "band", name: "The Fless", tier: "L", unlimited: false, balance: 3000, note: "Dávid · 1 fő × 3000 Ft" },
   { id: "acc_seed_b061", type: "band", name: "Koszmosz936", tier: "L", unlimited: false, balance: 3000, note: "1 fő × 3000 Ft (létszám tisztázandó)" },
@@ -632,7 +619,7 @@ const INGREDIENTS_VERSION = 3;
 /* Fiók-seed verzió. Növeld, ha a DEFAULT_ACCOUNTS listát bővíted és be akarod tölteni.
    A seed CSAK akkor tölt be teljesen, ha még egyáltalán nincs mentett fiók.
    Verzió-emeléskor a seed-fiókok (acc_seed_ ID) kerete frissül, ha még érintetlen. */
-const SEED_ACCOUNTS_VERSION = 5;
+const SEED_ACCOUNTS_VERSION = 6;
 const LS_SEED_ACC_VER = "pos_seed_accounts_version";
 
 function loadJSON(key, fallback) {
