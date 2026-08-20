@@ -297,43 +297,68 @@
 /* A hivatalos itallap alapján. Az árváltozás verziózott migrációval a már
    mentett katalógusra is átjön (lásd CATALOG_VERSION lentebb). */
 const DEFAULT_PRODUCTS = [
-  {"category": "Csapolt sörök", "name": "Dreher", "price": 690},
-  {"category": "Csapolt sörök", "name": "Dreher meggy", "price": 890},
-  {"category": "Borok", "name": "Hilltop irsai", "price": 300},
-  {"category": "Borok", "name": "Rozé", "price": 300},
-  {"category": "Üdítők", "name": "Cola", "price": 120},
-  {"category": "Üdítők", "name": "Cola zero", "price": 120},
-  {"category": "Üdítők", "name": "Tonic", "price": 120},
-  {"category": "Üdítők", "name": "Gyömbér", "price": 120},
+  {"category": "Csapolt sör", "name": "Dreher világos 0,5 l", "price": 790},
+  {"category": "Csapolt sör", "name": "Dreher meggy 0,5 l", "price": 890},
+  {"category": "Üdítők", "name": "Coca cola", "price": 120},
+  {"category": "Üdítők", "name": "Coca cola zero", "price": 120},
+  {"category": "Üdítők", "name": "Kinley tonic", "price": 120},
+  {"category": "Üdítők", "name": "Kinley gyömbér", "price": 120},
+  {"category": "Üdítők", "name": "Ananászlé", "price": 200},
+  {"category": "Üdítők", "name": "Őszibaracklé", "price": 200},
+  {"category": "Üdítők", "name": "Paradicsomlé", "price": 200},
+  {"category": "Üdítők", "name": "Áfonyalé", "price": 200},
   {"category": "Üdítők", "name": "Almalé", "price": 200},
   {"category": "Üdítők", "name": "Narancslé", "price": 200},
-  {"category": "Rövidek", "name": "Vodka", "price": 790, "recipe": "Romanoff"},
-  {"category": "Rövidek", "name": "Gin", "price": 990},
-  {"category": "Rövidek", "name": "Rum", "price": 990, "recipe": "Bacardi fehér / Bacardi spiced"},
-  {"category": "Rövidek", "name": "Tequila", "price": 990, "recipe": "Buen amigo / El jimador"},
-  {"category": "Rövidek", "name": "Jäger", "price": 990},
-  {"category": "Rövidek", "name": "Becherovka", "price": 890},
-  {"category": "Rövidek", "name": "Kevert", "price": 590, "recipe": "Bakter"},
-  {"category": "Rövidek", "name": "Malibu", "price": 890},
-  {"category": "Rövidek", "name": "Shanky's whip", "price": 1490},
-  {"category": "Rövidek", "name": "Whiskey", "price": 990, "recipe": "Hankey Bannister / Grant's"},
-  {"category": "Koktélok", "name": "Gin tonic", "price": 1490},
-  {"category": "Koktélok", "name": "Gin fizz", "price": 1290},
-  {"category": "Koktélok", "name": "Vodka szóda", "price": 1290},
-  {"category": "Koktélok", "name": "Vodka narancs", "price": 1490},
-  {"category": "Koktélok", "name": "Cuba libre", "price": 1490},
-  {"category": "Koktélok", "name": "Long island", "price": 1790},
-  {"category": "Koktélok", "name": "Malibu alma", "price": 1490},
-  {"category": "Koktélok", "name": "Becherovka tonic", "price": 1390},
-  {"category": "Koktélok", "name": "Moscow mule", "price": 1490},
-  {"category": "Koktélok", "name": "Whiskey cola", "price": 1490},
-  {"category": "Fröccsök", "name": "Kisfröccs", "price": 400, "recipe": "1dl bor + 1dl szóda"},
-  {"category": "Fröccsök", "name": "Nagyfröccs", "price": 700, "recipe": "2dl bor + 1dl szóda"},
-  {"category": "Fröccsök", "name": "Hosszúlépés", "price": 450, "recipe": "1dl bor + 2dl szóda"},
-  {"category": "Fröccsök", "name": "Sportfröccs", "price": 500, "recipe": "1dl bor + 4dl szóda"},
-  {"category": "Fröccsök", "name": "Vice házmester", "price": 800, "recipe": "2dl bor + 3dl szóda"},
-  {"category": "Fröccsök", "name": "Házmester", "price": 990, "recipe": "3dl bor + 2dl szóda"},
-  {"category": "Fröccsök", "name": "Maci", "price": 100, "recipe": "Szörp felár egy fröccshöz: málna, bodza, mangó vagy feketeribizli"}
+  {"category": "Energiaital", "name": "Hell 0,25 l", "price": 490},
+  {"category": "Rövidek", "name": "Romanoff vodka", "price": 890},
+  {"category": "Rövidek", "name": "Zubrowka", "price": 890},
+  {"category": "Rövidek", "name": "Beefeater gin pink", "price": 1290},
+  {"category": "Rövidek", "name": "Marine dry gin", "price": 990},
+  {"category": "Rövidek", "name": "Havana Club barna rum", "price": 990},
+  {"category": "Rövidek", "name": "Havana Club fehér rum", "price": 990},
+  {"category": "Rövidek", "name": "Kraken rum", "price": 1290},
+  {"category": "Rövidek", "name": "El Jimador tequila silver", "price": 990},
+  {"category": "Rövidek", "name": "Jägermeister", "price": 990},
+  {"category": "Rövidek", "name": "Becherovka", "price": 990},
+  {"category": "Rövidek", "name": "Bakter kevert", "price": 690},
+  {"category": "Rövidek", "name": "Malibu", "price": 990},
+  {"category": "Rövidek", "name": "Shanky's whip", "price": 1590},
+  {"category": "Rövidek", "name": "Jack Daniel's", "price": 990},
+  {"category": "Rövidek", "name": "Fireball", "price": 990},
+  {"category": "Rövidek", "name": "Bailey's", "price": 990, "recipe": "Shotba nem megy"},
+  {"category": "Rövidek", "name": "Kahlua", "price": 990, "recipe": "Shotba nem megy, Tádé főzhet"},
+  {"category": "Rövidek", "name": "Tubi 60", "price": 1390},
+  {"category": "Rövidek", "name": "Opyyum mákpálinka", "price": 1390},
+  {"category": "Rövidek", "name": "Tátratea 62% erdeigyümölcs", "price": 1390},
+  {"category": "Rövidek", "name": "Unicum", "price": 990},
+  {"category": "Rövidek", "name": "Berentzen sour apple", "price": 890},
+  {"category": "Rövidek", "name": "Limoncello", "price": 890},
+  {"category": "Longdrink", "name": "Arbaro szóda+szirup", "price": 1290, "recipe": "Shanky/Tátratea/Tubi NEM"},
+  {"category": "Longdrink", "name": "Arbaro üccsi", "price": 1390, "recipe": "Shanky/Tátratea/Tubi/szirup NEM"},
+  {"category": "Longdrink", "name": "Arbaro lé", "price": 1490, "recipe": "Shanky/Tátratea/Tubi/szirup NEM"},
+  {"category": "Longdrink", "name": "Arbaro bomba", "price": 1490, "recipe": "Shanky/Tátratea/Tubi/szirup NEM"},
+  {"category": "Longdrink", "name": "Arbaro spritz", "price": 1690, "recipe": "Shanky/Tátratea/Tubi/szirup NEM"},
+  {"category": "Longdrink", "name": "Arbaro spritz+ szirup", "price": 1690, "recipe": "Shanky/Tátratea/Tubi NEM"},
+  {"category": "Hugo", "name": "Hugo üveggel 0,75 l", "price": 2990},
+  {"category": "Shot", "name": "Baby guiness", "price": 990},
+  {"category": "Shot", "name": "Bloody brain", "price": 990},
+  {"category": "Shot", "name": "Jäger/Vodka bomba (10 db)", "price": 6900, "recipe": "10 shotos csomag"},
+  {"category": "Shot", "name": "Arbaro shot", "price": 990},
+  {"category": "Koktél", "name": "Tequila sunrise", "price": 1590, "recipe": "Arbaro lé + szirup"},
+  {"category": "Koktél", "name": "Aperol spritz", "price": 1490},
+  {"category": "Koktél", "name": "Mojito", "price": 1390},
+  {"category": "Koktél", "name": "Pina colada", "price": 1590, "recipe": "kókuszszirup"},
+  {"category": "Koktél", "name": "Tubi szóda", "price": 1690},
+  {"category": "Koktél", "name": "Berentzen-vodka-alma", "price": 1390},
+  {"category": "Koktél", "name": "Shanky's narancs", "price": 1690},
+  {"category": "Koktél", "name": "Kívánság", "price": 1690},
+  {"category": "Fröccsök", "name": "Kisfröccs 0,2 l", "price": 490},
+  {"category": "Fröccsök", "name": "Nagyfröccs 0,3 l", "price": 690},
+  {"category": "Fröccsök", "name": "Házmester 0,5 l", "price": 990},
+  {"category": "Fröccsök", "name": "Vice házmester 0,5 l", "price": 790},
+  {"category": "Fröccsök", "name": "Hosszúlépés 0,3 l", "price": 490},
+  {"category": "Fröccsök", "name": "Sportfröccs 0,5 l", "price": 690},
+  {"category": "Szörp", "name": "Piroska maci 0,04 l", "price": 100, "recipe": "málna/bodza/mangó/feketeribizli"}
 ].map((p, i) => ({ id: "p" + (i + 1), ...p }));
 
 /* ======================= ALAPANYAGOK + RECEPTEK ======================= */
@@ -342,85 +367,120 @@ const DEFAULT_PRODUCTS = [
    optional: true → jég/szóda, külön csoport, a kimutatásban elrejthető.
    A koktél/long drink receptek BECSLÉSEK — a segédlet érkezésekor felülírjuk. */
 const DEFAULT_INGREDIENTS = [
-  // Szeszek (üveg 700 ml, kivéve jelezve)
-  { id: "ing_vodka",     name: "Vodka (Romanoff)",        category: "Szeszek",  purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml" },
-  { id: "ing_gin",       name: "Gin",                     category: "Szeszek",  purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml" },
-  { id: "ing_rum",       name: "Rum (Bacardi)",           category: "Szeszek",  purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml" },
-  { id: "ing_tequila",   name: "Tequila",                 category: "Szeszek",  purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml" },
-  { id: "ing_jager",     name: "Jägermeister",            category: "Szeszek",  purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml" },
-  { id: "ing_becher",    name: "Becherovka",              category: "Szeszek",  purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml" },
-  { id: "ing_kevert",    name: "Kevert (Bakter)",         category: "Szeszek",  purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml" },
-  { id: "ing_malibu",    name: "Malibu",                  category: "Szeszek",  purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml" },
-  { id: "ing_shanky",    name: "Shanky's whip",           category: "Szeszek",  purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml" },
-  { id: "ing_whiskey",   name: "Whiskey",                 category: "Szeszek",  purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml" },
-  // Borok (üveg 750 ml)
-  { id: "ing_bor_feher", name: "Fehérbor (Hilltop irsai)",category: "Borok",    purchaseUnit: "üveg", contentAmount: 750, contentUnit: "ml" },
-  { id: "ing_bor_roze",  name: "Rozé",                    category: "Borok",    purchaseUnit: "üveg", contentAmount: 750, contentUnit: "ml" },
-  // Sör (hordó 30 l = 30000 ml)
-  { id: "ing_sor",       name: "Dreher (csapolt)",        category: "Sörök",    purchaseUnit: "hordó", contentAmount: 30000, contentUnit: "ml" },
-  { id: "ing_sor_meggy", name: "Dreher meggy (csapolt)",  category: "Sörök",    purchaseUnit: "hordó", contentAmount: 30000, contentUnit: "ml" },
-  // Üdítők (dobozos, db-ban)
-  { id: "ing_cola",      name: "Cola",                    category: "Üdítők",   purchaseUnit: "karton", contentAmount: 24, contentUnit: "db" },
-  { id: "ing_cola_zero", name: "Cola zero",               category: "Üdítők",   purchaseUnit: "karton", contentAmount: 24, contentUnit: "db" },
-  { id: "ing_tonic",     name: "Tonic",                   category: "Üdítők",   purchaseUnit: "karton", contentAmount: 24, contentUnit: "db" },
-  { id: "ing_gyomber",   name: "Gyömbér (ginger ale)",    category: "Üdítők",   purchaseUnit: "karton", contentAmount: 24, contentUnit: "db" },
-  { id: "ing_almale",    name: "Almalé",                  category: "Üdítők",   purchaseUnit: "liter", contentAmount: 1000, contentUnit: "ml" },
-  { id: "ing_narancsle", name: "Narancslé",               category: "Üdítők",   purchaseUnit: "liter", contentAmount: 1000, contentUnit: "ml" },
-  { id: "ing_energia",   name: "Energiaital",             category: "Üdítők",   purchaseUnit: "karton", contentAmount: 24, contentUnit: "db" },
-  // Szörpök (koncentrátum, ml-ben; maci ~2 cl / adag)
-  { id: "ing_szorp",     name: "Szörp (maci: málna/bodza/mangó/ribizli)", category: "Szörpök", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml" },
-  // Opcionális (jég, szóda) — külön csoport
-  { id: "ing_szoda",     name: "Szóda",                   category: "Egyéb",    purchaseUnit: "liter", contentAmount: 1000, contentUnit: "ml", optional: true },
-  { id: "ing_jeg",       name: "Jég",                     category: "Egyéb",    purchaseUnit: "kg",   contentAmount: 1000, contentUnit: "g",  optional: true },
-  { id: "ing_lime",      name: "Lime / citrom",           category: "Egyéb",    purchaseUnit: "kg",   contentAmount: 1000, contentUnit: "g",  optional: true }
-].map(x => Object.assign({ optional: false, stock: null, note: "" }, x));
+  { id: "ing_sor", name: "Dreher világos (csapolt)", category: "Sörök", purchaseUnit: "hordó", contentAmount: 30000, contentUnit: "ml", costPerServing: 521, costServingAmount: 500 },
+  { id: "ing_sor_meggy", name: "Dreher meggy (csapolt)", category: "Sörök", purchaseUnit: "hordó", contentAmount: 30000, contentUnit: "ml", costPerServing: 656, costServingAmount: 500 },
+  { id: "ing_cola", name: "Coca cola", category: "Üdítők", purchaseUnit: "karton", contentAmount: 24, contentUnit: "db", costPerServing: 33, costServingAmount: 1 },
+  { id: "ing_cola_zero", name: "Coca cola zero", category: "Üdítők", purchaseUnit: "karton", contentAmount: 24, contentUnit: "db", costPerServing: 33, costServingAmount: 1 },
+  { id: "ing_tonic", name: "Kinley tonic", category: "Üdítők", purchaseUnit: "karton", contentAmount: 24, contentUnit: "db", costPerServing: 38, costServingAmount: 1 },
+  { id: "ing_gyomber", name: "Kinley gyömbér", category: "Üdítők", purchaseUnit: "karton", contentAmount: 24, contentUnit: "db", costPerServing: 38, costServingAmount: 1 },
+  { id: "ing_energia", name: "Hell energiaital", category: "Üdítők", purchaseUnit: "karton", contentAmount: 24, contentUnit: "db", costPerServing: 285, costServingAmount: 1 },
+  { id: "ing_ananasz", name: "Ananászlé", category: "Üdítők", purchaseUnit: "liter", contentAmount: 1000, contentUnit: "ml", costPerServing: 108, costServingAmount: 100 },
+  { id: "ing_oszibarack", name: "Őszibaracklé", category: "Üdítők", purchaseUnit: "liter", contentAmount: 1000, contentUnit: "ml", costPerServing: 72, costServingAmount: 100 },
+  { id: "ing_paradicsom", name: "Paradicsomlé", category: "Üdítők", purchaseUnit: "liter", contentAmount: 1000, contentUnit: "ml", costPerServing: 72, costServingAmount: 100 },
+  { id: "ing_afonya", name: "Áfonyalé", category: "Üdítők", purchaseUnit: "liter", contentAmount: 1000, contentUnit: "ml", costPerServing: 92, costServingAmount: 100 },
+  { id: "ing_almale", name: "Almalé", category: "Üdítők", purchaseUnit: "liter", contentAmount: 1000, contentUnit: "ml", costPerServing: 72, costServingAmount: 100 },
+  { id: "ing_narancsle", name: "Narancslé", category: "Üdítők", purchaseUnit: "liter", contentAmount: 1000, contentUnit: "ml", costPerServing: 108, costServingAmount: 100 },
+  { id: "ing_vodka", name: "Romanoff vodka", category: "Szeszek", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml", costPerServing: 252, costServingAmount: 40 },
+  { id: "ing_zubrowka", name: "Zubrowka", category: "Szeszek", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml", costPerServing: 236, costServingAmount: 40 },
+  { id: "ing_gin_pink", name: "Beefeater gin pink", category: "Szeszek", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml", costPerServing: 425.44, costServingAmount: 40 },
+  { id: "ing_gin", name: "Marine dry gin", category: "Szeszek", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml", costPerServing: 311.92, costServingAmount: 40 },
+  { id: "ing_rum_barna", name: "Havana Club barna rum", category: "Szeszek", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml", costPerServing: 374, costServingAmount: 40 },
+  { id: "ing_rum_feher", name: "Havana Club fehér rum", category: "Szeszek", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml", costPerServing: 374, costServingAmount: 40 },
+  { id: "ing_kraken", name: "Kraken rum", category: "Szeszek", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml", costPerServing: 522.76, costServingAmount: 40 },
+  { id: "ing_tequila", name: "El Jimador tequila silver", category: "Szeszek", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml", costPerServing: 396, costServingAmount: 40 },
+  { id: "ing_jager", name: "Jägermeister", category: "Szeszek", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml", costPerServing: 404, costServingAmount: 40 },
+  { id: "ing_becher", name: "Becherovka", category: "Szeszek", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml", costPerServing: 300, costServingAmount: 40 },
+  { id: "ing_kevert", name: "Bakter kevert", category: "Szeszek", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml", costPerServing: 121, costServingAmount: 40 },
+  { id: "ing_malibu", name: "Malibu", category: "Szeszek", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml", costPerServing: 320.6, costServingAmount: 40 },
+  { id: "ing_shanky", name: "Shanky's whip", category: "Szeszek", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml", costPerServing: 635.16, costServingAmount: 40 },
+  { id: "ing_jack", name: "Jack Daniel's", category: "Szeszek", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml", costPerServing: 437.4, costServingAmount: 40 },
+  { id: "ing_fireball", name: "Fireball", category: "Szeszek", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml", costPerServing: 314, costServingAmount: 40 },
+  { id: "ing_baileys", name: "Bailey's", category: "Szeszek", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml", costPerServing: 380, costServingAmount: 40 },
+  { id: "ing_kahlua", name: "Kahlua", category: "Szeszek", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml", costPerServing: 396, costServingAmount: 40 },
+  { id: "ing_tubi", name: "Tubi 60", category: "Szeszek", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml", costPerServing: 772, costServingAmount: 40 },
+  { id: "ing_opyyum", name: "Opyyum mákpálinka", category: "Szeszek", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml", costPerServing: 603, costServingAmount: 40 },
+  { id: "ing_tatratea", name: "Tátratea 62%", category: "Szeszek", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml", costPerServing: 668, costServingAmount: 40 },
+  { id: "ing_unicum", name: "Unicum", category: "Szeszek", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml", costPerServing: 376, costServingAmount: 40 },
+  { id: "ing_berentzen", name: "Berentzen sour apple", category: "Szeszek", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml", costPerServing: 258, costServingAmount: 40 },
+  { id: "ing_limoncello", name: "Limoncello", category: "Szeszek", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml", costPerServing: 266, costServingAmount: 40 },
+  { id: "ing_aperol", name: "Aperol", category: "Szeszek", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml", costPerServing: 290, costServingAmount: 40 },
+  { id: "ing_triplesec", name: "Triple sec", category: "Szeszek", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml", costPerServing: 282.32, costServingAmount: 40 },
+  { id: "ing_arbaro", name: "Arbaro alapszesz (vegyes)", category: "Szeszek", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml", costPerServing: 350, costServingAmount: 40 },
+  { id: "ing_bor_feher", name: "Fehérbor (fröccsalap)", category: "Borok", purchaseUnit: "üveg", contentAmount: 750, contentUnit: "ml", costPerServing: 126, costServingAmount: 100 },
+  { id: "ing_pezsgo", name: "Pezsgő / prosecco (spritz/Hugo)", category: "Borok", purchaseUnit: "üveg", contentAmount: 750, contentUnit: "ml", costPerServing: 180, costServingAmount: 100 },
+  { id: "ing_szorp", name: "Piroska szörp (maci)", category: "Szörpök", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml", costPerServing: null, costServingAmount: 40 },
+  { id: "ing_kokusz", name: "Kókuszszirup", category: "Szörpök", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml", costPerServing: 120.3, costServingAmount: 20 },
+  { id: "ing_menta", name: "Menta / lime (mojito)", category: "Egyéb", purchaseUnit: "kg", contentAmount: 1000, contentUnit: "g", optional: true, costPerServing: null, costServingAmount: 20 },
+  { id: "ing_szoda", name: "Szóda", category: "Egyéb", purchaseUnit: "liter", contentAmount: 1000, contentUnit: "ml", optional: true, costPerServing: null, costServingAmount: 100 },
+  { id: "ing_jeg", name: "Jég", category: "Egyéb", purchaseUnit: "kg", contentAmount: 1000, contentUnit: "g", optional: true, costPerServing: null, costServingAmount: 100 },
+  { id: "ing_lime", name: "Lime / citrom", category: "Egyéb", purchaseUnit: "kg", contentAmount: 1000, contentUnit: "g", optional: true, costPerServing: null, costServingAmount: 20 }
+].map(x => Object.assign({ optional: false, stock: null, note: "", costPerServing: null, costServingAmount: null }, x));
 
 /* Receptek: termék neve → [{ ingredientId, amount, unit }].
    A "jó" receptek (felesek, sör, bor, fröccs) pontosak; a koktél/long BECSLÉS. */
 const DEFAULT_RECIPES = {
-  // --- Csapolt sörök (5 dl) ---
-  "Dreher":            [{ ingredientId: "ing_sor",       amount: 500, unit: "ml" }],
-  "Dreher meggy":      [{ ingredientId: "ing_sor_meggy", amount: 500, unit: "ml" }],
-  // --- Borok (1,5 dl pohár) ---
-  "Hilltop irsai":     [{ ingredientId: "ing_bor_feher", amount: 150, unit: "ml" }],
-  "Rozé":              [{ ingredientId: "ing_bor_roze",  amount: 150, unit: "ml" }],
-  // --- Üdítők (1 doboz) ---
-  "Cola":              [{ ingredientId: "ing_cola",      amount: 1, unit: "db" }],
-  "Cola zero":         [{ ingredientId: "ing_cola_zero", amount: 1, unit: "db" }],
-  "Tonic":             [{ ingredientId: "ing_tonic",     amount: 1, unit: "db" }],
-  "Gyömbér":           [{ ingredientId: "ing_gyomber",   amount: 1, unit: "db" }],
-  "Almalé":            [{ ingredientId: "ing_almale",    amount: 200, unit: "ml" }],
-  "Narancslé":         [{ ingredientId: "ing_narancsle", amount: 200, unit: "ml" }],
-  // --- Rövidek / felesek (4 cl) — PONTOS ---
-  "Vodka":             [{ ingredientId: "ing_vodka",   amount: 40, unit: "ml" }],
-  "Gin":               [{ ingredientId: "ing_gin",     amount: 40, unit: "ml" }],
-  "Rum":               [{ ingredientId: "ing_rum",     amount: 40, unit: "ml" }],
-  "Tequila":           [{ ingredientId: "ing_tequila", amount: 40, unit: "ml" }],
-  "Jäger":             [{ ingredientId: "ing_jager",   amount: 40, unit: "ml" }],
-  "Becherovka":        [{ ingredientId: "ing_becher",  amount: 40, unit: "ml" }],
-  "Kevert":            [{ ingredientId: "ing_kevert",  amount: 40, unit: "ml" }],
-  "Malibu":            [{ ingredientId: "ing_malibu",  amount: 40, unit: "ml" }],
-  "Shanky's whip":     [{ ingredientId: "ing_shanky",  amount: 40, unit: "ml" }],
-  "Whiskey":           [{ ingredientId: "ing_whiskey", amount: 40, unit: "ml" }],
-  // --- Koktélok — BECSLÉS (segédletből felülírandó) ---
-  "Gin tonic":         [{ ingredientId: "ing_gin",   amount: 40, unit: "ml" }, { ingredientId: "ing_tonic", amount: 1, unit: "db" }, { ingredientId: "ing_jeg", amount: 100, unit: "g" }],
-  "Gin fizz":          [{ ingredientId: "ing_gin",   amount: 40, unit: "ml" }, { ingredientId: "ing_szoda", amount: 100, unit: "ml" }, { ingredientId: "ing_lime", amount: 20, unit: "g" }],
-  "Vodka szóda":       [{ ingredientId: "ing_vodka", amount: 40, unit: "ml" }, { ingredientId: "ing_szoda", amount: 200, unit: "ml" }, { ingredientId: "ing_jeg", amount: 100, unit: "g" }],
-  "Vodka narancs":     [{ ingredientId: "ing_vodka", amount: 40, unit: "ml" }, { ingredientId: "ing_narancsle", amount: 200, unit: "ml" }, { ingredientId: "ing_jeg", amount: 100, unit: "g" }],
-  "Cuba libre":        [{ ingredientId: "ing_rum",   amount: 40, unit: "ml" }, { ingredientId: "ing_cola", amount: 1, unit: "db" }, { ingredientId: "ing_lime", amount: 20, unit: "g" }],
-  "Long island":       [{ ingredientId: "ing_vodka", amount: 15, unit: "ml" }, { ingredientId: "ing_gin", amount: 15, unit: "ml" }, { ingredientId: "ing_rum", amount: 15, unit: "ml" }, { ingredientId: "ing_tequila", amount: 15, unit: "ml" }, { ingredientId: "ing_cola", amount: 1, unit: "db" }],
-  "Malibu alma":       [{ ingredientId: "ing_malibu", amount: 40, unit: "ml" }, { ingredientId: "ing_almale", amount: 200, unit: "ml" }],
-  "Becherovka tonic":  [{ ingredientId: "ing_becher", amount: 40, unit: "ml" }, { ingredientId: "ing_tonic", amount: 1, unit: "db" }],
-  "Moscow mule":       [{ ingredientId: "ing_vodka", amount: 40, unit: "ml" }, { ingredientId: "ing_gyomber", amount: 1, unit: "db" }, { ingredientId: "ing_lime", amount: 20, unit: "g" }],
-  "Whiskey cola":      [{ ingredientId: "ing_whiskey", amount: 40, unit: "ml" }, { ingredientId: "ing_cola", amount: 1, unit: "db" }],
-  // --- Fröccsök (bor + szóda) — PONTOS ---
-  "Kisfröccs":         [{ ingredientId: "ing_bor_feher", amount: 100, unit: "ml" }, { ingredientId: "ing_szoda", amount: 100, unit: "ml" }],
-  "Nagyfröccs":        [{ ingredientId: "ing_bor_feher", amount: 200, unit: "ml" }, { ingredientId: "ing_szoda", amount: 100, unit: "ml" }],
-  "Hosszúlépés":       [{ ingredientId: "ing_bor_feher", amount: 100, unit: "ml" }, { ingredientId: "ing_szoda", amount: 200, unit: "ml" }],
-  "Sportfröccs":       [{ ingredientId: "ing_bor_feher", amount: 100, unit: "ml" }, { ingredientId: "ing_szoda", amount: 400, unit: "ml" }],
-  "Vice házmester":    [{ ingredientId: "ing_bor_feher", amount: 200, unit: "ml" }, { ingredientId: "ing_szoda", amount: 300, unit: "ml" }],
-  "Házmester":         [{ ingredientId: "ing_bor_feher", amount: 300, unit: "ml" }, { ingredientId: "ing_szoda", amount: 200, unit: "ml" }],
-  "Maci":              [{ ingredientId: "ing_szorp",     amount: 20,  unit: "ml" }]
+  "Dreher világos 0,5 l": [{ ingredientId: "ing_sor", amount: 500, unit: "ml" }],
+  "Dreher meggy 0,5 l": [{ ingredientId: "ing_sor_meggy", amount: 500, unit: "ml" }],
+  "Coca cola": [{ ingredientId: "ing_cola", amount: 1, unit: "db" }],
+  "Coca cola zero": [{ ingredientId: "ing_cola_zero", amount: 1, unit: "db" }],
+  "Kinley tonic": [{ ingredientId: "ing_tonic", amount: 1, unit: "db" }],
+  "Kinley gyömbér": [{ ingredientId: "ing_gyomber", amount: 1, unit: "db" }],
+  "Hell 0,25 l": [{ ingredientId: "ing_energia", amount: 1, unit: "db" }],
+  "Ananászlé": [{ ingredientId: "ing_ananasz", amount: 100, unit: "ml" }],
+  "Őszibaracklé": [{ ingredientId: "ing_oszibarack", amount: 100, unit: "ml" }],
+  "Paradicsomlé": [{ ingredientId: "ing_paradicsom", amount: 100, unit: "ml" }],
+  "Áfonyalé": [{ ingredientId: "ing_afonya", amount: 100, unit: "ml" }],
+  "Almalé": [{ ingredientId: "ing_almale", amount: 100, unit: "ml" }],
+  "Narancslé": [{ ingredientId: "ing_narancsle", amount: 100, unit: "ml" }],
+  "Romanoff vodka": [{ ingredientId: "ing_vodka", amount: 40, unit: "ml" }],
+  "Zubrowka": [{ ingredientId: "ing_zubrowka", amount: 40, unit: "ml" }],
+  "Beefeater gin pink": [{ ingredientId: "ing_gin_pink", amount: 40, unit: "ml" }],
+  "Marine dry gin": [{ ingredientId: "ing_gin", amount: 40, unit: "ml" }],
+  "Havana Club barna rum": [{ ingredientId: "ing_rum_barna", amount: 40, unit: "ml" }],
+  "Havana Club fehér rum": [{ ingredientId: "ing_rum_feher", amount: 40, unit: "ml" }],
+  "Kraken rum": [{ ingredientId: "ing_kraken", amount: 40, unit: "ml" }],
+  "El Jimador tequila silver": [{ ingredientId: "ing_tequila", amount: 40, unit: "ml" }],
+  "Jägermeister": [{ ingredientId: "ing_jager", amount: 40, unit: "ml" }],
+  "Becherovka": [{ ingredientId: "ing_becher", amount: 40, unit: "ml" }],
+  "Bakter kevert": [{ ingredientId: "ing_kevert", amount: 40, unit: "ml" }],
+  "Malibu": [{ ingredientId: "ing_malibu", amount: 40, unit: "ml" }],
+  "Shanky's whip": [{ ingredientId: "ing_shanky", amount: 40, unit: "ml" }],
+  "Jack Daniel's": [{ ingredientId: "ing_jack", amount: 40, unit: "ml" }],
+  "Fireball": [{ ingredientId: "ing_fireball", amount: 40, unit: "ml" }],
+  "Bailey's": [{ ingredientId: "ing_baileys", amount: 40, unit: "ml" }],
+  "Kahlua": [{ ingredientId: "ing_kahlua", amount: 40, unit: "ml" }],
+  "Tubi 60": [{ ingredientId: "ing_tubi", amount: 40, unit: "ml" }],
+  "Opyyum mákpálinka": [{ ingredientId: "ing_opyyum", amount: 40, unit: "ml" }],
+  "Tátratea 62% erdeigyümölcs": [{ ingredientId: "ing_tatratea", amount: 40, unit: "ml" }],
+  "Unicum": [{ ingredientId: "ing_unicum", amount: 40, unit: "ml" }],
+  "Berentzen sour apple": [{ ingredientId: "ing_berentzen", amount: 40, unit: "ml" }],
+  "Limoncello": [{ ingredientId: "ing_limoncello", amount: 40, unit: "ml" }],
+  "Arbaro szóda+szirup": [{ ingredientId: "ing_arbaro", amount: 40, unit: "ml" }, { ingredientId: "ing_szoda", amount: 200, unit: "ml" }, { ingredientId: "ing_szorp", amount: 20, unit: "ml" }],
+  "Arbaro üccsi": [{ ingredientId: "ing_arbaro", amount: 40, unit: "ml" }, { ingredientId: "ing_cola", amount: 1, unit: "db" }],
+  "Arbaro lé": [{ ingredientId: "ing_arbaro", amount: 40, unit: "ml" }, { ingredientId: "ing_narancsle", amount: 250, unit: "ml" }],
+  "Arbaro bomba": [{ ingredientId: "ing_arbaro", amount: 40, unit: "ml" }, { ingredientId: "ing_energia", amount: 1, unit: "db" }],
+  "Arbaro spritz": [{ ingredientId: "ing_arbaro", amount: 40, unit: "ml" }, { ingredientId: "ing_pezsgo", amount: 150, unit: "ml" }, { ingredientId: "ing_szoda", amount: 100, unit: "ml" }],
+  "Arbaro spritz+ szirup": [{ ingredientId: "ing_arbaro", amount: 40, unit: "ml" }, { ingredientId: "ing_pezsgo", amount: 150, unit: "ml" }, { ingredientId: "ing_szoda", amount: 100, unit: "ml" }, { ingredientId: "ing_szorp", amount: 20, unit: "ml" }],
+  "Hugo üveggel 0,75 l": [{ ingredientId: "ing_pezsgo", amount: 500, unit: "ml" }, { ingredientId: "ing_szorp", amount: 50, unit: "ml" }, { ingredientId: "ing_szoda", amount: 200, unit: "ml" }, { ingredientId: "ing_lime", amount: 20, unit: "g" }],
+  "Baby guiness": [{ ingredientId: "ing_kahlua", amount: 30, unit: "ml" }, { ingredientId: "ing_baileys", amount: 10, unit: "ml" }],
+  "Bloody brain": [{ ingredientId: "ing_triplesec", amount: 30, unit: "ml" }, { ingredientId: "ing_baileys", amount: 10, unit: "ml" }],
+  "Jäger/Vodka bomba (10 db)": [{ ingredientId: "ing_jager", amount: 200, unit: "ml" }, { ingredientId: "ing_energia", amount: 5, unit: "db" }],
+  "Arbaro shot": [{ ingredientId: "ing_arbaro", amount: 40, unit: "ml" }],
+  "Tequila sunrise": [{ ingredientId: "ing_tequila", amount: 40, unit: "ml" }, { ingredientId: "ing_narancsle", amount: 200, unit: "ml" }, { ingredientId: "ing_szorp", amount: 10, unit: "ml" }],
+  "Aperol spritz": [{ ingredientId: "ing_aperol", amount: 60, unit: "ml" }, { ingredientId: "ing_pezsgo", amount: 90, unit: "ml" }, { ingredientId: "ing_szoda", amount: 30, unit: "ml" }],
+  "Mojito": [{ ingredientId: "ing_rum_feher", amount: 40, unit: "ml" }, { ingredientId: "ing_lime", amount: 20, unit: "g" }, { ingredientId: "ing_menta", amount: 10, unit: "g" }, { ingredientId: "ing_szoda", amount: 150, unit: "ml" }],
+  "Pina colada": [{ ingredientId: "ing_rum_feher", amount: 40, unit: "ml" }, { ingredientId: "ing_kokusz", amount: 30, unit: "ml" }, { ingredientId: "ing_ananasz", amount: 150, unit: "ml" }],
+  "Tubi szóda": [{ ingredientId: "ing_tubi", amount: 40, unit: "ml" }, { ingredientId: "ing_szoda", amount: 250, unit: "ml" }],
+  "Berentzen-vodka-alma": [{ ingredientId: "ing_berentzen", amount: 20, unit: "ml" }, { ingredientId: "ing_vodka", amount: 20, unit: "ml" }, { ingredientId: "ing_almale", amount: 200, unit: "ml" }],
+  "Shanky's narancs": [{ ingredientId: "ing_shanky", amount: 40, unit: "ml" }, { ingredientId: "ing_narancsle", amount: 250, unit: "ml" }],
+  "Kívánság": [{ ingredientId: "ing_arbaro", amount: 40, unit: "ml" }, { ingredientId: "ing_narancsle", amount: 200, unit: "ml" }],
+  "Kisfröccs 0,2 l": [{ ingredientId: "ing_bor_feher", amount: 100, unit: "ml" }, { ingredientId: "ing_szoda", amount: 100, unit: "ml" }],
+  "Nagyfröccs 0,3 l": [{ ingredientId: "ing_bor_feher", amount: 200, unit: "ml" }, { ingredientId: "ing_szoda", amount: 100, unit: "ml" }],
+  "Házmester 0,5 l": [{ ingredientId: "ing_bor_feher", amount: 300, unit: "ml" }, { ingredientId: "ing_szoda", amount: 200, unit: "ml" }],
+  "Vice házmester 0,5 l": [{ ingredientId: "ing_bor_feher", amount: 200, unit: "ml" }, { ingredientId: "ing_szoda", amount: 300, unit: "ml" }],
+  "Hosszúlépés 0,3 l": [{ ingredientId: "ing_bor_feher", amount: 100, unit: "ml" }, { ingredientId: "ing_szoda", amount: 200, unit: "ml" }],
+  "Sportfröccs 0,5 l": [{ ingredientId: "ing_bor_feher", amount: 100, unit: "ml" }, { ingredientId: "ing_szoda", amount: 400, unit: "ml" }],
+  "Piroska maci 0,04 l": [{ ingredientId: "ing_szorp", amount: 20, unit: "ml" }]
 };
 
 /* ======================= FIÓKOK (kaszt-lista) — kezdő seed ======================= */
@@ -503,10 +563,11 @@ const DEFAULT_ACCOUNTS = [
   { id: "acc_seed_b073", type: "band", name: "Animas", tier: "L", unlimited: false, balance: 15000, note: "5 fő × 3000 Ft" },
 ].map(a => Object.assign({ active: true, createdAt: new Date().toISOString() }, a));
 
-const CATEGORY_ORDER = ["Csapolt sörök","Borok","Üdítők","Fröccsök","Rövidek","Koktélok"];
+const CATEGORY_ORDER = ["Csapolt sör","Üdítők","Energiaital","Fröccsök","Rövidek","Longdrink","Koktél","Shot","Hugo","Szörp"];
 const CATEGORY_COLORS = {
-  "Csapolt sörök": "#f59e0b", "Borok": "#c084fc", "Üdítők": "#38bdf8",
-  "Rövidek": "#a78bfa", "Koktélok": "#facc15", "Fröccsök": "#a3e635"
+  "Csapolt sör": "#f59e0b", "Üdítők": "#38bdf8", "Energiaital": "#f43f5e",
+  "Rövidek": "#a78bfa", "Longdrink": "#f472b6", "Koktél": "#facc15",
+  "Shot": "#fb7185", "Fröccsök": "#a3e635", "Hugo": "#22d3ee", "Szörp": "#fbbf24", "Borok": "#c084fc"
 };
 const FAV_TAB_COLOR = "#facc15";
 const QUICK_CASH = [1000, 2000, 5000, 10000, 20000];
@@ -543,11 +604,11 @@ const DEFAULT_PIN = "1234";
 /* A hivatalos itallap verziószáma. Ha ezt megnöveled és újratöltöd az appot,
    a már mentett katalógus is felülíródik a DEFAULT_PRODUCTS-ra (kért viselkedés).
    A kézi termékmódosítások eltűnhetnek — szándékosan, hogy az árlista mindig aktuális legyen. */
-const CATALOG_VERSION = 2;
+const CATALOG_VERSION = 3;
 
 /* Alapanyag/recept verzió. Növeld, ha a DEFAULT_INGREDIENTS/DEFAULT_RECIPES-t
    frissíted (pl. a segédlet alapján) és élesíteni akarod a böngészőkben. */
-const INGREDIENTS_VERSION = 1;
+const INGREDIENTS_VERSION = 3;
 
 /* Fiók-seed verzió. Növeld, ha a DEFAULT_ACCOUNTS listát bővíted és be akarod tölteni.
    A seed CSAK akkor tölt be teljesen, ha még egyáltalán nincs mentett fiók.
@@ -869,7 +930,7 @@ function tierPreset(tier) { return TIER_PRESETS.find(t => t.tier === tier) || nu
 
 function newAccountId() { return "acc_" + Date.now() + Math.random().toString(36).slice(2, 6); }
 
-function createAccount({ type, name, tier, unlimited, balance, note }) {
+function createAccount({ type, name, tier, unlimited, balance, note, pricing, discountPercent }) {
   const acc = {
     id: newAccountId(),
     type: type === "band" ? "band" : "person",
@@ -878,6 +939,8 @@ function createAccount({ type, name, tier, unlimited, balance, note }) {
     unlimited: !!unlimited,
     balance: Number(balance) || 0,
     note: (note || "").trim(),
+    pricing: pricing || "normal",          // "normal" | "percent" | "cost"
+    discountPercent: Number(discountPercent) || 0,  // csak percent módban
     active: true,
     createdAt: new Date().toISOString()
   };
@@ -886,6 +949,22 @@ function createAccount({ type, name, tier, unlimited, balance, note }) {
   return acc;
 }
 function findAccount(id) { return state.accounts.find(a => a.id === id) || null; }
+
+/* Egy fiókra terhelendő összeg kiszámítása a kosárból, a fiók árazása szerint.
+   Visszaad: { amount, mode, note, issues } — amount az egyenlegből levonandó Ft. */
+function accountChargeAmount(acc, cartFullTotal) {
+  if (!acc) return { amount: cartFullTotal, mode: "normal", note: "", issues: [] };
+  const mode = acc.pricing || "normal";
+  if (mode === "percent" && acc.discountPercent > 0) {
+    const amt = Math.round(cartFullTotal * (1 - acc.discountPercent / 100));
+    return { amount: amt, mode, note: `−${acc.discountPercent}% kedvezmény`, issues: [] };
+  }
+  if (mode === "cost") {
+    const bd = cartCostBreakdown();
+    return { amount: bd.total, mode, note: "beszerzési áron", issues: bd.issues };
+  }
+  return { amount: cartFullTotal, mode: "normal", note: "", issues: [] };
+}
 
 /* Egyenleg-mozgás rögzítése + Sheet-szinkron a mozgásokhoz. type: "topup" | "consume" | "adjust" */
 function adjustAccountBalance(accId, delta, movementType, note) {
@@ -943,8 +1022,42 @@ function normalizeAmount(amount, fromUnit, toUnit) {
   return amount; // db vagy ismeretlen: változatlan
 }
 
-/* Fő számító: egy tranzakció-listából alapanyagonkénti fogyás.
-   Visszaad: { byIngredient: {id: {ing, amount(contentUnit), units(beszerzési), productCounts}}, missing: [{name, qty}] } */
+/* Egy termék beszerzési önköltsége a receptből.
+   Visszaad: { cost: szám|null, missing: [alapanyagnév,...] }
+   cost=null ha nincs recept; missing tartalmazza az ár nélküli alapanyagokat. */
+function productCost(productName) {
+  const rec = recipeFor(productName);
+  if (!rec) return { cost: null, missing: [], noRecipe: true };
+  let cost = 0;
+  const missing = [];
+  rec.forEach(line => {
+    const ing = findIngredient(line.ingredientId);
+    if (!ing) { missing.push("ismeretlen"); return; }
+    if (ing.costPerServing == null || !ing.costServingAmount) {
+      // Az opcionális (jég/szóda/lime) alapanyagok ár nélkül is elfogadottak: 0 Ft.
+      if (!ing.optional) missing.push(ing.name);
+      return;
+    }
+    const amtInContent = normalizeAmount(line.amount, line.unit, ing.contentUnit);
+    cost += (amtInContent / ing.costServingAmount) * ing.costPerServing;
+  });
+  return { cost: Math.round(cost), missing, noRecipe: false };
+}
+
+/* Egy kosár összes beszerzési önköltsége + a hiányzó árú termékek listája. */
+function cartCostBreakdown() {
+  let total = 0;
+  const issues = [];
+  state.cart.forEach(l => {
+    const pc = productCost(l.name);
+    if (pc.noRecipe) { issues.push({ name: l.name, reason: "nincs recept" }); }
+    else if (pc.missing.length) { issues.push({ name: l.name, reason: "hiányzó ár: " + pc.missing.join(", ") }); total += pc.cost * l.qty; }
+    else { total += pc.cost * l.qty; }
+  });
+  return { total: Math.round(total), issues };
+}
+
+/* Fő számító: egy tranzakció-listából alapanyagonkénti fogyás. */
 function computeIngredientUsage(txs) {
   const byIngredient = {};
   const missing = {};
@@ -1180,18 +1293,30 @@ function renderAccountSelected() {
   if (!acc) { box.classList.add("hidden"); return; }
   box.classList.remove("hidden");
   const total = cartTotal();
+  const charge = accountChargeAmount(acc, total);
   const changeBtn = `<button id="btnChangeAccount" class="mt-2 w-full py-2 rounded-lg bg-slate-700 border border-slate-600 text-xs font-semibold hover:bg-slate-600">🔄 Másik fiók választása</button>`;
+
+  // Árazás-sor: ha kedvezményes vagy beszerzési áras, mutatjuk a teljes → terhelt átváltást.
+  let pricingLine = "";
+  if (charge.mode !== "normal") {
+    const issuesWarn = charge.issues && charge.issues.length
+      ? `<div class="text-[11px] text-rose-400 mt-0.5">⚠ Hiányzó ár: ${charge.issues.map(i => esc(i.name)).join(", ")} — ezek nélkül számol.</div>`
+      : "";
+    pricingLine = `<div class="text-xs text-sky-300 mt-0.5">${esc(charge.note)}: teljes ${fmtFt(total)} → terhelve <b>${fmtFt(charge.amount)}</b></div>${issuesWarn}`;
+  }
+
   if (acc.unlimited) {
     box.style.borderColor = "#f59e0b";
     box.style.background = "rgba(245,158,11,0.08)";
     box.innerHTML = `<div class="font-semibold text-amber-300">${acc.type === "band" ? "🎸" : "👤"} ${esc(acc.name)} — korlátlan (comp)</div>
       <div class="text-xs text-slate-400 mt-0.5">Nem csökken egyenleg, csak naplózódik: <b>${fmtFt(total)}</b></div>${changeBtn}`;
   } else {
-    const after = acc.balance - total;
+    const after = acc.balance - charge.amount;
     const short = after < 0;
     box.style.borderColor = short ? "#f43f5e" : "#10b981";
     box.style.background = short ? "rgba(244,63,94,0.08)" : "rgba(16,185,129,0.08)";
     box.innerHTML = `<div class="font-semibold">${acc.type === "band" ? "🎸" : "👤"} ${esc(acc.name)}</div>
+      ${pricingLine}
       <div class="text-xs mt-0.5 tabular-nums">Egyenleg: <b>${fmtFt(acc.balance)}</b> → terhelés után: <b class="${short ? "text-rose-400" : "text-emerald-400"}">${fmtFt(after)}</b></div>
       ${short ? `<div class="text-xs text-rose-400 font-semibold mt-1">⚠ Keret túllépve: ${fmtFt(-after)} tartozás. Rögzíthető — utólag rendezendő.</div>` : ""}${changeBtn}`;
   }
@@ -1368,9 +1493,15 @@ function checkout() {
     tx.accountId = account.id;
     tx.accountName = account.name;   // denormalizálva: törölt fiók esetén is olvasható marad
     tx.comp = !!account.unlimited;   // korlátlan/comp fogyasztás jelölése
+    // A ténylegesen terhelendő összeg a fiók árazása szerint (normál / %-os / beszerzési).
+    const charge = accountChargeAmount(account, itemsTotal);
+    tx.chargeAmount = charge.amount;       // amit ténylegesen levontunk / naplózunk
+    tx.pricingMode = charge.mode;          // "normal" | "percent" | "cost"
+    tx.pricingNote = charge.note;          // pl. "−30% kedvezmény"
+    tx.fullTotal = itemsTotal;             // teljes ár (kedvezmény előtt) — riporthoz
     // Egyenleg csökkentése, ha nem korlátlan (negatívba mehet — pultos dönt).
     if (!account.unlimited) {
-      adjustAccountBalance(account.id, -itemsTotal, "consume", "Kassza terhelés");
+      adjustAccountBalance(account.id, -charge.amount, "consume", "Kassza terhelés" + (charge.note ? " (" + charge.note + ")" : ""));
     }
   }
 
@@ -1871,6 +2002,20 @@ function renderAdminAccounts() {
         </label>
         <input id="newAccNote" class="flex-1 min-w-[160px] px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm" placeholder="Megjegyzés (opcionális)" />
       </div>
+      <div class="flex flex-wrap items-center gap-3 mb-3">
+        <div>
+          <label class="text-xs text-slate-400 block mb-1">Árazás</label>
+          <select id="newAccPricing" class="px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm">
+            <option value="normal">Normál (teljes ár)</option>
+            <option value="percent">Fix % kedvezmény</option>
+            <option value="cost">Beszerzési áron</option>
+          </select>
+        </div>
+        <div id="newAccPctWrap" class="hidden">
+          <label class="text-xs text-slate-400 block mb-1">Kedvezmény %</label>
+          <input id="newAccDiscount" type="number" inputmode="numeric" min="0" max="100" class="w-24 px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm text-right tabular-nums" placeholder="30" />
+        </div>
+      </div>
       <div id="tierHint" class="hidden text-xs text-amber-300/90 bg-amber-500/10 border border-amber-500/30 rounded-lg px-3 py-2 mb-3"></div>
       <button id="btnAddAccount" class="px-4 py-2 rounded-lg bg-amber-500 text-slate-950 font-bold text-sm hover:bg-amber-400">+ Fiók létrehozása</button>
     </div>
@@ -1920,6 +2065,11 @@ Vendég Béla; XXS; 3000"></textarea>
     }
   });
 
+  const pricingSel = document.getElementById("newAccPricing");
+  pricingSel.addEventListener("change", () => {
+    document.getElementById("newAccPctWrap").classList.toggle("hidden", pricingSel.value !== "percent");
+  });
+
   document.getElementById("btnAddAccount").addEventListener("click", () => {
     const name = document.getElementById("newAccName").value.trim();
     if (!name) { alert("Adj meg egy nevet."); return; }
@@ -1929,7 +2079,9 @@ Vendég Béla; XXS; 3000"></textarea>
       tier: document.getElementById("newAccTier").value || null,
       unlimited: document.getElementById("newAccUnlimited").checked,
       balance: Number(document.getElementById("newAccBalance").value) || 0,
-      note: document.getElementById("newAccNote").value
+      note: document.getElementById("newAccNote").value,
+      pricing: document.getElementById("newAccPricing").value,
+      discountPercent: Number(document.getElementById("newAccDiscount").value) || 0
     });
     renderAdminAccounts();
   });
@@ -2037,6 +2189,23 @@ function renderAccountDetailModal() {
       </div>
     </div>
 
+    <div class="rounded-xl bg-slate-800/60 border border-slate-700 p-3 mb-4">
+      <div class="text-xs text-slate-400 font-semibold mb-2">Árazás (fiókra terheléskor)</div>
+      <div class="flex flex-wrap items-center gap-2">
+        <select id="accPricingSel" class="px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm">
+          <option value="normal" ${(acc.pricing || "normal") === "normal" ? "selected" : ""}>Normál (teljes ár)</option>
+          <option value="percent" ${acc.pricing === "percent" ? "selected" : ""}>Fix % kedvezmény</option>
+          <option value="cost" ${acc.pricing === "cost" ? "selected" : ""}>Beszerzési áron</option>
+        </select>
+        <div id="accPctWrap" class="${acc.pricing === "percent" ? "" : "hidden"} flex items-center gap-1.5">
+          <input id="accDiscountInput" type="number" min="0" max="100" value="${acc.discountPercent || ""}" placeholder="30" class="w-20 px-2 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm text-right tabular-nums" />
+          <span class="text-sm text-slate-400">%</span>
+        </div>
+        <button id="btnSavePricing" class="px-3 py-2 rounded-lg bg-amber-500 text-slate-950 text-sm font-bold hover:bg-amber-400">Mentés</button>
+      </div>
+      <p class="text-[11px] text-slate-500 mt-1.5">A "Beszerzési áron" a receptek + alapanyag beszerzési árai alapján számol. Ahol nincs beszerzési ár, azt a rendszer jelzi terheléskor.</p>
+    </div>
+
     <div class="flex flex-wrap gap-2 mb-4">
       <button id="btnAccToggleUnlimited" class="px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-xs font-semibold hover:bg-slate-700">${acc.unlimited ? "Korlátlan kikapcsolása" : "Korlátlanná tétel (comp)"}</button>
       <button id="btnAccToggleActive" class="px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-xs font-semibold hover:bg-slate-700">${acc.active === false ? "Újraaktiválás" : "Inaktiválás (esemény vége)"}</button>
@@ -2061,6 +2230,18 @@ function renderAccountDetailModal() {
     const v = Number(adjInput.value);
     if (!v) return;
     adjustAccountBalance(acc.id, v, "adjust", "Kézi módosítás");
+    renderAccountDetailModal();
+    renderAdminAccounts();
+  });
+  const pricingSel = box.querySelector("#accPricingSel");
+  if (pricingSel) pricingSel.addEventListener("change", () => {
+    box.querySelector("#accPctWrap").classList.toggle("hidden", pricingSel.value !== "percent");
+  });
+  const savePricingBtn = box.querySelector("#btnSavePricing");
+  if (savePricingBtn) savePricingBtn.addEventListener("click", () => {
+    acc.pricing = pricingSel.value;
+    acc.discountPercent = Number(box.querySelector("#accDiscountInput").value) || 0;
+    persistAccounts();
     renderAccountDetailModal();
     renderAdminAccounts();
   });
@@ -2293,6 +2474,12 @@ function exportUsageCSV(txs) {
 /* --- 2) Alapanyag lista (CRUD + import) --- */
 function renderIngredientList() {
   const box = document.getElementById("ingSubPanel");
+  const servLabel = i => {
+    if (i.costServingAmount == null) return "";
+    if (i.contentUnit === "ml") return i.costServingAmount + "ml";
+    if (i.contentUnit === "g") return i.costServingAmount + "g";
+    return i.costServingAmount + " db";
+  };
   const rows = state.ingredients.slice().sort((a, b) => (a.category || "").localeCompare(b.category || "", "hu") || a.name.localeCompare(b.name, "hu")).map(i => `
     <tr class="border-t border-slate-800" data-ingid="${i.id}">
       <td class="px-2 py-1.5"><input data-f="name" value="${esc(i.name)}" class="w-full px-2 py-1 rounded bg-slate-800 border border-slate-700 text-sm" /></td>
@@ -2300,12 +2487,18 @@ function renderIngredientList() {
       <td class="px-2 py-1.5"><input data-f="contentAmount" type="number" value="${i.contentAmount}" class="w-20 px-2 py-1 rounded bg-slate-800 border border-slate-700 text-xs text-right tabular-nums" /></td>
       <td class="px-2 py-1.5"><input data-f="contentUnit" value="${esc(i.contentUnit)}" class="w-14 px-2 py-1 rounded bg-slate-800 border border-slate-700 text-xs" /></td>
       <td class="px-2 py-1.5"><input data-f="purchaseUnit" value="${esc(i.purchaseUnit)}" class="w-20 px-2 py-1 rounded bg-slate-800 border border-slate-700 text-xs" /></td>
+      <td class="px-2 py-1.5">
+        <div class="flex items-center gap-1">
+          <input data-f="costPerServing" type="number" value="${i.costPerServing != null ? i.costPerServing : ""}" placeholder="—" class="w-20 px-2 py-1 rounded bg-slate-800 border border-slate-700 text-xs text-right tabular-nums" />
+          <span class="text-[10px] text-slate-500 whitespace-nowrap">/ ${servLabel(i) || "adag"}</span>
+        </div>
+      </td>
       <td class="px-2 py-1.5 text-center"><input data-f="optional" type="checkbox" ${i.optional ? "checked" : ""} class="w-4 h-4 accent-amber-500" /></td>
       <td class="px-2 py-1.5 text-right"><button data-del012ing="${i.id}" class="text-rose-400/70 hover:text-rose-400 px-1">🗑</button></td>
     </tr>`).join("");
 
   box.innerHTML = `
-    <p class="text-slate-500 text-xs mb-3">Az alapanyagokat a beszerzési egységben tartod nyilván (pl. üveg = 700 ml). A "Kiszerelés" mezők azt mondják meg, hány <b>tartalom-egység</b> (ml/g/db) van egy <b>beszerzési egységben</b> (üveg/karton/kg). Az "opc." pipa a jég/szóda-féle tételekre való (elrejthetők a kimutatásban).</p>
+    <p class="text-slate-500 text-xs mb-3">Az alapanyagokat a beszerzési egységben tartod nyilván (pl. üveg = 700 ml). A "Kiszerelés" mezők azt mondják meg, hány <b>tartalom-egység</b> (ml/g/db) van egy <b>beszerzési egységben</b> (üveg/karton/kg). A <b>Besz. ár</b> az adott adagra (pl. 40ml = 4cl feles) vonatkozó beszerzési ár — ebből számol a "beszerzési áras" fiók. Az "opc." pipa a jég/szóda-féle tételekre való.</p>
     <div class="overflow-x-auto rounded-xl border border-slate-700 mb-6">
       <table class="w-full text-sm">
         <thead class="bg-slate-800 text-slate-400"><tr>
@@ -2314,10 +2507,11 @@ function renderIngredientList() {
           <th class="text-right px-2 py-2 font-semibold">Tartalom</th>
           <th class="text-left px-2 py-2 font-semibold">Egység</th>
           <th class="text-left px-2 py-2 font-semibold">Besz. egység</th>
+          <th class="text-left px-2 py-2 font-semibold">Besz. ár</th>
           <th class="text-center px-2 py-2 font-semibold">Opc.</th>
           <th></th>
         </tr></thead>
-        <tbody>${rows || `<tr><td colspan="7" class="px-3 py-6 text-center text-slate-500">Nincs alapanyag.</td></tr>`}</tbody>
+        <tbody>${rows || `<tr><td colspan="8" class="px-3 py-6 text-center text-slate-500">Nincs alapanyag.</td></tr>`}</tbody>
       </table>
     </div>
 
@@ -2353,6 +2547,7 @@ function renderIngredientList() {
         const f = inp.dataset.f;
         if (f === "optional") ing.optional = inp.checked;
         else if (f === "contentAmount") { const v = Number(inp.value); if (v > 0) ing.contentAmount = v; }
+        else if (f === "costPerServing") { ing.costPerServing = inp.value.trim() === "" ? null : (Number(inp.value) || 0); }
         else ing[f] = inp.value.trim();
         persistIngredients();
       });
