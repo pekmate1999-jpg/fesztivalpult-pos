@@ -487,21 +487,20 @@ const DEFAULT_ACCOUNTS = [
   { id: "acc_seed_p056", type: "person", name: "Ágoston Béla", tier: "M", unlimited: false, balance: 0, note: "" },
   { id: "acc_seed_p057", type: "person", name: "Dombi Anna", tier: null, unlimited: false, balance: 3000, note: "2 ingyen kaja és 3000 Ft pia" },
   { id: "acc_seed_p058", type: "person", name: "Horváth Ábel", tier: null, unlimited: false, balance: 0, note: "KL — kaszt tisztázandó" },
-  { id: "acc_seed_b059", type: "band", name: "Sezlony", tier: null, unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_b060", type: "band", name: "The Fless", tier: null, unlimited: false, balance: 0, note: "Dávid" },
-  { id: "acc_seed_b061", type: "band", name: "Koszmosz936", tier: null, unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_b062", type: "band", name: "Eugenetooms", tier: null, unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_b063", type: "band", name: "Nonszensz", tier: null, unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_b064", type: "band", name: "Kemény Viktor", tier: null, unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_b065", type: "band", name: "Hesztiék", tier: null, unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_b066", type: "band", name: "III/2", tier: null, unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_b067", type: "band", name: "Deres", tier: null, unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_b068", type: "band", name: "Vizér Dani", tier: null, unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_b069", type: "band", name: "Cs. M (DJ)", tier: null, unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_b070", type: "band", name: "Csanád, Bence", tier: null, unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_b071", type: "band", name: "Boros Attila Naked", tier: null, unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_b072", type: "band", name: "Várhegyutca", tier: null, unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_b073", type: "band", name: "Animas", tier: null, unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_b059", type: "band", name: "Sezlony", tier: "L", unlimited: false, balance: 18000, note: "6 fő × 3000 Ft" },
+  { id: "acc_seed_b060", type: "band", name: "The Fless", tier: "L", unlimited: false, balance: 3000, note: "Dávid · 1 fő × 3000 Ft" },
+  { id: "acc_seed_b061", type: "band", name: "Koszmosz936", tier: "L", unlimited: false, balance: 3000, note: "1 fő × 3000 Ft (létszám tisztázandó)" },
+  { id: "acc_seed_b062", type: "band", name: "Eugenetooms", tier: "L", unlimited: false, balance: 9000, note: "3 fő × 3000 Ft" },
+  { id: "acc_seed_b063", type: "band", name: "Nonszensz", tier: "L", unlimited: false, balance: 12000, note: "4 fő × 3000 Ft" },
+  { id: "acc_seed_b064", type: "band", name: "Kemény Viktor", tier: "L", unlimited: false, balance: 3000, note: "1 fő × 3000 Ft" },
+  { id: "acc_seed_b065", type: "band", name: "Hesztiék", tier: "L", unlimited: false, balance: 6000, note: "2 fő × 3000 Ft" },
+  { id: "acc_seed_b066", type: "band", name: "III/2", tier: "L", unlimited: false, balance: 12000, note: "4 fő × 3000 Ft" },
+  { id: "acc_seed_b067", type: "band", name: "Deres", tier: "L", unlimited: false, balance: 12000, note: "4 fő × 3000 Ft" },
+  { id: "acc_seed_b069", type: "band", name: "Cs. M (DJ)", tier: "L", unlimited: false, balance: 3000, note: "1 fő × 3000 Ft" },
+  { id: "acc_seed_b070", type: "band", name: "Csanád, Bence", tier: "L", unlimited: false, balance: 6000, note: "2 fő × 3000 Ft" },
+  { id: "acc_seed_b071", type: "band", name: "Boros Attila Naked", tier: "L", unlimited: false, balance: 3000, note: "1 fő × 3000 Ft" },
+  { id: "acc_seed_b072", type: "band", name: "Várhegyutca", tier: "L", unlimited: false, balance: 30000, note: "10 fő × 3000 Ft" },
+  { id: "acc_seed_b073", type: "band", name: "Animas", tier: "L", unlimited: false, balance: 15000, note: "5 fő × 3000 Ft" },
 ].map(a => Object.assign({ active: true, createdAt: new Date().toISOString() }, a));
 
 const CATEGORY_ORDER = ["Csapolt sörök","Borok","Üdítők","Fröccsök","Rövidek","Koktélok"];
@@ -551,8 +550,9 @@ const CATALOG_VERSION = 2;
 const INGREDIENTS_VERSION = 1;
 
 /* Fiók-seed verzió. Növeld, ha a DEFAULT_ACCOUNTS listát bővíted és be akarod tölteni.
-   A seed CSAK akkor tölt be, ha még egyáltalán nincs mentett fiók (nem ír felül semmit). */
-const SEED_ACCOUNTS_VERSION = 1;
+   A seed CSAK akkor tölt be teljesen, ha még egyáltalán nincs mentett fiók.
+   Verzió-emeléskor a seed-fiókok (acc_seed_ ID) kerete frissül, ha még érintetlen. */
+const SEED_ACCOUNTS_VERSION = 3;
 const LS_SEED_ACC_VER = "pos_seed_accounts_version";
 
 function loadJSON(key, fallback) {
@@ -625,11 +625,36 @@ const state = {
   const savedVer = Number(loadJSON(LS_SEED_ACC_VER, 0)) || 0;
   const noneYet = !localStorage.getItem(LS_ACCOUNTS) || (Array.isArray(state.accounts) && state.accounts.length === 0);
   if (noneYet && savedVer < SEED_ACCOUNTS_VERSION) {
+    // Üres állapot: teljes seed betöltése.
     state.accounts = DEFAULT_ACCOUNTS.map(a => Object.assign({}, a));
     saveJSON(LS_ACCOUNTS, state.accounts);
     saveJSON(LS_SEED_ACC_VER, SEED_ACCOUNTS_VERSION);
   } else if (savedVer < SEED_ACCOUNTS_VERSION) {
-    // Már vannak fiókok — csak a verziót jegyezzük fel, hogy ne töltsön újra.
+    // Már vannak fiókok. A seed-fiókok (acc_seed_ ID) adatait igazítjuk a DEFAULT-hoz,
+    // DE csak ha az adott fiókra még nem történt terhelés — így nem írjuk felül a helyszíni fogyást.
+    const chargedIds = new Set(getAllTransactionsEver().filter(t => t.payment === "ACCOUNT" && t.accountId).map(t => t.accountId));
+    const defById = {};
+    DEFAULT_ACCOUNTS.forEach(d => { defById[d.id] = d; });
+    let changed = false;
+    // 1) Frissítés: keret, jegyzet, tier a DEFAULT szerint (érintetlen seed-fiókoknál).
+    state.accounts.forEach(a => {
+      if (a.id && a.id.startsWith("acc_seed_") && defById[a.id] && !chargedIds.has(a.id)) {
+        const d = defById[a.id];
+        if (a.balance !== d.balance) { a.balance = d.balance; changed = true; }
+        if (d.note && a.note !== d.note) { a.note = d.note; changed = true; }
+        if ((a.tier || null) !== (d.tier || null)) { a.tier = d.tier; changed = true; }
+        if (!!a.unlimited !== !!d.unlimited) { a.unlimited = d.unlimited; changed = true; }
+      }
+    });
+    // 2) Eltávolítás: a DEFAULT-ból kivett seed-fiókok (pl. Vizér Dani zenekar),
+    //    ha nem volt rájuk terhelés.
+    const before = state.accounts.length;
+    state.accounts = state.accounts.filter(a => {
+      if (a.id && a.id.startsWith("acc_seed_") && !defById[a.id] && !chargedIds.has(a.id)) return false;
+      return true;
+    });
+    if (state.accounts.length !== before) changed = true;
+    if (changed) persistAccounts();
     saveJSON(LS_SEED_ACC_VER, SEED_ACCOUNTS_VERSION);
   }
 })();
@@ -690,15 +715,31 @@ async function flushSyncQueue() {
     const pend = syncQueue.filter(q => q.status !== "sent");
     for (const item of pend) {
       try {
-        await fetch(syncConfig.url, {
+        const resp = await fetch(syncConfig.url, {
           method: "POST",
           headers: { "Content-Type": "text/plain;charset=utf-8" }, // egyszerű kérés, nincs CORS preflight
-          body: JSON.stringify({ secret: syncConfig.secret, kind: item.kind, data: item.payload })
+          body: JSON.stringify({ secret: syncConfig.secret, kind: item.kind, data: item.payload }),
+          redirect: "follow"
         });
-        // Apps Script átirányíthat; no-cors nélkül nem mindig olvasható a válasz,
-        // ezért optimista: ha nem dobott hibát, elküldöttnek vesszük.
-        item.status = "sent";
-        item.sentAt = new Date().toISOString();
+        // Megpróbáljuk olvasni a script válaszát. Ha olvasható és ok:false → NEM elküldött.
+        let serverOk = true;
+        try {
+          const text = await resp.text();
+          if (text) {
+            const parsed = JSON.parse(text);
+            if (parsed && parsed.ok === false) serverOk = false;
+            item.serverError = serverOk ? "" : (parsed.error || "ismeretlen szerverhiba");
+          }
+        } catch (readErr) {
+          // A válasz nem olvasható (opaque/redirect) — marad az optimista feltételezés.
+        }
+        if (serverOk) {
+          item.status = "sent";
+          item.sentAt = new Date().toISOString();
+        } else {
+          item.status = "error";
+          item.tries = (item.tries || 0) + 1;
+        }
         persistSyncQueue();
         updateSyncBadge();
       } catch (err) {
@@ -726,12 +767,16 @@ function updateSyncBadge() {
   if (!syncConfig.enabled) { el.classList.add("hidden"); return; }
   el.classList.remove("hidden");
   const pend = pendingCount();
+  const errCount = syncQueue.filter(q => q.status === "error").length;
   if (!navigator.onLine) {
     el.textContent = "📴 Nincs net" + (pend ? ` (${pend})` : "");
     el.style.color = "#f87171";
   } else if (syncInFlight) {
     el.textContent = "⏳ Küldés…";
     el.style.color = "#fbbf24";
+  } else if (errCount > 0) {
+    el.textContent = `⚠ ${errCount} hiba`;
+    el.style.color = "#f87171";
   } else if (pend > 0) {
     el.textContent = `⏳ ${pend} vár`;
     el.style.color = "#fbbf24";
@@ -1079,6 +1124,24 @@ let accountPickerSearch = "";
 function renderAccountPicker() {
   const listEl = document.getElementById("accountList");
   if (!listEl) return;
+
+  const searchEl = document.getElementById("accountSearch");
+  const filterEl = document.getElementById("accountTypeFilter");
+  const selectedAcc = findAccount(state.accountId);
+
+  // Ha már ki van választva fiók: csukjuk össze a keresőt+listát, hogy ne kelljen görgetni.
+  if (selectedAcc) {
+    if (searchEl) searchEl.classList.add("hidden");
+    if (filterEl) filterEl.classList.add("hidden");
+    listEl.classList.add("hidden");
+    renderAccountSelected();
+    return;
+  }
+  // Nincs kiválasztva: mutatjuk a keresőt+listát.
+  if (searchEl) searchEl.classList.remove("hidden");
+  if (filterEl) filterEl.classList.remove("hidden");
+  listEl.classList.remove("hidden");
+
   document.querySelectorAll(".acc-filter").forEach(b => {
     const on = b.dataset.atype === accountPickerFilter;
     b.style.backgroundColor = on ? "#f59e0b" : "#1e293b";
@@ -1117,11 +1180,12 @@ function renderAccountSelected() {
   if (!acc) { box.classList.add("hidden"); return; }
   box.classList.remove("hidden");
   const total = cartTotal();
+  const changeBtn = `<button id="btnChangeAccount" class="mt-2 w-full py-2 rounded-lg bg-slate-700 border border-slate-600 text-xs font-semibold hover:bg-slate-600">🔄 Másik fiók választása</button>`;
   if (acc.unlimited) {
     box.style.borderColor = "#f59e0b";
     box.style.background = "rgba(245,158,11,0.08)";
     box.innerHTML = `<div class="font-semibold text-amber-300">${acc.type === "band" ? "🎸" : "👤"} ${esc(acc.name)} — korlátlan (comp)</div>
-      <div class="text-xs text-slate-400 mt-0.5">Nem csökken egyenleg, csak naplózódik: <b>${fmtFt(total)}</b></div>`;
+      <div class="text-xs text-slate-400 mt-0.5">Nem csökken egyenleg, csak naplózódik: <b>${fmtFt(total)}</b></div>${changeBtn}`;
   } else {
     const after = acc.balance - total;
     const short = after < 0;
@@ -1129,8 +1193,17 @@ function renderAccountSelected() {
     box.style.background = short ? "rgba(244,63,94,0.08)" : "rgba(16,185,129,0.08)";
     box.innerHTML = `<div class="font-semibold">${acc.type === "band" ? "🎸" : "👤"} ${esc(acc.name)}</div>
       <div class="text-xs mt-0.5 tabular-nums">Egyenleg: <b>${fmtFt(acc.balance)}</b> → terhelés után: <b class="${short ? "text-rose-400" : "text-emerald-400"}">${fmtFt(after)}</b></div>
-      ${short ? `<div class="text-xs text-rose-400 font-semibold mt-1">⚠ Nincs elég egyenleg: ${fmtFt(-after)} hiányzik. A rögzítés engedélyezett (negatívba megy).</div>` : ""}`;
+      ${short ? `<div class="text-xs text-rose-400 font-semibold mt-1">⚠ Keret túllépve: ${fmtFt(-after)} tartozás. Rögzíthető — utólag rendezendő.</div>` : ""}${changeBtn}`;
   }
+  const cbtn = document.getElementById("btnChangeAccount");
+  if (cbtn) cbtn.addEventListener("click", () => {
+    state.accountId = null;
+    accountPickerSearch = "";
+    const se = document.getElementById("accountSearch");
+    if (se) se.value = "";
+    renderAccountPicker();
+    renderChangeAndCheckout();
+  });
 }
 
 function updateChangeSlider() {
@@ -2072,8 +2145,17 @@ function wireSyncSettings() {
     if (!syncConfig.enabled || !syncConfig.url) { msg.textContent = "Előbb mentsd a beállításokat és kapcsold be."; msg.className = "text-xs text-rose-400"; return; }
     msg.textContent = "Küldés folyamatban…"; msg.className = "text-xs text-amber-400";
     await flushSyncQueue();
-    msg.textContent = pendingCount() ? `${pendingCount()} tétel maradt (hálózati hiba?).` : "✓ Minden felküldve.";
-    msg.className = pendingCount() ? "text-xs text-rose-400" : "text-xs text-emerald-400";
+    const errItem = syncQueue.find(q => q.status === "error" && q.serverError);
+    if (errItem) {
+      msg.textContent = `⚠ A szerver hibát adott: „${errItem.serverError}". Ha ez „unknown kind", a régi Apps Script fut — telepítsd a v2-t!`;
+      msg.className = "text-xs text-rose-400";
+    } else if (pendingCount()) {
+      msg.textContent = `${pendingCount()} tétel maradt (hálózati hiba? próbáld újra).`;
+      msg.className = "text-xs text-rose-400";
+    } else {
+      msg.textContent = "✓ Minden felküldve.";
+      msg.className = "text-xs text-emerald-400";
+    }
     renderAdminAccounts();
   });
 }
