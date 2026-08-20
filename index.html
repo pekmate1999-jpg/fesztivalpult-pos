@@ -423,6 +423,87 @@ const DEFAULT_RECIPES = {
   "Maci":              [{ ingredientId: "ing_szorp",     amount: 20,  unit: "ml" }]
 };
 
+/* ======================= FIÓKOK (kaszt-lista) — kezdő seed ======================= */
+/* Első indításkor betöltődnek. Ha SEED_ACCOUNTS_VERSION-t növeled és NINCS még fiók
+   mentve, újratöltődik; meglévő fiókokat NEM ír felül (a helyszíni módosításaid megmaradnak).
+   Presetek: XXL Leg / XL = comp (korlátlan), L = 3000 Ft, M/S/XS = 0, XXS = 3000 Ft.
+   A zenekarok réteg nélkül, 0 egyenleggel indulnak (a tagok kasztja egyénileg változik). */
+const DEFAULT_ACCOUNTS = [
+  { id: "acc_seed_p001", type: "person", name: "Farkas Hanga", tier: "XXL Leg", unlimited: true, balance: 0, note: "" },
+  { id: "acc_seed_p002", type: "person", name: "Farkas Kincső", tier: "XXL Leg", unlimited: true, balance: 0, note: "" },
+  { id: "acc_seed_p003", type: "person", name: "Kass Lívia", tier: "XXL Leg", unlimited: true, balance: 0, note: "" },
+  { id: "acc_seed_p004", type: "person", name: "Kovács Boldizsár", tier: "XXL Leg", unlimited: true, balance: 0, note: "" },
+  { id: "acc_seed_p005", type: "person", name: "Vizér Dani", tier: "XXL Leg", unlimited: true, balance: 0, note: "" },
+  { id: "acc_seed_p006", type: "person", name: "Pálinkás Gerdő", tier: "XXL Leg", unlimited: true, balance: 0, note: "" },
+  { id: "acc_seed_p007", type: "person", name: "Ágoston Lili", tier: "XL", unlimited: true, balance: 0, note: "" },
+  { id: "acc_seed_p008", type: "person", name: "Ágoston Rebeka", tier: "XL", unlimited: true, balance: 0, note: "" },
+  { id: "acc_seed_p009", type: "person", name: "Bojti Tádé", tier: "XL", unlimited: true, balance: 0, note: "" },
+  { id: "acc_seed_p010", type: "person", name: "Dombi Ágoston", tier: "XL", unlimited: true, balance: 0, note: "" },
+  { id: "acc_seed_p011", type: "person", name: "Dombi Eszti", tier: "XL", unlimited: true, balance: 0, note: "" },
+  { id: "acc_seed_p012", type: "person", name: "Dravecz Enikő", tier: "XL", unlimited: true, balance: 0, note: "" },
+  { id: "acc_seed_p013", type: "person", name: "Pfeiffer Dániel", tier: "XL", unlimited: true, balance: 0, note: "" },
+  { id: "acc_seed_p014", type: "person", name: "Sóbujtó Ármin", tier: "XL", unlimited: true, balance: 0, note: "" },
+  { id: "acc_seed_p015", type: "person", name: "Sóbujtó Regő", tier: "XL", unlimited: true, balance: 0, note: "" },
+  { id: "acc_seed_p016", type: "person", name: "Pék Máté", tier: "XL", unlimited: true, balance: 0, note: "" },
+  { id: "acc_seed_p017", type: "person", name: "Német Csanád", tier: "XL", unlimited: true, balance: 0, note: "" },
+  { id: "acc_seed_p018", type: "person", name: "Németh Barna András", tier: "XL", unlimited: true, balance: 0, note: "" },
+  { id: "acc_seed_p019", type: "person", name: "Bedő Bella", tier: "XL", unlimited: true, balance: 0, note: "" },
+  { id: "acc_seed_p020", type: "person", name: "Berty Csongor", tier: "XL", unlimited: true, balance: 0, note: "" },
+  { id: "acc_seed_p021", type: "person", name: "Csabai Bálint", tier: "XL", unlimited: true, balance: 0, note: "" },
+  { id: "acc_seed_p022", type: "person", name: "Hegedűs Réka", tier: "XL", unlimited: true, balance: 0, note: "" },
+  { id: "acc_seed_p023", type: "person", name: "Hegedűs Sári", tier: "XL", unlimited: true, balance: 0, note: "" },
+  { id: "acc_seed_p024", type: "person", name: "Hevesi Eszter", tier: "XL", unlimited: true, balance: 0, note: "" },
+  { id: "acc_seed_p025", type: "person", name: "Mészáros Levente", tier: "XL", unlimited: true, balance: 0, note: "" },
+  { id: "acc_seed_p026", type: "person", name: "Szlávik Veronika", tier: "XL", unlimited: true, balance: 0, note: "" },
+  { id: "acc_seed_p027", type: "person", name: "Varga Dorottya", tier: "XL", unlimited: true, balance: 0, note: "" },
+  { id: "acc_seed_p028", type: "person", name: "Varga Szemes Lázár", tier: "XL", unlimited: true, balance: 0, note: "" },
+  { id: "acc_seed_p029", type: "person", name: "Garamszegi Balázs", tier: "L", unlimited: false, balance: 3000, note: "" },
+  { id: "acc_seed_p030", type: "person", name: "Pozsonyi Zsombor", tier: "L", unlimited: false, balance: 3000, note: "" },
+  { id: "acc_seed_p031", type: "person", name: "Pozsonyi Nóra", tier: "M", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p032", type: "person", name: "Kurucz Gábor", tier: "M", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p033", type: "person", name: "Csibrik Sándor", tier: "M", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p034", type: "person", name: "Ónódi Bence", tier: "M", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p035", type: "person", name: "Dudás Misi", tier: "M", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p036", type: "person", name: "Herczegh Zsófia", tier: "M", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p037", type: "person", name: "Fenyvesi Bálint", tier: "M", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p038", type: "person", name: "Karsai Márton", tier: "S", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p039", type: "person", name: "Dombi Barbara", tier: "S", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p040", type: "person", name: "Hanyecz Adél", tier: "M", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p041", type: "person", name: "Zsóri Gergely", tier: null, unlimited: false, balance: 0, note: "félár bérlet és 2 ingyen kaja" },
+  { id: "acc_seed_p042", type: "person", name: "Farkas Kökény", tier: "S", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p043", type: "person", name: "Kovács Bálint", tier: "S", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p044", type: "person", name: "Ditrich Gergely", tier: "S", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p045", type: "person", name: "Kubatovics Ákos", tier: "S", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p046", type: "person", name: "Bárzci Manó", tier: "S", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p047", type: "person", name: "Nery Lopez", tier: "S", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p048", type: "person", name: "Heinczinger Botond", tier: "S", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p049", type: "person", name: "Pék Janka", tier: "M", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p050", type: "person", name: "Meggyesi Botond", tier: "S", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p051", type: "person", name: "Sweetenham Bence", tier: "S", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p052", type: "person", name: "Fehérvári Bence", tier: "S", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p053", type: "person", name: "Vincze Viktor", tier: "S", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p054", type: "person", name: "Szabó István", tier: "S", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p055", type: "person", name: "Martincsák Anna", tier: null, unlimited: false, balance: 0, note: "fél áron bérlet" },
+  { id: "acc_seed_p056", type: "person", name: "Ágoston Béla", tier: "M", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p057", type: "person", name: "Dombi Anna", tier: null, unlimited: false, balance: 3000, note: "2 ingyen kaja és 3000 Ft pia" },
+  { id: "acc_seed_p058", type: "person", name: "Horváth Ábel", tier: null, unlimited: false, balance: 0, note: "KL — kaszt tisztázandó" },
+  { id: "acc_seed_b059", type: "band", name: "Sezlony", tier: null, unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_b060", type: "band", name: "The Fless", tier: null, unlimited: false, balance: 0, note: "Dávid" },
+  { id: "acc_seed_b061", type: "band", name: "Koszmosz936", tier: null, unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_b062", type: "band", name: "Eugenetooms", tier: null, unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_b063", type: "band", name: "Nonszensz", tier: null, unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_b064", type: "band", name: "Kemény Viktor", tier: null, unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_b065", type: "band", name: "Hesztiék", tier: null, unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_b066", type: "band", name: "III/2", tier: null, unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_b067", type: "band", name: "Deres", tier: null, unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_b068", type: "band", name: "Vizér Dani", tier: null, unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_b069", type: "band", name: "Cs. M (DJ)", tier: null, unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_b070", type: "band", name: "Csanád, Bence", tier: null, unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_b071", type: "band", name: "Boros Attila Naked", tier: null, unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_b072", type: "band", name: "Várhegyutca", tier: null, unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_b073", type: "band", name: "Animas", tier: null, unlimited: false, balance: 0, note: "" },
+].map(a => Object.assign({ active: true, createdAt: new Date().toISOString() }, a));
+
 const CATEGORY_ORDER = ["Csapolt sörök","Borok","Üdítők","Fröccsök","Rövidek","Koktélok"];
 const CATEGORY_COLORS = {
   "Csapolt sörök": "#f59e0b", "Borok": "#c084fc", "Üdítők": "#38bdf8",
@@ -468,6 +549,11 @@ const CATALOG_VERSION = 2;
 /* Alapanyag/recept verzió. Növeld, ha a DEFAULT_INGREDIENTS/DEFAULT_RECIPES-t
    frissíted (pl. a segédlet alapján) és élesíteni akarod a böngészőkben. */
 const INGREDIENTS_VERSION = 1;
+
+/* Fiók-seed verzió. Növeld, ha a DEFAULT_ACCOUNTS listát bővíted és be akarod tölteni.
+   A seed CSAK akkor tölt be, ha még egyáltalán nincs mentett fiók (nem ír felül semmit). */
+const SEED_ACCOUNTS_VERSION = 1;
+const LS_SEED_ACC_VER = "pos_seed_accounts_version";
 
 function loadJSON(key, fallback) {
   try {
@@ -530,6 +616,21 @@ const state = {
     saveJSON(LS_INGREDIENTS, state.ingredients);
     saveJSON(LS_RECIPES, state.recipes);
     saveJSON(LS_INGR_VER, INGREDIENTS_VERSION);
+  }
+})();
+
+/* Fiók-seed: ha még egyáltalán nincs mentett fiók, betöltjük a kaszt-listát.
+   Ha már van akár egy fiók is, NEM nyúlunk hozzá (a helyszíni munkád elsőbbséget élvez). */
+(function seedAccounts() {
+  const savedVer = Number(loadJSON(LS_SEED_ACC_VER, 0)) || 0;
+  const noneYet = !localStorage.getItem(LS_ACCOUNTS) || (Array.isArray(state.accounts) && state.accounts.length === 0);
+  if (noneYet && savedVer < SEED_ACCOUNTS_VERSION) {
+    state.accounts = DEFAULT_ACCOUNTS.map(a => Object.assign({}, a));
+    saveJSON(LS_ACCOUNTS, state.accounts);
+    saveJSON(LS_SEED_ACC_VER, SEED_ACCOUNTS_VERSION);
+  } else if (savedVer < SEED_ACCOUNTS_VERSION) {
+    // Már vannak fiókok — csak a verziót jegyezzük fel, hogy ne töltsön újra.
+    saveJSON(LS_SEED_ACC_VER, SEED_ACCOUNTS_VERSION);
   }
 })();
 
@@ -1204,14 +1305,35 @@ function checkout() {
   persistTx();
 
   // Google Sheets élő napló (offline várólistán keresztül)
-  queueSync("tx", {
-    time: tx.time,
-    items: tx.items.map(i => `${i.qty}× ${i.name} (${i.price} Ft)`).join(" | "),
-    total: tx.total,
-    tip: tx.tip,
-    payment: tx.payment,
-    accountName: tx.accountName || "",
-    comp: tx.comp ? "igen" : ""
+  // 1) Tételenként egy sor (formulázható long formátum)
+  tx.items.forEach(i => {
+    queueSync("item", {
+      time: tx.time,
+      txId: tx.id,
+      product: i.name,
+      category: i.category || "",
+      qty: i.qty,
+      unitPrice: i.price,
+      lineTotal: i.price * i.qty,
+      payment: tx.payment,
+      accountName: tx.accountName || "",
+      comp: tx.comp ? "igen" : "",
+      tip: tx.tip || 0
+    });
+  });
+  // 2) Alapanyag-fogyás: ehhez a tranzakcióhoz tartozó bontás, alapanyagonként egy sor
+  const usage = computeIngredientUsage([tx]).byIngredient;
+  Object.values(usage).forEach(row => {
+    queueSync("usage", {
+      time: tx.time,
+      txId: tx.id,
+      ingredient: row.ing.name,
+      category: row.ing.category || "",
+      amount: Math.round(row.amount * 100) / 100,
+      unit: row.ing.contentUnit,
+      purchaseUnit: row.ing.purchaseUnit,
+      units: Math.round(row.units * 1000) / 1000
+    });
   });
 
   state.cart = [];
