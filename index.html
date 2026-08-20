@@ -58,12 +58,44 @@
       <h1 class="text-lg font-extrabold tracking-tight leading-none">Fesztiválpult <span class="text-slate-500 font-semibold">POS</span></h1>
     </div>
     <div class="flex items-center gap-3">
+      <button id="btnShift" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 active:scale-95 border border-slate-700 text-sm font-semibold transition" title="Műszakváltás — ki viszi a pultot">👤 <span id="shiftStaffLabel" class="text-slate-400">Nincs műszak</span></button>
       <span id="syncBadge" class="hidden text-xs font-semibold tabular-nums" title="Google Sheets szinkron állapota"></span>
       <span id="clock" class="text-sm text-slate-400 tabular-nums hidden sm:inline"></span>
       <button id="btnInstall" class="hidden px-3 py-2 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 active:scale-95 border border-amber-500/40 text-amber-300 text-sm font-semibold transition">⬇ Telepítés</button>
       <button id="btnAdmin" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 active:scale-95 border border-slate-700 text-sm font-semibold transition">⚙ Admin</button>
     </div>
   </header>
+
+  <!-- Műszakváltás modal -->
+  <div id="shiftModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-5">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg font-bold">🔄 Műszakváltás</h2>
+        <button id="btnShiftClose" class="text-slate-400 hover:text-white text-xl leading-none">×</button>
+      </div>
+      <p class="text-slate-400 text-xs mb-4">Rögzíti, ki viszi a pultot mostantól. <b>Nem töröl semmit</b> — a forgalmi adatok folyamatosak maradnak, csak megjelöljük, melyik szakaszt ki vitte.</p>
+      <div id="shiftCurrentInfo" class="hidden text-xs text-slate-400 bg-slate-800/60 rounded-lg px-3 py-2 mb-3"></div>
+      <div class="space-y-3">
+        <div>
+          <label class="text-xs text-slate-400 block mb-1">Átvevő pultos(ok) — ki lesz most a pultnál <span class="text-rose-400">*</span></label>
+          <input id="shiftStaffIn" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm" placeholder="pl. Anna, Peti" />
+        </div>
+        <div>
+          <label class="text-xs text-slate-400 block mb-1">Átadó pultos(ok) — ki adja át (opcionális)</label>
+          <input id="shiftStaffOut" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm" placeholder="az előző műszak" />
+        </div>
+        <div>
+          <label class="text-xs text-slate-400 block mb-1">Megjegyzés (opcionális) — pl. kassza-összeg átadáskor</label>
+          <input id="shiftNote" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm" placeholder="pl. Kassza: 45 000 Ft KP" />
+        </div>
+      </div>
+      <div class="flex gap-2 mt-4">
+        <button id="btnShiftStart" class="flex-1 px-4 py-2.5 rounded-lg bg-amber-500 text-slate-950 font-bold text-sm hover:bg-amber-400">Műszak indítása</button>
+        <button id="btnShiftCancel" class="px-4 py-2.5 rounded-lg bg-slate-700 border border-slate-600 text-sm font-semibold hover:bg-slate-600">Mégse</button>
+      </div>
+      <p id="shiftMsg" class="text-xs mt-2"></p>
+    </div>
+  </div>
 
   <!-- MAIN -->
   <main id="mainLayout" class="min-h-0">
@@ -599,6 +631,7 @@ const LS_INGR_VER = "pos_ingredients_version";
 const LS_SYNC_QUEUE = "pos_sync_queue_v1";
 const LS_SYNC_CFG = "pos_sync_config_v1";
 const LS_CATALOG_VER = "pos_catalog_version";
+const LS_SHIFT = "pos_current_shift_v1";   // aktuális pultos-műszak (ki viszi most)
 const DEFAULT_PIN = "1234";
 
 /* A hivatalos itallap verziószáma. Ha ezt megnöveled és újratöltöd az appot,
@@ -645,7 +678,8 @@ const state = {
   payment: null,
   accountId: null,
   received: 0,
-  tip: loadJSON(LS_TIP, 0)
+  tip: loadJSON(LS_TIP, 0),
+  currentShift: loadJSON(LS_SHIFT, null)   // { id, startedAt, staff, note } — ki viszi most a pultot
 };
 
 /* Katalógus-migráció: ha a mentett verzió elmarad a kódban lévőtől,
@@ -727,6 +761,33 @@ function persistHistory() { saveJSON(LS_HISTORY, state.shiftHistory); }
 function persistPin() { saveJSON(LS_PIN, state.pin); }
 function persistFavorites() { saveJSON(LS_FAV, state.favorites); }
 function persistTip() { saveJSON(LS_TIP, state.tip); }
+function persistShift() { saveJSON(LS_SHIFT, state.currentShift); }
+
+/* Új pultos-műszak indítása (műszakváltás). NEM töröl semmit — csak naplózza,
+   ki viszi a pultot mostantól. A tranzakciók megkapják ezt a shiftId-t. */
+function startShift(staffIn, staffOut, note) {
+  const now = new Date().toISOString();
+  const shift = {
+    id: "shift" + Date.now() + Math.random().toString(36).slice(2, 5),
+    startedAt: now,
+    staff: (staffIn || "").trim(),          // ki veszi át (aktuális pultos)
+    handoverFrom: (staffOut || "").trim(),  // ki adta át
+    note: (note || "").trim()               // szabad megjegyzés (pl. kassza-összeg)
+  };
+  state.currentShift = shift;
+  persistShift();
+  // Drive-napló: a műszakváltás külön sorként a Sheetbe (Excel-elemzéshez).
+  queueSync("shift", {
+    time: now,
+    shiftId: shift.id,
+    staff: shift.staff,
+    handoverFrom: shift.handoverFrom,
+    note: shift.note
+  });
+  // Minden műszakváltáskor egy teljes mentés is (biztonsági pont).
+  try { queueSnapshot("műszakváltás: " + (shift.staff || "?")); } catch (e) {}
+  return shift;
+}
 function persistAccounts() { saveJSON(LS_ACCOUNTS, state.accounts); }
 function persistIngredients() { saveJSON(LS_INGREDIENTS, state.ingredients); }
 function persistRecipes() { saveJSON(LS_RECIPES, state.recipes); }
@@ -827,7 +888,7 @@ async function flushSyncQueue() {
 // A visszaállításhoz mentendő localStorage kulcsok (minden állapot, ami az appot leírja).
 const BACKUP_KEYS = [
   LS_PRODUCTS, LS_TX, LS_HISTORY, LS_FAV, LS_TIP, LS_ACCOUNTS,
-  LS_INGREDIENTS, LS_RECIPES, LS_PIN,
+  LS_INGREDIENTS, LS_RECIPES, LS_PIN, LS_SHIFT,
   LS_CATALOG_VER, LS_INGR_VER, LS_SEED_ACC_VER
 ];
 
@@ -1691,7 +1752,10 @@ function checkout() {
     grandTotal: itemsTotal + effTip,
     payment: state.payment,
     received: state.payment === "KP" ? state.received : (itemsTotal + effTip),
-    change: state.payment === "KP" ? (state.received - total) : 0
+    change: state.payment === "KP" ? (state.received - total) : 0,
+    // Melyik pultos-műszakban történt (Excel-elemzéshez). Ha nincs indított műszak, üres.
+    shiftId: state.currentShift ? state.currentShift.id : "",
+    staff: state.currentShift ? state.currentShift.staff : ""
   };
 
   if (state.payment === "ACCOUNT" && account) {
@@ -1766,7 +1830,9 @@ function checkout() {
       payment: tx.payment,
       accountName: tx.accountName || "",
       comp: tx.comp ? "igen" : "",
-      tip: tx.tip || 0
+      tip: tx.tip || 0,
+      staff: tx.staff || "",
+      shiftId: tx.shiftId || ""
     });
   });
   // 2) Alapanyag-fogyás: ehhez a tranzakcióhoz tartozó bontás, alapanyagonként egy sor
@@ -1958,6 +2024,50 @@ document.getElementById("btnAdmin").addEventListener("click", () => {
   if (adminUnlocked) openAdmin();
   else openPinModal();
 });
+
+/* ======================= MŰSZAKVÁLTÁS ======================= */
+function updateShiftLabel() {
+  const lbl = document.getElementById("shiftStaffLabel");
+  if (!lbl) return;
+  if (state.currentShift && state.currentShift.staff) {
+    lbl.textContent = state.currentShift.staff;
+    lbl.className = "text-amber-300 font-semibold";
+  } else {
+    lbl.textContent = "Nincs műszak";
+    lbl.className = "text-slate-400";
+  }
+}
+function openShiftModal() {
+  const m = document.getElementById("shiftModal");
+  const info = document.getElementById("shiftCurrentInfo");
+  if (state.currentShift && state.currentShift.staff) {
+    const since = new Date(state.currentShift.startedAt).toLocaleString("hu-HU", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+    info.innerHTML = `Jelenlegi műszak: <b class="text-amber-300">${esc(state.currentShift.staff)}</b> (${since} óta)`;
+    info.classList.remove("hidden");
+    document.getElementById("shiftStaffOut").value = state.currentShift.staff;
+  } else {
+    info.classList.add("hidden");
+  }
+  document.getElementById("shiftStaffIn").value = "";
+  document.getElementById("shiftNote").value = "";
+  document.getElementById("shiftMsg").textContent = "";
+  m.classList.remove("hidden");
+  setTimeout(() => document.getElementById("shiftStaffIn").focus(), 50);
+}
+function closeShiftModal() { document.getElementById("shiftModal").classList.add("hidden"); }
+document.getElementById("btnShift").addEventListener("click", openShiftModal);
+document.getElementById("btnShiftClose").addEventListener("click", closeShiftModal);
+document.getElementById("btnShiftCancel").addEventListener("click", closeShiftModal);
+document.getElementById("btnShiftStart").addEventListener("click", () => {
+  const staffIn = document.getElementById("shiftStaffIn").value.trim();
+  const msg = document.getElementById("shiftMsg");
+  if (!staffIn) { msg.textContent = "Add meg, ki veszi át a pultot."; msg.className = "text-xs text-rose-400"; return; }
+  startShift(staffIn, document.getElementById("shiftStaffOut").value, document.getElementById("shiftNote").value);
+  updateShiftLabel();
+  closeShiftModal();
+});
+updateShiftLabel();
+
 document.getElementById("btnCloseAdmin").addEventListener("click", closeAdmin);
 document.getElementById("adminOverlay").addEventListener("click", closeAdmin);
 document.addEventListener("keydown", e => { if (e.key === "Escape") { closeAdmin(); closePinModal(); closeCustomRevenueModal(); closeTxEditModal(); closeAccountDetail(); } });
@@ -3493,10 +3603,11 @@ function renderAdminData() {
       <p id="pinChangeMsg" class="text-xs mt-2"></p>
     </div>
 
-    <h3 class="text-lg font-bold mt-8 mb-2 text-rose-400">Veszélyes zóna</h3>
+    <h3 class="text-lg font-bold mt-8 mb-2 text-rose-400">Veszélyes zóna — fesztivál végi zárás</h3>
     <div class="rounded-xl border-2 border-rose-900 bg-rose-950/30 p-4">
-      <p class="text-sm text-slate-300 mb-3">A "Műszak zárása" törli az összes eddig rögzített <b>tranzakciót</b> és <b>üríti a kosarat</b>. A termékkatalógus (nevek, árak, kategóriák) megmarad. A művelet nem visszavonható.</p>
-      <button id="btnOpenCloseShift" class="px-4 py-3 rounded-xl bg-rose-600 hover:bg-rose-500 font-bold">🗑 Műszak zárása / Adatok törlése</button>
+      <p class="text-sm text-slate-300 mb-2">⚠ Ez a gomb <b>a teljes esemény végére</b> való, NEM a napi műszakváltásra. Törli az összes rögzített <b>tranzakciót</b> és üríti a kosarat. A termékkatalógus, a fiókok és az egyenlegek (tartozások!) <b>megmaradnak</b>. A művelet nem visszavonható.</p>
+      <p class="text-xs text-amber-300/90 bg-amber-500/10 border border-amber-500/30 rounded-lg px-3 py-2 mb-3">💡 Műszakváltáshoz a fejlécben lévő <b>👤 pultos gombot</b> használd — az nem töröl adatot. Zárás előtt a rendszer automatikusan ment a Drive-ra.</p>
+      <button id="btnOpenCloseShift" class="px-4 py-3 rounded-xl bg-rose-600 hover:bg-rose-500 font-bold">🗑 Fesztivál zárása / Összes tranzakció törlése</button>
       <div id="closeShiftConfirm" class="hidden mt-4 p-3 rounded-lg bg-slate-900 border border-rose-800">
         <p class="text-sm text-slate-300 mb-2">A megerősítéshez írd be: <span class="font-mono font-bold text-rose-300">TÖRLÉS</span></p>
         <div class="flex gap-2">
