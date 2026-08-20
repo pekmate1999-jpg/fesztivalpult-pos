@@ -822,6 +822,74 @@ async function flushSyncQueue() {
   }
 }
 
+/* ======================= TELJES ÁLLAPOT-BACKUP (Drive snapshot) ======================= */
+
+// A visszaállításhoz mentendő localStorage kulcsok (minden állapot, ami az appot leírja).
+const BACKUP_KEYS = [
+  LS_PRODUCTS, LS_TX, LS_HISTORY, LS_FAV, LS_TIP, LS_ACCOUNTS,
+  LS_INGREDIENTS, LS_RECIPES, LS_PIN,
+  LS_CATALOG_VER, LS_INGR_VER, LS_SEED_ACC_VER
+];
+
+// Összegyűjti a teljes állapotot egy objektumba (kulcs → nyers string).
+function collectFullState() {
+  const dump = {};
+  BACKUP_KEYS.forEach(k => {
+    const v = localStorage.getItem(k);
+    if (v !== null) dump[k] = v;
+  });
+  return {
+    _meta: { app: "fesztivalpult-pos", savedAt: new Date().toISOString(), version: CATALOG_VERSION },
+    data: dump
+  };
+}
+
+let lastSnapshotAt = 0;
+
+// Teljes mentés a várólistára (offline-tűrő: amint van net, felmegy).
+function queueSnapshot(label) {
+  const state = JSON.stringify(collectFullState());
+  queueSync("snapshot", { time: new Date().toISOString(), label: label || "", state });
+  lastSnapshotAt = Date.now();
+  saveJSON("pos_last_snapshot_at", lastSnapshotAt);
+}
+
+// Óránkénti automatikus mentés — csak ha be van kapcsolva a sync.
+function maybeAutoSnapshot() {
+  if (!syncConfig.enabled || !syncConfig.url) return;
+  const HOUR = 60 * 60 * 1000;
+  const last = loadJSON("pos_last_snapshot_at", 0);
+  if (Date.now() - last >= HOUR) {
+    queueSnapshot("automatikus (óránkénti)");
+  }
+}
+
+// Visszatöltés Drive-ról: lekéri a legutolsó snapshotot és visszaírja a localStorage-ba.
+async function restoreFromDrive(snapshotId) {
+  if (!syncConfig.enabled || !syncConfig.url) throw new Error("A szinkron nincs beállítva.");
+  const base = syncConfig.url + "?secret=" + encodeURIComponent(syncConfig.secret);
+  const url = snapshotId ? (base + "&action=get&id=" + encodeURIComponent(snapshotId)) : (base + "&action=latest");
+  const resp = await fetch(url, { method: "GET", redirect: "follow" });
+  const text = await resp.text();
+  const parsed = JSON.parse(text);
+  if (!parsed.ok || !parsed.state) throw new Error(parsed.error || "Nincs menthető állapot a Drive-on.");
+  const snap = JSON.parse(parsed.state);
+  if (!snap.data) throw new Error("A mentés formátuma ismeretlen.");
+  // Visszaírás: minden kulcs a mentésből. (A meglévő állapotot felülírja!)
+  Object.keys(snap.data).forEach(k => localStorage.setItem(k, snap.data[k]));
+  return snap._meta || {};
+}
+
+// A mentések listája a visszatöltő-választóhoz.
+async function listDriveSnapshots() {
+  if (!syncConfig.enabled || !syncConfig.url) throw new Error("A szinkron nincs beállítva.");
+  const url = syncConfig.url + "?secret=" + encodeURIComponent(syncConfig.secret) + "&action=list";
+  const resp = await fetch(url, { method: "GET", redirect: "follow" });
+  const parsed = JSON.parse(await resp.text());
+  if (!parsed.ok) throw new Error(parsed.error || "Nem sikerült lekérni a mentéseket.");
+  return parsed.snapshots || [];
+}
+
 function updateSyncBadge() {
   const el = document.getElementById("syncBadge");
   if (!el) return;
@@ -913,6 +981,19 @@ function accountBreakdown(txs) {
     map[key].count += 1;
   });
   return Object.values(map).sort((a, b) => b.total - a.total);
+}
+
+/* Kinnlevőség: a negatív egyenlegű fiókok tartozása (amit még be kell szedni).
+   A kaszt-vezérelt fiókok 0-ról indulnak, és a fizetős rész negatívba viszi őket —
+   a tartozás = az egyenleg abszolút értéke, ha negatív.
+   Visszaad: { totalOwed, accounts: [{name, tier, type, owed}], count }. */
+function computeOutstanding() {
+  const owing = state.accounts
+    .filter(a => a.active !== false && !a.unlimited && a.balance < 0)
+    .map(a => ({ id: a.id, name: a.name, tier: a.tier || "", type: a.type, owed: -a.balance }))
+    .sort((x, y) => y.owed - x.owed);
+  const totalOwed = owing.reduce((s, a) => s + a.owed, 0);
+  return { totalOwed, accounts: owing, count: owing.length };
 }
 
 /* ======================= ACCOUNTS (kasztrendszer / fiókok) ======================= */
@@ -1617,26 +1698,33 @@ function checkout() {
     tx.accountId = account.id;
     tx.accountName = account.name;   // denormalizálva: törölt fiók esetén is olvasható marad
     tx.comp = !!account.unlimited;   // korlátlan/comp fogyasztás jelölése
-    // A ténylegesen terhelendő összeg a fiók árazása szerint (normál / %-os / beszerzési).
+    // A ténylegesen terhelendő összeg a fiók árazása szerint (kaszt-szabály / % / beszerzési).
     const charge = accountChargeAmount(account, itemsTotal);
     tx.chargeAmount = charge.amount;       // amit ténylegesen levontunk / naplózunk
-    tx.pricingMode = charge.mode;          // "normal" | "percent" | "cost"
-    tx.pricingNote = charge.note;          // pl. "−30% kedvezmény"
+    tx.pricingMode = charge.mode;          // "tier" | "percent" | "cost" | "normal"
+    tx.pricingNote = charge.note;          // pl. "XL kaszt-szabály"
     tx.fullTotal = itemsTotal;             // teljes ár (kedvezmény előtt) — riporthoz
+    // Tételenkénti terhelt bontás elmentése (a Sheet "Terhelt" oszlopához).
+    // A charge.lines db-onként van; termék+ok szerint aggregáljuk.
+    if (charge.lines && charge.lines.length) {
+      const agg = {};
+      charge.lines.forEach(l => {
+        const key = l.name + "||" + l.reason;
+        if (!agg[key]) agg[key] = { name: l.name, reason: l.reason, charged: 0, full: 0, qty: 0 };
+        agg[key].charged += l.unitCharge;
+        agg[key].full += l.unitFull;
+        agg[key].qty++;
+      });
+      tx.chargedLines = Object.values(agg);
+    }
     if (account.unlimited) {
-      // COMP: az egyenleg NEM csökken, de a fogyasztást naplózzuk (Sheet + történet),
-      // hogy lássuk, mennyibe került a szponzorált fogyasztás (a fiók árazása szerint).
+      // COMP (ha valaki mégis korlátlan): egyenleg nem csökken, csak naplózzuk.
       queueSync("balance", {
-        time: tx.time,
-        accountId: account.id,
-        accountName: account.name,
-        type: "comp",
-        amount: -charge.amount,            // mennyit "ért" a comp fogyasztás (nem vonódik le)
-        newBalance: "korlátlan",
+        time: tx.time, accountId: account.id, accountName: account.name,
+        type: "comp", amount: -charge.amount, newBalance: "korlátlan",
         note: "Comp fogyasztás" + (charge.note ? " (" + charge.note + ")" : "")
       });
     } else {
-      // Nem korlátlan: egyenleg csökkentése (negatívba mehet — pultos dönt).
       adjustAccountBalance(account.id, -charge.amount, "consume", "Kassza terhelés" + (charge.note ? " (" + charge.note + ")" : ""));
     }
   }
@@ -1644,9 +1732,26 @@ function checkout() {
   state.transactions.push(tx);
   persistTx();
 
+  // Segéd: egy adott termékhez a terhelt érték + ok a chargedLines-ból (fiókos tx-nél).
+  function lineChargeFor(productName, fullLineTotal) {
+    if (!tx.chargedLines) {
+      // Nem fiókos vagy nincs bontás: a terhelt = teljes (KP/REVOLUT), vagy 0 ha comp és nincs adat.
+      return { charged: fullLineTotal, reason: "" };
+    }
+    const rows = tx.chargedLines.filter(r => r.name === productName);
+    if (!rows.length) return { charged: fullLineTotal, reason: "" };
+    const charged = rows.reduce((s, r) => s + r.charged, 0);
+    const reason = [...new Set(rows.map(r => r.reason))].join(", ");
+    return { charged, reason };
+  }
+
   // Google Sheets élő napló (offline várólistán keresztül)
   // 1) Tételenként egy sor (formulázható long formátum)
   tx.items.forEach(i => {
+    const lineFull = i.price * i.qty;
+    const lc = tx.payment === "ACCOUNT" ? lineChargeFor(i.name, lineFull) : { charged: lineFull, reason: "" };
+    // "Valós bevétel" oszlop: KP/REVOLUT esetén a teljes; fióknál a terhelt (0, ha ingyen).
+    const realRevenue = (tx.payment === "KP" || tx.payment === "REVOLUT") ? lineFull : lc.charged;
     queueSync("item", {
       time: tx.time,
       txId: tx.id,
@@ -1654,7 +1759,10 @@ function checkout() {
       category: i.category || "",
       qty: i.qty,
       unitPrice: i.price,
-      lineTotal: i.price * i.qty,
+      lineTotal: lineFull,
+      charged: lc.charged,                       // amit ténylegesen felszámoltunk
+      realRevenue: realRevenue,                  // ténylegesen befolyt pénz (fiók-ingyennél 0)
+      discountReason: lc.reason,                 // pl. "alkoholmentes ingyen", "beszerzési ár"
       payment: tx.payment,
       accountName: tx.accountName || "",
       comp: tx.comp ? "igen" : "",
@@ -1799,6 +1907,9 @@ function tickClock() {
 }
 tickClock();
 setInterval(tickClock, 1000 * 15);
+// Óránkénti teljes állapot-mentés a Drive-ra (offline-tűrő; csak ha van net, megy fel).
+setInterval(maybeAutoSnapshot, 1000 * 60 * 5);  // 5 percenként ellenőrzi, hogy eltelt-e 1 óra
+setTimeout(maybeAutoSnapshot, 1000 * 30);        // induláskor is (kis késleltetéssel)
 
 /* ======================= CUSTOM REVENUE (nem listázott tétel) ======================= */
 
@@ -1967,18 +2078,18 @@ function renderAdminStats() {
     return `
     <h3 class="text-lg font-bold mb-4">${title}</h3>
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-      ${card("Valós bevétel (KP+REVOLUT)", fmtFt(s.realRevenue), "#f59e0b")}
-      ${card("KP bevétel", fmtFt(s.kp), "#10b981")}
+      ${card("💰 Befolyt pénz (KP+Revolut)", fmtFt(s.realRevenue), "#10b981")}
+      ${card("KP bevétel", fmtFt(s.kp), "#34d399")}
       ${card("REVOLUT bevétel", fmtFt(s.rv), "#6366f1")}
       ${card("Borravaló összesen", fmtFt(s.tip), "#fbbf24")}
     </div>
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      ${card("Fiókra terhelt (keretből)", fmtFt(s.accountCharged), "#c084fc")}
-      ${card("Comp / korlátlan (ingyen)", fmtFt(s.accountComp), "#f472b6")}
+      ${card("Fiókra terhelt (beszedendő)", fmtFt(s.accountCharged), "#c084fc")}
+      ${card("Comp / ingyen (nem bevétel)", fmtFt(s.accountComp), "#f472b6")}
       ${card("Fiókos összesen", fmtFt(s.accountTotal), "#a78bfa")}
       ${card("Tranzakció / eladott tétel", s.count + " db / " + s.itemsSold + " db", "#e2e8f0")}
     </div>
-    ${brk.length ? `<h4 class="text-sm font-bold mt-4 mb-1 text-slate-300">Fiókonkénti bontás (elszámoláshoz)</h4>` : ""}
+    ${brk.length ? `<h4 class="text-sm font-bold mt-4 mb-1 text-slate-300">Fiókonkénti fogyasztás (ebben az időszakban)</h4>` : ""}
     ${brkHtml}
     <p class="text-slate-500 text-xs mt-3 mb-8">${hint}</p>`;
   };
@@ -2013,8 +2124,41 @@ function renderAdminStats() {
       </table>
     </div>` : "";
 
+  // Kinnlevőség: aktuális negatív egyenlegű fiókok (staff/kaszt tartozása).
+  const out = computeOutstanding();
+  const outHtml = `
+    <div class="rounded-2xl border p-5 mb-6" style="border-color:${out.count ? "#f43f5e" : "#334155"}; background:${out.count ? "rgba(244,63,94,0.06)" : "rgba(30,41,59,0.4)"}">
+      <div class="flex items-center justify-between gap-3 flex-wrap mb-1">
+        <div class="text-slate-300 font-bold">🧾 Beszedendő a fiókokról (kinnlevőség)</div>
+        <div class="text-3xl font-black tabular-nums" style="color:${out.count ? "#fb7185" : "#10b981"}">${fmtFt(out.totalOwed)}</div>
+      </div>
+      ${out.count ? `
+        <p class="text-slate-400 text-xs mb-3">${out.count} fiók tartozik (negatív egyenleg). Ezt a végén be kell szedni.</p>
+        <div class="overflow-x-auto rounded-xl border border-slate-700">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-800 text-slate-400"><tr>
+              <th class="text-left px-3 py-2 font-semibold">Fiók</th>
+              <th class="text-left px-3 py-2 font-semibold">Kaszt</th>
+              <th class="text-right px-3 py-2 font-semibold">Tartozás</th>
+            </tr></thead>
+            <tbody>
+              ${out.accounts.map(a => `<tr class="border-t border-slate-800">
+                <td class="px-3 py-2">${a.type === "band" ? "🎸" : "👤"} ${esc(a.name)}</td>
+                <td class="px-3 py-2 text-slate-400">${esc(a.tier || "—")}</td>
+                <td class="px-3 py-2 text-right tabular-nums font-bold text-rose-400">${fmtFt(a.owed)}</td>
+              </tr>`).join("")}
+            </tbody>
+            <tfoot><tr class="border-t-2 border-slate-600 bg-slate-800/40">
+              <td class="px-3 py-2 font-bold" colspan="2">Összesen beszedendő</td>
+              <td class="px-3 py-2 text-right tabular-nums font-black text-rose-300">${fmtFt(out.totalOwed)}</td>
+            </tr></tfoot>
+          </table>
+        </div>` : `<p class="text-slate-500 text-xs">Jelenleg egyetlen fiók sincs negatívban — nincs beszedendő tartozás. 🎉</p>`}
+    </div>`;
+
   document.getElementById("adminPanelStats").innerHTML = `
-    ${statBlock("Aktuális műszak összesítője", shiftStats, state.transactions, "A legutóbbi \"Műszak zárása\" óta rögzített tranzakciókat összesíti. A \"Valós bevétel\" csak a ténylegesen befolyt pénz (KP+REVOLUT); a fiókos/comp fogyasztás külön blokkban.")}
+    ${outHtml}
+    ${statBlock("Aktuális műszak összesítője", shiftStats, state.transactions, "A legutóbbi \"Műszak zárása\" óta rögzített tranzakciókat összesíti. A \"Befolyt pénz\" a ténylegesen kézhez kapott pénz (KP+Revolut); a fiókos/comp fogyasztás külön blokkban, a beszedendő tartozás pedig fent.")}
     ${statBlock("Mai nap összesen (minden mai műszak)", dailyStats, getDailyTransactions(), "A mai napon lezárt összes műszak + az aktuális, még nyitott műszak együtt.")}
     ${historyHtml}
   `;
@@ -2451,6 +2595,18 @@ function renderSyncSettingsHtml() {
           <li>Kapcsold be a szinkront, mentsd a beállításokat.</li>
         </ol>
       </details>
+    </div>
+
+    <h3 class="text-lg font-bold mt-8 mb-2">💾 Teljes mentés &amp; visszaállítás (Drive)</h3>
+    <p class="text-slate-500 text-xs mb-3">A soronkénti napló mellett a teljes app-állapot (fiókok, tranzakciók, egyenlegek, katalógus) is felmentődik a Drive-ra — <b>óránként automatikusan</b>, műszakzáráskor, és amikor a lenti gombot nyomod. Ha a gép elromlik, egy új eszközön a szinkron beállítása után a „Visszatöltés” gombbal minden helyreáll. A Drive a legutóbbi ~25 mentést őrzi.</p>
+    <div class="rounded-xl bg-slate-800/60 border border-slate-700 p-4 max-w-2xl">
+      <div class="flex flex-wrap items-center gap-2 mb-2">
+        <button id="btnBackupNow" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm">💾 Teljes mentés most</button>
+        <button id="btnRestoreList" class="px-4 py-2 rounded-lg bg-slate-700 border border-slate-600 text-sm font-semibold hover:bg-slate-600">📥 Visszatöltés Drive-ról…</button>
+        <span id="backupMsg" class="text-xs"></span>
+      </div>
+      <div id="restoreListBox" class="hidden mt-3"></div>
+      <p class="text-[11px] text-slate-500 mt-2">⚠ A visszatöltés a jelenlegi állapotot <b>felülírja</b> a mentéssel. Csak új/üres gépen, vagy adatvesztés után használd.</p>
     </div>`;
 }
 function wireSyncSettings() {
@@ -2486,9 +2642,63 @@ function wireSyncSettings() {
     }
     renderAdminAccounts();
   });
-}
 
-/* ======================= ADMIN: ALAPANYAGOK (fogyás) ======================= */
+  // --- Teljes mentés most ---
+  const backupBtn = document.getElementById("btnBackupNow");
+  if (backupBtn) backupBtn.addEventListener("click", async () => {
+    const msg = document.getElementById("backupMsg");
+    if (!syncConfig.enabled || !syncConfig.url) { msg.textContent = "Előbb állítsd be és kapcsold be a szinkront."; msg.className = "text-xs text-rose-400"; return; }
+    msg.textContent = "Mentés készül…"; msg.className = "text-xs text-amber-400";
+    queueSnapshot("kézi mentés");
+    if (navigator.onLine) await flushSyncQueue();
+    const snapItem = syncQueue.find(q => q.kind === "snapshot" && q.status !== "sent");
+    if (!navigator.onLine) { msg.textContent = "📴 Nincs net — a mentés a várólistán van, és felmegy, amint van net."; msg.className = "text-xs text-amber-400"; }
+    else if (snapItem) { msg.textContent = "⚠ A mentés a várólistán maradt (hálózati hiba?). Próbáld újra."; msg.className = "text-xs text-rose-400"; }
+    else { msg.textContent = "✓ Teljes mentés felküldve a Drive-ra."; msg.className = "text-xs text-emerald-400"; }
+  });
+
+  // --- Visszatöltés: mentések listázása ---
+  const restoreBtn = document.getElementById("btnRestoreList");
+  if (restoreBtn) restoreBtn.addEventListener("click", async () => {
+    const msg = document.getElementById("backupMsg");
+    const listBox = document.getElementById("restoreListBox");
+    if (!syncConfig.enabled || !syncConfig.url) { msg.textContent = "Előbb állítsd be és kapcsold be a szinkront."; msg.className = "text-xs text-rose-400"; return; }
+    if (!navigator.onLine) { msg.textContent = "📴 Visszatöltéshez net kell."; msg.className = "text-xs text-rose-400"; return; }
+    msg.textContent = "Mentések lekérése…"; msg.className = "text-xs text-amber-400";
+    try {
+      const snaps = await listDriveSnapshots();
+      if (!snaps.length) { msg.textContent = "Nincs mentés a Drive-on."; msg.className = "text-xs text-slate-400"; return; }
+      msg.textContent = "";
+      listBox.classList.remove("hidden");
+      listBox.innerHTML = `<div class="text-xs text-slate-400 mb-2 font-semibold">Válaszd ki, melyik mentést töltsük vissza (legújabb elöl):</div>
+        <div class="space-y-1 max-h-64 overflow-y-auto">
+        ${snaps.map(s => {
+          const dt = new Date(s.id).toLocaleString("hu-HU", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+          return `<button data-snapid="${esc(s.id)}" class="w-full text-left px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 hover:border-emerald-500 text-xs flex justify-between gap-2">
+            <span>${dt} ${s.label ? `<span class="text-slate-500">— ${esc(s.label)}</span>` : ""}</span>
+            <span class="text-slate-500 shrink-0">${Math.round((s.size || 0) / 1024)} kB</span>
+          </button>`;
+        }).join("")}
+        </div>`;
+      listBox.querySelectorAll("[data-snapid]").forEach(b => {
+        b.addEventListener("click", async () => {
+          const id = b.dataset.snapid;
+          if (!confirm("Biztosan visszatöltöd ezt a mentést?\n\nA jelenlegi állapot (fiókok, tranzakciók, egyenlegek) FELÜLÍRÓDIK. A művelet nem visszavonható.")) return;
+          msg.textContent = "Visszatöltés…"; msg.className = "text-xs text-amber-400";
+          try {
+            await restoreFromDrive(id);
+            msg.textContent = "✓ Visszatöltve! Az oldal újratöltődik…"; msg.className = "text-xs text-emerald-400";
+            setTimeout(() => location.reload(), 1200);
+          } catch (err) {
+            msg.textContent = "⚠ Hiba: " + err.message; msg.className = "text-xs text-rose-400";
+          }
+        });
+      });
+    } catch (err) {
+      msg.textContent = "⚠ Hiba: " + err.message; msg.className = "text-xs text-rose-400";
+    }
+  });
+}
 
 let ingredientView = "usage";       // "usage" | "ingredients" | "recipes"
 let usageScope = "shift";           // "shift" | "today" | shiftId
@@ -3339,6 +3549,8 @@ function renderAdminData() {
       });
       persistHistory();
     }
+    // Teljes mentés a Drive-ra MIELŐTT törlünk — így a lezárt műszak visszakereshető.
+    try { queueSnapshot("műszakzárás előtt"); } catch (e) {}
     state.transactions = [];
     state.cart = [];
     state.received = 0;
