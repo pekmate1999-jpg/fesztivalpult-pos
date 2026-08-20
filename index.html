@@ -167,6 +167,7 @@
         <button data-tab="stats" class="admin-tab px-3 py-2 rounded-lg text-sm font-semibold whitespace-nowrap">📊 Statisztika</button>
         <button data-tab="accounts" class="admin-tab px-3 py-2 rounded-lg text-sm font-semibold whitespace-nowrap">💳 Egyenlegek</button>
         <button data-tab="log" class="admin-tab px-3 py-2 rounded-lg text-sm font-semibold whitespace-nowrap">🧾 Eladási napló</button>
+        <button data-tab="ingredients" class="admin-tab px-3 py-2 rounded-lg text-sm font-semibold whitespace-nowrap">🧪 Alapanyagok</button>
         <button data-tab="products" class="admin-tab px-3 py-2 rounded-lg text-sm font-semibold whitespace-nowrap">📦 Termékek</button>
         <button data-tab="data" class="admin-tab px-3 py-2 rounded-lg text-sm font-semibold whitespace-nowrap">⚠ Adatkezelés</button>
       </div>
@@ -176,6 +177,7 @@
       <div id="adminPanelStats"></div>
       <div id="adminPanelAccounts" class="hidden"></div>
       <div id="adminPanelLog" class="hidden"></div>
+      <div id="adminPanelIngredients" class="hidden"></div>
       <div id="adminPanelProducts" class="hidden"></div>
       <div id="adminPanelData" class="hidden"></div>
     </div>
@@ -334,6 +336,93 @@ const DEFAULT_PRODUCTS = [
   {"category": "Fröccsök", "name": "Maci", "price": 100, "recipe": "Szörp felár egy fröccshöz: málna, bodza, mangó vagy feketeribizli"}
 ].map((p, i) => ({ id: "p" + (i + 1), ...p }));
 
+/* ======================= ALAPANYAGOK + RECEPTEK ======================= */
+/* Alapanyagok a beszerzési egységükben (üveg=700ml, karton=24db stb.).
+   A recept adagban fogyaszt (ml/db), a program átvált beszerzési egységre.
+   optional: true → jég/szóda, külön csoport, a kimutatásban elrejthető.
+   A koktél/long drink receptek BECSLÉSEK — a segédlet érkezésekor felülírjuk. */
+const DEFAULT_INGREDIENTS = [
+  // Szeszek (üveg 700 ml, kivéve jelezve)
+  { id: "ing_vodka",     name: "Vodka (Romanoff)",        category: "Szeszek",  purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml" },
+  { id: "ing_gin",       name: "Gin",                     category: "Szeszek",  purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml" },
+  { id: "ing_rum",       name: "Rum (Bacardi)",           category: "Szeszek",  purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml" },
+  { id: "ing_tequila",   name: "Tequila",                 category: "Szeszek",  purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml" },
+  { id: "ing_jager",     name: "Jägermeister",            category: "Szeszek",  purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml" },
+  { id: "ing_becher",    name: "Becherovka",              category: "Szeszek",  purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml" },
+  { id: "ing_kevert",    name: "Kevert (Bakter)",         category: "Szeszek",  purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml" },
+  { id: "ing_malibu",    name: "Malibu",                  category: "Szeszek",  purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml" },
+  { id: "ing_shanky",    name: "Shanky's whip",           category: "Szeszek",  purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml" },
+  { id: "ing_whiskey",   name: "Whiskey",                 category: "Szeszek",  purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml" },
+  // Borok (üveg 750 ml)
+  { id: "ing_bor_feher", name: "Fehérbor (Hilltop irsai)",category: "Borok",    purchaseUnit: "üveg", contentAmount: 750, contentUnit: "ml" },
+  { id: "ing_bor_roze",  name: "Rozé",                    category: "Borok",    purchaseUnit: "üveg", contentAmount: 750, contentUnit: "ml" },
+  // Sör (hordó 30 l = 30000 ml)
+  { id: "ing_sor",       name: "Dreher (csapolt)",        category: "Sörök",    purchaseUnit: "hordó", contentAmount: 30000, contentUnit: "ml" },
+  { id: "ing_sor_meggy", name: "Dreher meggy (csapolt)",  category: "Sörök",    purchaseUnit: "hordó", contentAmount: 30000, contentUnit: "ml" },
+  // Üdítők (dobozos, db-ban)
+  { id: "ing_cola",      name: "Cola",                    category: "Üdítők",   purchaseUnit: "karton", contentAmount: 24, contentUnit: "db" },
+  { id: "ing_cola_zero", name: "Cola zero",               category: "Üdítők",   purchaseUnit: "karton", contentAmount: 24, contentUnit: "db" },
+  { id: "ing_tonic",     name: "Tonic",                   category: "Üdítők",   purchaseUnit: "karton", contentAmount: 24, contentUnit: "db" },
+  { id: "ing_gyomber",   name: "Gyömbér (ginger ale)",    category: "Üdítők",   purchaseUnit: "karton", contentAmount: 24, contentUnit: "db" },
+  { id: "ing_almale",    name: "Almalé",                  category: "Üdítők",   purchaseUnit: "liter", contentAmount: 1000, contentUnit: "ml" },
+  { id: "ing_narancsle", name: "Narancslé",               category: "Üdítők",   purchaseUnit: "liter", contentAmount: 1000, contentUnit: "ml" },
+  { id: "ing_energia",   name: "Energiaital",             category: "Üdítők",   purchaseUnit: "karton", contentAmount: 24, contentUnit: "db" },
+  // Szörpök (koncentrátum, ml-ben; maci ~2 cl / adag)
+  { id: "ing_szorp",     name: "Szörp (maci: málna/bodza/mangó/ribizli)", category: "Szörpök", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml" },
+  // Opcionális (jég, szóda) — külön csoport
+  { id: "ing_szoda",     name: "Szóda",                   category: "Egyéb",    purchaseUnit: "liter", contentAmount: 1000, contentUnit: "ml", optional: true },
+  { id: "ing_jeg",       name: "Jég",                     category: "Egyéb",    purchaseUnit: "kg",   contentAmount: 1000, contentUnit: "g",  optional: true },
+  { id: "ing_lime",      name: "Lime / citrom",           category: "Egyéb",    purchaseUnit: "kg",   contentAmount: 1000, contentUnit: "g",  optional: true }
+].map(x => Object.assign({ optional: false, stock: null, note: "" }, x));
+
+/* Receptek: termék neve → [{ ingredientId, amount, unit }].
+   A "jó" receptek (felesek, sör, bor, fröccs) pontosak; a koktél/long BECSLÉS. */
+const DEFAULT_RECIPES = {
+  // --- Csapolt sörök (5 dl) ---
+  "Dreher":            [{ ingredientId: "ing_sor",       amount: 500, unit: "ml" }],
+  "Dreher meggy":      [{ ingredientId: "ing_sor_meggy", amount: 500, unit: "ml" }],
+  // --- Borok (1,5 dl pohár) ---
+  "Hilltop irsai":     [{ ingredientId: "ing_bor_feher", amount: 150, unit: "ml" }],
+  "Rozé":              [{ ingredientId: "ing_bor_roze",  amount: 150, unit: "ml" }],
+  // --- Üdítők (1 doboz) ---
+  "Cola":              [{ ingredientId: "ing_cola",      amount: 1, unit: "db" }],
+  "Cola zero":         [{ ingredientId: "ing_cola_zero", amount: 1, unit: "db" }],
+  "Tonic":             [{ ingredientId: "ing_tonic",     amount: 1, unit: "db" }],
+  "Gyömbér":           [{ ingredientId: "ing_gyomber",   amount: 1, unit: "db" }],
+  "Almalé":            [{ ingredientId: "ing_almale",    amount: 200, unit: "ml" }],
+  "Narancslé":         [{ ingredientId: "ing_narancsle", amount: 200, unit: "ml" }],
+  // --- Rövidek / felesek (4 cl) — PONTOS ---
+  "Vodka":             [{ ingredientId: "ing_vodka",   amount: 40, unit: "ml" }],
+  "Gin":               [{ ingredientId: "ing_gin",     amount: 40, unit: "ml" }],
+  "Rum":               [{ ingredientId: "ing_rum",     amount: 40, unit: "ml" }],
+  "Tequila":           [{ ingredientId: "ing_tequila", amount: 40, unit: "ml" }],
+  "Jäger":             [{ ingredientId: "ing_jager",   amount: 40, unit: "ml" }],
+  "Becherovka":        [{ ingredientId: "ing_becher",  amount: 40, unit: "ml" }],
+  "Kevert":            [{ ingredientId: "ing_kevert",  amount: 40, unit: "ml" }],
+  "Malibu":            [{ ingredientId: "ing_malibu",  amount: 40, unit: "ml" }],
+  "Shanky's whip":     [{ ingredientId: "ing_shanky",  amount: 40, unit: "ml" }],
+  "Whiskey":           [{ ingredientId: "ing_whiskey", amount: 40, unit: "ml" }],
+  // --- Koktélok — BECSLÉS (segédletből felülírandó) ---
+  "Gin tonic":         [{ ingredientId: "ing_gin",   amount: 40, unit: "ml" }, { ingredientId: "ing_tonic", amount: 1, unit: "db" }, { ingredientId: "ing_jeg", amount: 100, unit: "g" }],
+  "Gin fizz":          [{ ingredientId: "ing_gin",   amount: 40, unit: "ml" }, { ingredientId: "ing_szoda", amount: 100, unit: "ml" }, { ingredientId: "ing_lime", amount: 20, unit: "g" }],
+  "Vodka szóda":       [{ ingredientId: "ing_vodka", amount: 40, unit: "ml" }, { ingredientId: "ing_szoda", amount: 200, unit: "ml" }, { ingredientId: "ing_jeg", amount: 100, unit: "g" }],
+  "Vodka narancs":     [{ ingredientId: "ing_vodka", amount: 40, unit: "ml" }, { ingredientId: "ing_narancsle", amount: 200, unit: "ml" }, { ingredientId: "ing_jeg", amount: 100, unit: "g" }],
+  "Cuba libre":        [{ ingredientId: "ing_rum",   amount: 40, unit: "ml" }, { ingredientId: "ing_cola", amount: 1, unit: "db" }, { ingredientId: "ing_lime", amount: 20, unit: "g" }],
+  "Long island":       [{ ingredientId: "ing_vodka", amount: 15, unit: "ml" }, { ingredientId: "ing_gin", amount: 15, unit: "ml" }, { ingredientId: "ing_rum", amount: 15, unit: "ml" }, { ingredientId: "ing_tequila", amount: 15, unit: "ml" }, { ingredientId: "ing_cola", amount: 1, unit: "db" }],
+  "Malibu alma":       [{ ingredientId: "ing_malibu", amount: 40, unit: "ml" }, { ingredientId: "ing_almale", amount: 200, unit: "ml" }],
+  "Becherovka tonic":  [{ ingredientId: "ing_becher", amount: 40, unit: "ml" }, { ingredientId: "ing_tonic", amount: 1, unit: "db" }],
+  "Moscow mule":       [{ ingredientId: "ing_vodka", amount: 40, unit: "ml" }, { ingredientId: "ing_gyomber", amount: 1, unit: "db" }, { ingredientId: "ing_lime", amount: 20, unit: "g" }],
+  "Whiskey cola":      [{ ingredientId: "ing_whiskey", amount: 40, unit: "ml" }, { ingredientId: "ing_cola", amount: 1, unit: "db" }],
+  // --- Fröccsök (bor + szóda) — PONTOS ---
+  "Kisfröccs":         [{ ingredientId: "ing_bor_feher", amount: 100, unit: "ml" }, { ingredientId: "ing_szoda", amount: 100, unit: "ml" }],
+  "Nagyfröccs":        [{ ingredientId: "ing_bor_feher", amount: 200, unit: "ml" }, { ingredientId: "ing_szoda", amount: 100, unit: "ml" }],
+  "Hosszúlépés":       [{ ingredientId: "ing_bor_feher", amount: 100, unit: "ml" }, { ingredientId: "ing_szoda", amount: 200, unit: "ml" }],
+  "Sportfröccs":       [{ ingredientId: "ing_bor_feher", amount: 100, unit: "ml" }, { ingredientId: "ing_szoda", amount: 400, unit: "ml" }],
+  "Vice házmester":    [{ ingredientId: "ing_bor_feher", amount: 200, unit: "ml" }, { ingredientId: "ing_szoda", amount: 300, unit: "ml" }],
+  "Házmester":         [{ ingredientId: "ing_bor_feher", amount: 300, unit: "ml" }, { ingredientId: "ing_szoda", amount: 200, unit: "ml" }],
+  "Maci":              [{ ingredientId: "ing_szorp",     amount: 20,  unit: "ml" }]
+};
+
 const CATEGORY_ORDER = ["Csapolt sörök","Borok","Üdítők","Fröccsök","Rövidek","Koktélok"];
 const CATEGORY_COLORS = {
   "Csapolt sörök": "#f59e0b", "Borok": "#c084fc", "Üdítők": "#38bdf8",
@@ -363,6 +452,9 @@ const LS_HISTORY = "pos_shift_history_v1";
 const LS_FAV = "pos_favorites_v1";
 const LS_TIP = "pos_tip_v1";
 const LS_ACCOUNTS = "pos_accounts_v1";
+const LS_INGREDIENTS = "pos_ingredients_v1";
+const LS_RECIPES = "pos_recipes_v1";
+const LS_INGR_VER = "pos_ingredients_version";
 const LS_SYNC_QUEUE = "pos_sync_queue_v1";
 const LS_SYNC_CFG = "pos_sync_config_v1";
 const LS_CATALOG_VER = "pos_catalog_version";
@@ -372,6 +464,10 @@ const DEFAULT_PIN = "1234";
    a már mentett katalógus is felülíródik a DEFAULT_PRODUCTS-ra (kért viselkedés).
    A kézi termékmódosítások eltűnhetnek — szándékosan, hogy az árlista mindig aktuális legyen. */
 const CATALOG_VERSION = 2;
+
+/* Alapanyag/recept verzió. Növeld, ha a DEFAULT_INGREDIENTS/DEFAULT_RECIPES-t
+   frissíted (pl. a segédlet alapján) és élesíteni akarod a böngészőkben. */
+const INGREDIENTS_VERSION = 1;
 
 function loadJSON(key, fallback) {
   try {
@@ -394,6 +490,8 @@ const state = {
   shiftHistory: loadJSON(LS_HISTORY, []),
   favorites: loadJSON(LS_FAV, []),
   accounts: loadJSON(LS_ACCOUNTS, []),
+  ingredients: loadJSON(LS_INGREDIENTS, DEFAULT_INGREDIENTS),
+  recipes: loadJSON(LS_RECIPES, DEFAULT_RECIPES),
   pin: loadJSON(LS_PIN, DEFAULT_PIN),
   category: "ALL",
   search: "",
@@ -418,6 +516,23 @@ const state = {
   }
 })();
 
+/* Alapanyag/recept-migráció: a segédlet érkezésekor a DEFAULT-ok frissítésével
+   + INGREDIENTS_VERSION növelésével a böngészőkbe is átjön az új adat.
+   A stock (készlet) mezőt megőrizzük, ha volt már beállítva. */
+(function migrateIngredients() {
+  const savedVer = Number(loadJSON(LS_INGR_VER, 0)) || 0;
+  const noneYet = !localStorage.getItem(LS_INGREDIENTS);
+  if (noneYet || savedVer < INGREDIENTS_VERSION) {
+    const oldStock = {};
+    (state.ingredients || []).forEach(i => { if (i.stock != null) oldStock[i.id] = i.stock; });
+    state.ingredients = DEFAULT_INGREDIENTS.map(i => Object.assign({}, i, oldStock[i.id] != null ? { stock: oldStock[i.id] } : {}));
+    state.recipes = JSON.parse(JSON.stringify(DEFAULT_RECIPES));
+    saveJSON(LS_INGREDIENTS, state.ingredients);
+    saveJSON(LS_RECIPES, state.recipes);
+    saveJSON(LS_INGR_VER, INGREDIENTS_VERSION);
+  }
+})();
+
 function persistProducts() { saveJSON(LS_PRODUCTS, state.products); }
 function persistTx() { saveJSON(LS_TX, state.transactions); }
 function persistCart() { saveJSON(LS_CART, state.cart); }
@@ -426,6 +541,8 @@ function persistPin() { saveJSON(LS_PIN, state.pin); }
 function persistFavorites() { saveJSON(LS_FAV, state.favorites); }
 function persistTip() { saveJSON(LS_TIP, state.tip); }
 function persistAccounts() { saveJSON(LS_ACCOUNTS, state.accounts); }
+function persistIngredients() { saveJSON(LS_INGREDIENTS, state.ingredients); }
+function persistRecipes() { saveJSON(LS_RECIPES, state.recipes); }
 
 let adminUnlocked = false;
 let pinBuffer = "";
@@ -647,6 +764,77 @@ function accountHistory(accId) {
   return getAllTransactionsEver()
     .filter(t => t.payment === "ACCOUNT" && t.accountId === accId)
     .sort((a, b) => new Date(b.time) - new Date(a.time));
+}
+
+/* ======================= ALAPANYAG-FOGYÁS SZÁMÍTÁS ======================= */
+
+function findIngredient(id) { return state.ingredients.find(i => i.id === id) || null; }
+function recipeFor(productName) { return state.recipes[productName] || null; }
+
+/* Egy mennyiség átváltása az alapanyag beszerzési egységére.
+   pl. 720 ml vodka, üveg=700ml → 1.028 üveg. db→db (karton 24db → 1.5 doboz? nem: db marad db,
+   de a beszerzési egység "karton", tehát 36 db / 24 = 1.5 karton). */
+function toPurchaseUnits(ing, amountInContentUnit) {
+  if (!ing || !ing.contentAmount) return 0;
+  return amountInContentUnit / ing.contentAmount;
+}
+
+/* Recept-sor mennyiségének normalizálása az alapanyag contentUnit-jára.
+   Folyadék: ml↔l; tömeg: g↔kg; db: db. Ha nem illik, ahogy van. */
+function normalizeAmount(amount, fromUnit, toUnit) {
+  if (fromUnit === toUnit) return amount;
+  const f = fromUnit, t = toUnit;
+  // térfogat
+  if (f === "cl" && t === "ml") return amount * 10;
+  if (f === "dl" && t === "ml") return amount * 100;
+  if (f === "l"  && t === "ml") return amount * 1000;
+  if (f === "ml" && t === "l")  return amount / 1000;
+  if (f === "cl" && t === "l")  return amount / 100;
+  if (f === "dl" && t === "l")  return amount / 10;
+  // tömeg
+  if (f === "kg" && t === "g")  return amount * 1000;
+  if (f === "g"  && t === "kg") return amount / 1000;
+  return amount; // db vagy ismeretlen: változatlan
+}
+
+/* Fő számító: egy tranzakció-listából alapanyagonkénti fogyás.
+   Visszaad: { byIngredient: {id: {ing, amount(contentUnit), units(beszerzési), productCounts}}, missing: [{name, qty}] } */
+function computeIngredientUsage(txs) {
+  const byIngredient = {};
+  const missing = {};
+  txs.forEach(t => t.items.forEach(item => {
+    const rec = recipeFor(item.name);
+    if (!rec) {
+      if (!missing[item.name]) missing[item.name] = 0;
+      missing[item.name] += item.qty;
+      return;
+    }
+    rec.forEach(line => {
+      const ing = findIngredient(line.ingredientId);
+      if (!ing) return;
+      const perServing = normalizeAmount(line.amount, line.unit, ing.contentUnit);
+      const totalAmt = perServing * item.qty;
+      if (!byIngredient[ing.id]) byIngredient[ing.id] = { ing, amount: 0, productCounts: {} };
+      byIngredient[ing.id].amount += totalAmt;
+      byIngredient[ing.id].productCounts[item.name] = (byIngredient[ing.id].productCounts[item.name] || 0) + item.qty;
+    });
+  }));
+  // beszerzési egységre átváltás
+  Object.values(byIngredient).forEach(row => { row.units = toPurchaseUnits(row.ing, row.amount); });
+  return {
+    byIngredient,
+    missing: Object.entries(missing).map(([name, qty]) => ({ name, qty })).sort((a, b) => b.qty - a.qty)
+  };
+}
+
+/* Olvasható mennyiség: ml→ha nagy, l-ben; g→kg-ban. */
+function fmtAmount(amount, unit) {
+  if (unit === "ml") return amount >= 1000 ? (amount / 1000).toLocaleString("hu-HU", { maximumFractionDigits: 2 }) + " l" : Math.round(amount).toLocaleString("hu-HU") + " ml";
+  if (unit === "g")  return amount >= 1000 ? (amount / 1000).toLocaleString("hu-HU", { maximumFractionDigits: 2 }) + " kg" : Math.round(amount).toLocaleString("hu-HU") + " g";
+  return amount.toLocaleString("hu-HU", { maximumFractionDigits: 1 }) + " db";
+}
+function fmtUnits(units, purchaseUnit) {
+  return units.toLocaleString("hu-HU", { maximumFractionDigits: 2 }) + " " + purchaseUnit;
 }
 
 /* ======================= RENDER: CATEGORY TABS ======================= */
@@ -1265,7 +1453,7 @@ document.getElementById("adminTabs").addEventListener("click", e => {
   if (!btn) return;
   document.querySelectorAll(".admin-tab").forEach(b => b.classList.remove("bg-amber-500", "text-slate-950"));
   btn.classList.add("bg-amber-500", "text-slate-950");
-  ["stats", "accounts", "log", "products", "data"].forEach(t => {
+  ["stats", "accounts", "log", "ingredients", "products", "data"].forEach(t => {
     document.getElementById("adminPanel" + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle("hidden", t !== btn.dataset.tab);
   });
 });
@@ -1276,6 +1464,7 @@ function renderAdminAll() {
   renderAdminStats();
   renderAdminAccounts();
   renderAdminLog();
+  renderAdminIngredients();
   renderAdminProducts();
   renderAdminData();
 }
@@ -1764,6 +1953,360 @@ function wireSyncSettings() {
     msg.textContent = pendingCount() ? `${pendingCount()} tétel maradt (hálózati hiba?).` : "✓ Minden felküldve.";
     msg.className = pendingCount() ? "text-xs text-rose-400" : "text-xs text-emerald-400";
     renderAdminAccounts();
+  });
+}
+
+/* ======================= ADMIN: ALAPANYAGOK (fogyás) ======================= */
+
+let ingredientView = "usage";       // "usage" | "ingredients" | "recipes"
+let usageScope = "shift";           // "shift" | "today" | shiftId
+let hideOptional = false;
+let recipeEditProduct = null;
+
+function txsForScope() {
+  if (usageScope === "shift") return state.transactions;
+  if (usageScope === "today") return getDailyTransactions();
+  const sh = state.shiftHistory.find(s => s.id === usageScope);
+  return sh ? sh.transactions : [];
+}
+
+function renderAdminIngredients() {
+  const panel = document.getElementById("adminPanelIngredients");
+  const subTab = (v, label) => {
+    const on = ingredientView === v;
+    return `<button data-ingview="${v}" class="px-3 py-2 rounded-lg text-sm font-semibold ${on ? "bg-amber-500 text-slate-950" : "bg-slate-800 text-slate-200 hover:bg-slate-700"}">${label}</button>`;
+  };
+  panel.innerHTML = `
+    <div class="flex gap-2 mb-5 flex-wrap">
+      ${subTab("usage", "📉 Fogyás kimutatás")}
+      ${subTab("ingredients", "🧪 Alapanyagok")}
+      ${subTab("recipes", "📖 Receptek")}
+    </div>
+    <div id="ingSubPanel"></div>
+  `;
+  panel.querySelectorAll("[data-ingview]").forEach(b => {
+    b.addEventListener("click", () => { ingredientView = b.dataset.ingview; renderAdminIngredients(); });
+  });
+  if (ingredientView === "usage") renderIngredientUsage();
+  else if (ingredientView === "ingredients") renderIngredientList();
+  else renderRecipeEditor();
+}
+
+/* --- 1) Fogyás kimutatás --- */
+function renderIngredientUsage() {
+  const box = document.getElementById("ingSubPanel");
+  const txs = txsForScope();
+  const { byIngredient, missing } = computeIngredientUsage(txs);
+
+  // scope választó opciók
+  const shiftOpts = state.shiftHistory.map(sh => {
+    const dt = new Date(sh.closedAt).toLocaleString("hu-HU", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+    return `<option value="${sh.id}" ${usageScope === sh.id ? "selected" : ""}>Lezárt műszak — ${dt}</option>`;
+  }).join("");
+
+  // csoportosítás kategória szerint, opcionálisak külön
+  const rows = Object.values(byIngredient).sort((a, b) => {
+    if (!!a.ing.optional !== !!b.ing.optional) return a.ing.optional ? 1 : -1;
+    return (a.ing.category || "").localeCompare(b.ing.category || "", "hu") || b.units - a.units;
+  });
+  const shown = hideOptional ? rows.filter(r => !r.ing.optional) : rows;
+
+  const groupOrder = ["Szeszek", "Sörök", "Borok", "Üdítők", "Szörpök", "Egyéb"];
+  const grouped = {};
+  shown.forEach(r => { const c = r.ing.category || "Egyéb"; (grouped[c] = grouped[c] || []).push(r); });
+  const cats = Object.keys(grouped).sort((a, b) => {
+    const ia = groupOrder.indexOf(a), ib = groupOrder.indexOf(b);
+    return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+  });
+
+  const tableHtml = shown.length ? cats.map(cat => `
+    <div class="mb-4">
+      <div class="text-xs font-bold uppercase tracking-wide mb-1 text-slate-400">${esc(cat)}</div>
+      <div class="overflow-x-auto rounded-xl border border-slate-700">
+        <table class="w-full text-sm">
+          <thead class="bg-slate-800 text-slate-400"><tr>
+            <th class="text-left px-3 py-2 font-semibold">Alapanyag</th>
+            <th class="text-right px-3 py-2 font-semibold">Elfogyott</th>
+            <th class="text-right px-3 py-2 font-semibold">Beszerzési egység</th>
+            <th class="text-left px-3 py-2 font-semibold hidden sm:table-cell">Miből</th>
+          </tr></thead>
+          <tbody>
+            ${grouped[cat].map(r => {
+              const prods = Object.entries(r.productCounts).sort((a, b) => b[1] - a[1]).map(([n, q]) => `${q}× ${esc(n)}`).join(", ");
+              return `<tr class="border-t border-slate-800">
+                <td class="px-3 py-2 font-semibold">${esc(r.ing.name)}${r.ing.optional ? ' <span class="text-[10px] text-slate-500">(opc.)</span>' : ""}</td>
+                <td class="px-3 py-2 text-right tabular-nums">${fmtAmount(r.amount, r.ing.contentUnit)}</td>
+                <td class="px-3 py-2 text-right tabular-nums font-bold text-amber-400">${fmtUnits(r.units, r.ing.purchaseUnit)}</td>
+                <td class="px-3 py-2 text-slate-500 text-xs hidden sm:table-cell">${prods}</td>
+              </tr>`;
+            }).join("")}
+          </tbody>
+        </table>
+      </div>
+    </div>`).join("") : `<p class="text-slate-500 text-sm">Nincs számolható fogyás ebben a nézetben (nincs eladás vagy nincs recept).</p>`;
+
+  const missingHtml = missing.length ? `
+    <div class="mt-6 rounded-xl border border-rose-900 bg-rose-950/30 p-3">
+      <div class="text-sm font-bold text-rose-300 mb-2">⚠ Recept nélküli eladott termékek (${missing.length})</div>
+      <p class="text-xs text-slate-400 mb-2">Ezekhez még nincs recept, ezért nem számítanak bele a fogyásba. A "📖 Receptek" fülön adhatsz hozzájuk.</p>
+      <div class="flex flex-wrap gap-1.5">
+        ${missing.map(m => `<span class="text-xs px-2 py-1 rounded bg-slate-800 border border-slate-700">${esc(m.name)} — ${m.qty} db</span>`).join("")}
+      </div>
+    </div>` : `<p class="text-emerald-400/80 text-xs mt-4">✓ Minden eladott terméknek van receptje.</p>`;
+
+  box.innerHTML = `
+    <div class="flex flex-wrap items-center gap-3 mb-4">
+      <select id="usageScope" class="px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm">
+        <option value="shift" ${usageScope === "shift" ? "selected" : ""}>Aktuális műszak (real-time)</option>
+        <option value="today" ${usageScope === "today" ? "selected" : ""}>Mai nap összesen</option>
+        ${shiftOpts}
+      </select>
+      <label class="flex items-center gap-2 text-sm cursor-pointer">
+        <input id="hideOptional" type="checkbox" class="w-4 h-4 accent-amber-500" ${hideOptional ? "checked" : ""} />
+        Jég / szóda elrejtése
+      </label>
+      <button id="btnExportUsage" class="ml-auto px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 hover:bg-slate-700 text-sm font-semibold">⬇ Rendelési lista (CSV)</button>
+    </div>
+    ${tableHtml}
+    ${missingHtml}
+  `;
+
+  document.getElementById("usageScope").addEventListener("change", e => { usageScope = e.target.value; renderIngredientUsage(); });
+  document.getElementById("hideOptional").addEventListener("change", e => { hideOptional = e.target.checked; renderIngredientUsage(); });
+  document.getElementById("btnExportUsage").addEventListener("click", () => exportUsageCSV(txs));
+}
+
+function exportUsageCSV(txs) {
+  const { byIngredient } = computeIngredientUsage(txs);
+  const rows = [["Alapanyag", "Kategória", "Elfogyott mennyiség", "Egység", "Beszerzési egység", "Szükséges mennyiség"]];
+  Object.values(byIngredient).sort((a, b) => (a.ing.category || "").localeCompare(b.ing.category || "", "hu")).forEach(r => {
+    rows.push([r.ing.name, r.ing.category || "", Math.round(r.amount), r.ing.contentUnit, r.ing.purchaseUnit, r.units.toFixed(2)]);
+  });
+  const csv = rows.map(row => row.map(c => { const s = String(c).replace(/"/g, '""'); return /[;"\n]/.test(s) ? `"${s}"` : s; }).join(";")).join("\r\n");
+  downloadCSV(csv, `alapanyag_fogyas_${new Date().toISOString().slice(0, 10)}.csv`);
+}
+
+/* --- 2) Alapanyag lista (CRUD + import) --- */
+function renderIngredientList() {
+  const box = document.getElementById("ingSubPanel");
+  const rows = state.ingredients.slice().sort((a, b) => (a.category || "").localeCompare(b.category || "", "hu") || a.name.localeCompare(b.name, "hu")).map(i => `
+    <tr class="border-t border-slate-800" data-ingid="${i.id}">
+      <td class="px-2 py-1.5"><input data-f="name" value="${esc(i.name)}" class="w-full px-2 py-1 rounded bg-slate-800 border border-slate-700 text-sm" /></td>
+      <td class="px-2 py-1.5"><input data-f="category" value="${esc(i.category || "")}" class="w-28 px-2 py-1 rounded bg-slate-800 border border-slate-700 text-xs" /></td>
+      <td class="px-2 py-1.5"><input data-f="contentAmount" type="number" value="${i.contentAmount}" class="w-20 px-2 py-1 rounded bg-slate-800 border border-slate-700 text-xs text-right tabular-nums" /></td>
+      <td class="px-2 py-1.5"><input data-f="contentUnit" value="${esc(i.contentUnit)}" class="w-14 px-2 py-1 rounded bg-slate-800 border border-slate-700 text-xs" /></td>
+      <td class="px-2 py-1.5"><input data-f="purchaseUnit" value="${esc(i.purchaseUnit)}" class="w-20 px-2 py-1 rounded bg-slate-800 border border-slate-700 text-xs" /></td>
+      <td class="px-2 py-1.5 text-center"><input data-f="optional" type="checkbox" ${i.optional ? "checked" : ""} class="w-4 h-4 accent-amber-500" /></td>
+      <td class="px-2 py-1.5 text-right"><button data-del012ing="${i.id}" class="text-rose-400/70 hover:text-rose-400 px-1">🗑</button></td>
+    </tr>`).join("");
+
+  box.innerHTML = `
+    <p class="text-slate-500 text-xs mb-3">Az alapanyagokat a beszerzési egységben tartod nyilván (pl. üveg = 700 ml). A "Kiszerelés" mezők azt mondják meg, hány <b>tartalom-egység</b> (ml/g/db) van egy <b>beszerzési egységben</b> (üveg/karton/kg). Az "opc." pipa a jég/szóda-féle tételekre való (elrejthetők a kimutatásban).</p>
+    <div class="overflow-x-auto rounded-xl border border-slate-700 mb-6">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-800 text-slate-400"><tr>
+          <th class="text-left px-2 py-2 font-semibold">Név</th>
+          <th class="text-left px-2 py-2 font-semibold">Kategória</th>
+          <th class="text-right px-2 py-2 font-semibold">Tartalom</th>
+          <th class="text-left px-2 py-2 font-semibold">Egység</th>
+          <th class="text-left px-2 py-2 font-semibold">Besz. egység</th>
+          <th class="text-center px-2 py-2 font-semibold">Opc.</th>
+          <th></th>
+        </tr></thead>
+        <tbody>${rows || `<tr><td colspan="7" class="px-3 py-6 text-center text-slate-500">Nincs alapanyag.</td></tr>`}</tbody>
+      </table>
+    </div>
+
+    <h3 class="text-lg font-bold mb-2">+ Új alapanyag</h3>
+    <div class="rounded-xl bg-slate-800/60 border border-slate-700 p-3 mb-6 flex flex-wrap gap-2 items-end">
+      <div><label class="text-xs text-slate-400 block mb-1">Név</label><input id="niName" class="px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm" placeholder="pl. Aperol" /></div>
+      <div><label class="text-xs text-slate-400 block mb-1">Kategória</label><input id="niCat" list="ingCatList" class="w-32 px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm" placeholder="Szeszek" /><datalist id="ingCatList"><option value="Szeszek"><option value="Sörök"><option value="Borok"><option value="Üdítők"><option value="Szörpök"><option value="Egyéb"></datalist></div>
+      <div><label class="text-xs text-slate-400 block mb-1">Tartalom</label><input id="niAmount" type="number" class="w-24 px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm text-right" placeholder="700" /></div>
+      <div><label class="text-xs text-slate-400 block mb-1">Egység</label><input id="niUnit" class="w-16 px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm" placeholder="ml" /></div>
+      <div><label class="text-xs text-slate-400 block mb-1">Besz. egység</label><input id="niPurchase" class="w-24 px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm" placeholder="üveg" /></div>
+      <label class="flex items-center gap-1.5 text-xs font-semibold pb-2"><input id="niOptional" type="checkbox" class="w-4 h-4 accent-amber-500" /> opc.</label>
+      <button id="btnAddIng" class="px-4 py-2 rounded-lg bg-amber-500 text-slate-950 font-bold text-sm hover:bg-amber-400">+ Hozzáad</button>
+    </div>
+
+    <h3 class="text-lg font-bold mb-2">📋 Tömeges import</h3>
+    <p class="text-slate-500 text-xs mb-2">Soronként: <span class="font-mono">Név; kategória; tartalom; egység; beszerzési egység; opc</span>. Az "opc" (a sor végén) opcionálissá teszi. Pl.: <span class="font-mono">Aperol; Szeszek; 700; ml; üveg</span></p>
+    <div class="rounded-xl bg-slate-800/60 border border-slate-700 p-3">
+      <textarea id="ingBulk" rows="4" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm font-mono" placeholder="Aperol; Szeszek; 700; ml; üveg&#10;Prosecco; Borok; 750; ml; üveg"></textarea>
+      <div class="flex items-center gap-3 mt-2">
+        <button id="btnIngBulk" class="px-4 py-2 rounded-lg bg-amber-500 text-slate-950 font-bold text-sm hover:bg-amber-400">Importálás</button>
+        <span id="ingBulkMsg" class="text-xs"></span>
+      </div>
+    </div>
+  `;
+
+  // inline szerkesztés
+  box.querySelectorAll("tr[data-ingid]").forEach(tr => {
+    const id = tr.dataset.ingid;
+    tr.querySelectorAll("[data-f]").forEach(inp => {
+      inp.addEventListener("change", () => {
+        const ing = findIngredient(id);
+        if (!ing) return;
+        const f = inp.dataset.f;
+        if (f === "optional") ing.optional = inp.checked;
+        else if (f === "contentAmount") { const v = Number(inp.value); if (v > 0) ing.contentAmount = v; }
+        else ing[f] = inp.value.trim();
+        persistIngredients();
+      });
+    });
+  });
+  box.querySelectorAll("[data-del012ing]").forEach(b => {
+    b.addEventListener("click", () => {
+      const ing = findIngredient(b.dataset.del012ing);
+      if (!ing) return;
+      if (!confirm(`Törlöd a(z) "${ing.name}" alapanyagot?\n(A receptekből is eltűnnek a rá hivatkozó sorok.)`)) return;
+      state.ingredients = state.ingredients.filter(i => i.id !== ing.id);
+      Object.keys(state.recipes).forEach(k => { state.recipes[k] = state.recipes[k].filter(l => l.ingredientId !== ing.id); });
+      persistIngredients(); persistRecipes();
+      renderIngredientList();
+    });
+  });
+  document.getElementById("btnAddIng").addEventListener("click", () => {
+    const name = document.getElementById("niName").value.trim();
+    if (!name) { alert("Adj meg egy nevet."); return; }
+    state.ingredients.push({
+      id: "ing_" + Date.now() + Math.random().toString(36).slice(2, 5),
+      name,
+      category: document.getElementById("niCat").value.trim() || "Egyéb",
+      contentAmount: Number(document.getElementById("niAmount").value) || 1,
+      contentUnit: document.getElementById("niUnit").value.trim() || "ml",
+      purchaseUnit: document.getElementById("niPurchase").value.trim() || "db",
+      optional: document.getElementById("niOptional").checked,
+      stock: null, note: ""
+    });
+    persistIngredients();
+    renderIngredientList();
+  });
+  document.getElementById("btnIngBulk").addEventListener("click", () => {
+    let added = 0;
+    document.getElementById("ingBulk").value.split("\n").forEach(line => {
+      const p = line.split(";").map(s => s.trim());
+      if (!p[0]) return;
+      state.ingredients.push({
+        id: "ing_" + Date.now() + Math.random().toString(36).slice(2, 5),
+        name: p[0], category: p[1] || "Egyéb",
+        contentAmount: Number(p[2]) || 1, contentUnit: p[3] || "ml",
+        purchaseUnit: p[4] || "db",
+        optional: (p[5] || "").toLowerCase() === "opc" || (p[5] || "").toLowerCase() === "opcionális",
+        stock: null, note: ""
+      });
+      added++;
+    });
+    persistIngredients();
+    const msg = document.getElementById("ingBulkMsg");
+    msg.textContent = `✓ ${added} alapanyag hozzáadva.`; msg.className = "text-xs text-emerald-400";
+    document.getElementById("ingBulk").value = "";
+    setTimeout(renderIngredientList, 800);
+  });
+}
+
+/* --- 3) Recept-szerkesztő --- */
+function renderRecipeEditor() {
+  const box = document.getElementById("ingSubPanel");
+  // termékek + van-e receptje
+  const prodRows = state.products.map(p => {
+    const rec = state.recipes[p.name];
+    const has = rec && rec.length;
+    const summary = has ? rec.map(l => { const ing = findIngredient(l.ingredientId); return ing ? `${l.amount}${l.unit} ${ing.name.split(" ")[0]}` : "?"; }).join(" + ") : "";
+    return `<tr class="border-t border-slate-800">
+      <td class="px-3 py-2"><button data-recedit="${esc(p.name)}" class="text-left font-semibold ${has ? "hover:text-amber-400" : "text-rose-400 hover:text-rose-300"}">${esc(p.name)}</button></td>
+      <td class="px-3 py-2 text-xs text-slate-400">${has ? esc(summary) : '<span class="text-rose-400">nincs recept</span>'}</td>
+      <td class="px-3 py-2 text-right"><button data-recedit="${esc(p.name)}" class="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-xs font-semibold">${has ? "Szerkeszt" : "+ Recept"}</button></td>
+    </tr>`;
+  }).join("");
+
+  box.innerHTML = `
+    <p class="text-slate-500 text-xs mb-3">Minden termékhez add meg, mennyi alapanyagot fogyaszt egy adag. A recept nélküli termékek pirossal jelölve — ezek nem számítanak a fogyásba.</p>
+    <div class="overflow-x-auto rounded-xl border border-slate-700">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-800 text-slate-400"><tr>
+          <th class="text-left px-3 py-2 font-semibold">Termék</th>
+          <th class="text-left px-3 py-2 font-semibold">Recept</th>
+          <th></th>
+        </tr></thead>
+        <tbody>${prodRows}</tbody>
+      </table>
+    </div>
+    <div id="recEditArea" class="mt-5"></div>
+  `;
+  box.querySelectorAll("[data-recedit]").forEach(b => {
+    b.addEventListener("click", () => { recipeEditProduct = b.dataset.recedit; renderRecipeEditArea(); });
+  });
+  if (recipeEditProduct) renderRecipeEditArea();
+}
+
+function renderRecipeEditArea() {
+  const area = document.getElementById("recEditArea");
+  if (!area) return;
+  const name = recipeEditProduct;
+  const rec = state.recipes[name] || [];
+  const ingOpts = state.ingredients.slice().sort((a, b) => a.name.localeCompare(b.name, "hu")).map(i => `<option value="${i.id}">${esc(i.name)} (${i.contentUnit})</option>`).join("");
+
+  const lines = rec.map((l, idx) => {
+    const ing = findIngredient(l.ingredientId);
+    return `<div class="flex items-center gap-2 mb-2" data-recline="${idx}">
+      <span class="flex-1 text-sm">${ing ? esc(ing.name) : '<span class="text-rose-400">ismeretlen alapanyag</span>'}</span>
+      <input data-rf="amount" type="number" value="${l.amount}" class="w-20 px-2 py-1 rounded bg-slate-800 border border-slate-700 text-sm text-right tabular-nums" />
+      <input data-rf="unit" value="${esc(l.unit)}" class="w-14 px-2 py-1 rounded bg-slate-800 border border-slate-700 text-sm" />
+      <button data-recdel="${idx}" class="text-rose-400/70 hover:text-rose-400 px-1">🗑</button>
+    </div>`;
+  }).join("");
+
+  area.innerHTML = `
+    <div class="rounded-xl bg-slate-800/60 border border-amber-500/40 p-4">
+      <div class="flex items-center justify-between mb-3">
+        <h4 class="font-bold">📖 Recept: ${esc(name)}</h4>
+        <button id="btnRecClose" class="text-slate-500 hover:text-slate-300 text-sm">✕ Bezár</button>
+      </div>
+      <div id="recLines">${lines || '<p class="text-slate-500 text-sm mb-2">Még nincs összetevő.</p>'}</div>
+      <div class="flex items-center gap-2 mt-3 pt-3 border-t border-slate-700">
+        <select id="recAddIng" class="flex-1 min-w-0 px-2 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm">${ingOpts}</select>
+        <input id="recAddAmount" type="number" placeholder="Menny." class="w-24 px-2 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm text-right" />
+        <select id="recAddUnit" class="w-20 px-2 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm">
+          <option value="ml">ml</option><option value="cl">cl</option><option value="dl">dl</option><option value="l">l</option>
+          <option value="db">db</option><option value="g">g</option><option value="kg">kg</option>
+        </select>
+        <button id="btnRecAdd" class="px-3 py-2 rounded-lg bg-amber-500 text-slate-950 font-bold text-sm hover:bg-amber-400">+</button>
+      </div>
+    </div>
+  `;
+
+  area.querySelector("#btnRecClose").addEventListener("click", () => { recipeEditProduct = null; area.innerHTML = ""; renderRecipeEditor(); });
+  area.querySelectorAll("[data-recline]").forEach(row => {
+    const idx = Number(row.dataset.recline);
+    row.querySelectorAll("[data-rf]").forEach(inp => {
+      inp.addEventListener("change", () => {
+        if (!state.recipes[name]) return;
+        const f = inp.dataset.rf;
+        if (f === "amount") { const v = Number(inp.value); if (v > 0) state.recipes[name][idx].amount = v; }
+        else state.recipes[name][idx].unit = inp.value.trim();
+        persistRecipes();
+      });
+    });
+  });
+  area.querySelectorAll("[data-recdel]").forEach(b => {
+    b.addEventListener("click", () => {
+      state.recipes[name].splice(Number(b.dataset.recdel), 1);
+      if (!state.recipes[name].length) delete state.recipes[name];
+      persistRecipes();
+      renderRecipeEditArea();
+      renderRecipeEditor();
+    });
+  });
+  area.querySelector("#btnRecAdd").addEventListener("click", () => {
+    const ingId = area.querySelector("#recAddIng").value;
+    const amount = Number(area.querySelector("#recAddAmount").value);
+    const unit = area.querySelector("#recAddUnit").value;
+    if (!ingId || !(amount > 0)) { alert("Válassz alapanyagot és adj meg érvényes mennyiséget."); return; }
+    if (!state.recipes[name]) state.recipes[name] = [];
+    state.recipes[name].push({ ingredientId: ingId, amount, unit });
+    persistRecipes();
+    renderRecipeEditArea();
+    renderRecipeEditor();
   });
 }
 
