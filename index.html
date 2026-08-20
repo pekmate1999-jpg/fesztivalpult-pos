@@ -297,68 +297,68 @@
 /* A hivatalos itallap alapján. Az árváltozás verziózott migrációval a már
    mentett katalógusra is átjön (lásd CATALOG_VERSION lentebb). */
 const DEFAULT_PRODUCTS = [
-  {"category": "Csapolt sör", "name": "Dreher világos 0,5 l", "price": 790},
-  {"category": "Csapolt sör", "name": "Dreher meggy 0,5 l", "price": 890},
-  {"category": "Üdítők", "name": "Coca cola", "price": 120},
-  {"category": "Üdítők", "name": "Coca cola zero", "price": 120},
-  {"category": "Üdítők", "name": "Kinley tonic", "price": 120},
-  {"category": "Üdítők", "name": "Kinley gyömbér", "price": 120},
-  {"category": "Üdítők", "name": "Ananászlé", "price": 200},
-  {"category": "Üdítők", "name": "Őszibaracklé", "price": 200},
-  {"category": "Üdítők", "name": "Paradicsomlé", "price": 200},
-  {"category": "Üdítők", "name": "Áfonyalé", "price": 200},
-  {"category": "Üdítők", "name": "Almalé", "price": 200},
-  {"category": "Üdítők", "name": "Narancslé", "price": 200},
-  {"category": "Energiaital", "name": "Hell 0,25 l", "price": 490},
-  {"category": "Rövidek", "name": "Romanoff vodka", "price": 890},
-  {"category": "Rövidek", "name": "Zubrowka", "price": 890},
-  {"category": "Rövidek", "name": "Beefeater gin pink", "price": 1290},
-  {"category": "Rövidek", "name": "Marine dry gin", "price": 990},
-  {"category": "Rövidek", "name": "Havana Club barna rum", "price": 990},
-  {"category": "Rövidek", "name": "Havana Club fehér rum", "price": 990},
-  {"category": "Rövidek", "name": "Kraken rum", "price": 1290},
-  {"category": "Rövidek", "name": "El Jimador tequila silver", "price": 990},
-  {"category": "Rövidek", "name": "Jägermeister", "price": 990},
-  {"category": "Rövidek", "name": "Becherovka", "price": 990},
-  {"category": "Rövidek", "name": "Bakter kevert", "price": 690},
-  {"category": "Rövidek", "name": "Malibu", "price": 990},
-  {"category": "Rövidek", "name": "Shanky's whip", "price": 1590},
-  {"category": "Rövidek", "name": "Jack Daniel's", "price": 990},
-  {"category": "Rövidek", "name": "Fireball", "price": 990},
-  {"category": "Rövidek", "name": "Bailey's", "price": 990, "recipe": "Shotba nem megy"},
-  {"category": "Rövidek", "name": "Kahlua", "price": 990, "recipe": "Shotba nem megy, Tádé főzhet"},
-  {"category": "Rövidek", "name": "Tubi 60", "price": 1390},
-  {"category": "Rövidek", "name": "Opyyum mákpálinka", "price": 1390},
-  {"category": "Rövidek", "name": "Tátratea 62% erdeigyümölcs", "price": 1390},
-  {"category": "Rövidek", "name": "Unicum", "price": 990},
-  {"category": "Rövidek", "name": "Berentzen sour apple", "price": 890},
-  {"category": "Rövidek", "name": "Limoncello", "price": 890},
-  {"category": "Longdrink", "name": "Arbaro szóda+szirup", "price": 1290, "recipe": "Shanky/Tátratea/Tubi NEM"},
-  {"category": "Longdrink", "name": "Arbaro üccsi", "price": 1390, "recipe": "Shanky/Tátratea/Tubi/szirup NEM"},
-  {"category": "Longdrink", "name": "Arbaro lé", "price": 1490, "recipe": "Shanky/Tátratea/Tubi/szirup NEM"},
-  {"category": "Longdrink", "name": "Arbaro bomba", "price": 1490, "recipe": "Shanky/Tátratea/Tubi/szirup NEM"},
-  {"category": "Longdrink", "name": "Arbaro spritz", "price": 1690, "recipe": "Shanky/Tátratea/Tubi/szirup NEM"},
-  {"category": "Longdrink", "name": "Arbaro spritz+ szirup", "price": 1690, "recipe": "Shanky/Tátratea/Tubi NEM"},
-  {"category": "Hugo", "name": "Hugo üveggel 0,75 l", "price": 2990},
-  {"category": "Shot", "name": "Baby guiness", "price": 990},
-  {"category": "Shot", "name": "Bloody brain", "price": 990},
-  {"category": "Shot", "name": "Jäger/Vodka bomba (10 db)", "price": 6900, "recipe": "10 shotos csomag"},
-  {"category": "Shot", "name": "Arbaro shot", "price": 990},
-  {"category": "Koktél", "name": "Tequila sunrise", "price": 1590, "recipe": "Arbaro lé + szirup"},
-  {"category": "Koktél", "name": "Aperol spritz", "price": 1490},
-  {"category": "Koktél", "name": "Mojito", "price": 1390},
-  {"category": "Koktél", "name": "Pina colada", "price": 1590, "recipe": "kókuszszirup"},
-  {"category": "Koktél", "name": "Tubi szóda", "price": 1690},
-  {"category": "Koktél", "name": "Berentzen-vodka-alma", "price": 1390},
-  {"category": "Koktél", "name": "Shanky's narancs", "price": 1690},
-  {"category": "Koktél", "name": "Kívánság", "price": 1690},
-  {"category": "Fröccsök", "name": "Kisfröccs 0,2 l", "price": 490},
-  {"category": "Fröccsök", "name": "Nagyfröccs 0,3 l", "price": 690},
-  {"category": "Fröccsök", "name": "Házmester 0,5 l", "price": 990},
-  {"category": "Fröccsök", "name": "Vice házmester 0,5 l", "price": 790},
-  {"category": "Fröccsök", "name": "Hosszúlépés 0,3 l", "price": 490},
-  {"category": "Fröccsök", "name": "Sportfröccs 0,5 l", "price": 690},
-  {"category": "Szörp", "name": "Piroska maci 0,04 l", "price": 100, "recipe": "málna/bodza/mangó/feketeribizli"}
+  {"category": "Csapolt sör", "name": "Dreher világos 0,5 l", "price": 790, "itemType": "alkohol"},
+  {"category": "Csapolt sör", "name": "Dreher meggy 0,5 l", "price": 890, "itemType": "alkohol"},
+  {"category": "Üdítők", "name": "Coca cola", "price": 120, "itemType": "alkoholmentes"},
+  {"category": "Üdítők", "name": "Coca cola zero", "price": 120, "itemType": "alkoholmentes"},
+  {"category": "Üdítők", "name": "Kinley tonic", "price": 120, "itemType": "alkoholmentes"},
+  {"category": "Üdítők", "name": "Kinley gyömbér", "price": 120, "itemType": "alkoholmentes"},
+  {"category": "Üdítők", "name": "Ananászlé", "price": 200, "itemType": "alkoholmentes"},
+  {"category": "Üdítők", "name": "Őszibaracklé", "price": 200, "itemType": "alkoholmentes"},
+  {"category": "Üdítők", "name": "Paradicsomlé", "price": 200, "itemType": "alkoholmentes"},
+  {"category": "Üdítők", "name": "Áfonyalé", "price": 200, "itemType": "alkoholmentes"},
+  {"category": "Üdítők", "name": "Almalé", "price": 200, "itemType": "alkoholmentes"},
+  {"category": "Üdítők", "name": "Narancslé", "price": 200, "itemType": "alkoholmentes"},
+  {"category": "Energiaital", "name": "Hell 0,25 l", "price": 490, "itemType": "alkoholmentes"},
+  {"category": "Rövidek", "name": "Romanoff vodka", "price": 890, "itemType": "alkohol"},
+  {"category": "Rövidek", "name": "Zubrowka", "price": 890, "itemType": "alkohol"},
+  {"category": "Rövidek", "name": "Beefeater gin pink", "price": 1290, "itemType": "alkohol"},
+  {"category": "Rövidek", "name": "Marine dry gin", "price": 990, "itemType": "alkohol"},
+  {"category": "Rövidek", "name": "Havana Club barna rum", "price": 990, "itemType": "alkohol"},
+  {"category": "Rövidek", "name": "Havana Club fehér rum", "price": 990, "itemType": "alkohol"},
+  {"category": "Rövidek", "name": "Kraken rum", "price": 1290, "itemType": "alkohol"},
+  {"category": "Rövidek", "name": "El Jimador tequila silver", "price": 990, "itemType": "alkohol"},
+  {"category": "Rövidek", "name": "Jägermeister", "price": 990, "itemType": "alkohol"},
+  {"category": "Rövidek", "name": "Becherovka", "price": 990, "itemType": "alkohol"},
+  {"category": "Rövidek", "name": "Bakter kevert", "price": 690, "itemType": "alkohol"},
+  {"category": "Rövidek", "name": "Malibu", "price": 990, "itemType": "alkohol"},
+  {"category": "Rövidek", "name": "Shanky's whip", "price": 1590, "itemType": "alkohol"},
+  {"category": "Rövidek", "name": "Jack Daniel's", "price": 990, "itemType": "alkohol"},
+  {"category": "Rövidek", "name": "Fireball", "price": 990, "itemType": "alkohol"},
+  {"category": "Rövidek", "name": "Bailey's", "price": 990, "recipe": "Shotba nem megy", "itemType": "alkohol"},
+  {"category": "Rövidek", "name": "Kahlua", "price": 990, "recipe": "Shotba nem megy, Tádé főzhet", "itemType": "alkohol"},
+  {"category": "Rövidek", "name": "Tubi 60", "price": 1390, "itemType": "alkohol"},
+  {"category": "Rövidek", "name": "Opyyum mákpálinka", "price": 1390, "itemType": "alkohol"},
+  {"category": "Rövidek", "name": "Tátratea 62% erdeigyümölcs", "price": 1390, "itemType": "alkohol"},
+  {"category": "Rövidek", "name": "Unicum", "price": 990, "itemType": "alkohol"},
+  {"category": "Rövidek", "name": "Berentzen sour apple", "price": 890, "itemType": "alkohol"},
+  {"category": "Rövidek", "name": "Limoncello", "price": 890, "itemType": "alkohol"},
+  {"category": "Longdrink", "name": "Arbaro szóda+szirup", "price": 1290, "recipe": "Shanky/Tátratea/Tubi NEM", "itemType": "alkohol"},
+  {"category": "Longdrink", "name": "Arbaro üccsi", "price": 1390, "recipe": "Shanky/Tátratea/Tubi/szirup NEM", "itemType": "alkohol"},
+  {"category": "Longdrink", "name": "Arbaro lé", "price": 1490, "recipe": "Shanky/Tátratea/Tubi/szirup NEM", "itemType": "alkohol"},
+  {"category": "Longdrink", "name": "Arbaro bomba", "price": 1490, "recipe": "Shanky/Tátratea/Tubi/szirup NEM", "itemType": "alkohol"},
+  {"category": "Longdrink", "name": "Arbaro spritz", "price": 1690, "recipe": "Shanky/Tátratea/Tubi/szirup NEM", "itemType": "alkohol"},
+  {"category": "Longdrink", "name": "Arbaro spritz+ szirup", "price": 1690, "recipe": "Shanky/Tátratea/Tubi NEM", "itemType": "alkohol"},
+  {"category": "Hugo", "name": "Hugo üveggel 0,75 l", "price": 2990, "itemType": "alkohol"},
+  {"category": "Shot", "name": "Baby guiness", "price": 990, "itemType": "alkohol"},
+  {"category": "Shot", "name": "Bloody brain", "price": 990, "itemType": "alkohol"},
+  {"category": "Shot", "name": "Jäger/Vodka bomba (10 db)", "price": 6900, "recipe": "10 shotos csomag", "itemType": "alkohol"},
+  {"category": "Shot", "name": "Arbaro shot", "price": 990, "itemType": "alkohol"},
+  {"category": "Koktél", "name": "Tequila sunrise", "price": 1590, "recipe": "Arbaro lé + szirup", "itemType": "alkohol"},
+  {"category": "Koktél", "name": "Aperol spritz", "price": 1490, "itemType": "alkohol"},
+  {"category": "Koktél", "name": "Mojito", "price": 1390, "itemType": "alkohol"},
+  {"category": "Koktél", "name": "Pina colada", "price": 1590, "recipe": "kókuszszirup", "itemType": "alkohol"},
+  {"category": "Koktél", "name": "Tubi szóda", "price": 1690, "itemType": "alkohol"},
+  {"category": "Koktél", "name": "Berentzen-vodka-alma", "price": 1390, "itemType": "alkohol"},
+  {"category": "Koktél", "name": "Shanky's narancs", "price": 1690, "itemType": "alkohol"},
+  {"category": "Koktél", "name": "Kívánság", "price": 1690, "itemType": "alkohol"},
+  {"category": "Fröccsök", "name": "Kisfröccs 0,2 l", "price": 490, "itemType": "alkohol"},
+  {"category": "Fröccsök", "name": "Nagyfröccs 0,3 l", "price": 690, "itemType": "alkohol"},
+  {"category": "Fröccsök", "name": "Házmester 0,5 l", "price": 990, "itemType": "alkohol"},
+  {"category": "Fröccsök", "name": "Vice házmester 0,5 l", "price": 790, "itemType": "alkohol"},
+  {"category": "Fröccsök", "name": "Hosszúlépés 0,3 l", "price": 490, "itemType": "alkohol"},
+  {"category": "Fröccsök", "name": "Sportfröccs 0,5 l", "price": 690, "itemType": "alkohol"},
+  {"category": "Szörp", "name": "Piroska maci 0,04 l", "price": 100, "recipe": "málna/bodza/mangó/feketeribizli", "itemType": "alkoholmentes"}
 ].map((p, i) => ({ id: "p" + (i + 1), ...p }));
 
 /* ======================= ALAPANYAGOK + RECEPTEK ======================= */
@@ -489,34 +489,34 @@ const DEFAULT_RECIPES = {
    Presetek: XXL Leg / XL = comp (korlátlan), L = 3000 Ft, M/S/XS = 0, XXS = 3000 Ft.
    A zenekarok réteg nélkül, 0 egyenleggel indulnak (a tagok kasztja egyénileg változik). */
 const DEFAULT_ACCOUNTS = [
-  { id: "acc_seed_p001", type: "person", name: "Farkas Hanga", tier: "XXL Leg", unlimited: true, balance: 0, note: "" },
-  { id: "acc_seed_p002", type: "person", name: "Farkas Kincső", tier: "XXL Leg", unlimited: true, balance: 0, note: "" },
-  { id: "acc_seed_p003", type: "person", name: "Kass Lívia", tier: "XXL Leg", unlimited: true, balance: 0, note: "" },
-  { id: "acc_seed_p004", type: "person", name: "Kovács Boldizsár", tier: "XXL Leg", unlimited: true, balance: 0, note: "" },
-  { id: "acc_seed_p005", type: "person", name: "Vizér Dani", tier: "XXL Leg", unlimited: true, balance: 0, note: "" },
-  { id: "acc_seed_p006", type: "person", name: "Pálinkás Gerdő", tier: "XXL Leg", unlimited: true, balance: 0, note: "" },
-  { id: "acc_seed_p007", type: "person", name: "Ágoston Lili", tier: "XL", unlimited: true, balance: 0, note: "" },
-  { id: "acc_seed_p008", type: "person", name: "Ágoston Rebeka", tier: "XL", unlimited: true, balance: 0, note: "" },
-  { id: "acc_seed_p009", type: "person", name: "Bojti Tádé", tier: "XL", unlimited: true, balance: 0, note: "" },
-  { id: "acc_seed_p010", type: "person", name: "Dombi Ágoston", tier: "XL", unlimited: true, balance: 0, note: "" },
-  { id: "acc_seed_p011", type: "person", name: "Dombi Eszti", tier: "XL", unlimited: true, balance: 0, note: "" },
-  { id: "acc_seed_p012", type: "person", name: "Dravecz Enikő", tier: "XL", unlimited: true, balance: 0, note: "" },
-  { id: "acc_seed_p013", type: "person", name: "Pfeiffer Dániel", tier: "XL", unlimited: true, balance: 0, note: "" },
-  { id: "acc_seed_p014", type: "person", name: "Sóbujtó Ármin", tier: "XL", unlimited: true, balance: 0, note: "" },
-  { id: "acc_seed_p015", type: "person", name: "Sóbujtó Regő", tier: "XL", unlimited: true, balance: 0, note: "" },
-  { id: "acc_seed_p016", type: "person", name: "Pék Máté", tier: "XL", unlimited: true, balance: 0, note: "" },
-  { id: "acc_seed_p017", type: "person", name: "Német Csanád", tier: "XL", unlimited: true, balance: 0, note: "" },
-  { id: "acc_seed_p018", type: "person", name: "Németh Barna András", tier: "XL", unlimited: true, balance: 0, note: "" },
-  { id: "acc_seed_p019", type: "person", name: "Bedő Bella", tier: "XL", unlimited: true, balance: 0, note: "" },
-  { id: "acc_seed_p020", type: "person", name: "Berty Csongor", tier: "XL", unlimited: true, balance: 0, note: "" },
-  { id: "acc_seed_p021", type: "person", name: "Csabai Bálint", tier: "XL", unlimited: true, balance: 0, note: "" },
-  { id: "acc_seed_p022", type: "person", name: "Hegedűs Réka", tier: "XL", unlimited: true, balance: 0, note: "" },
-  { id: "acc_seed_p023", type: "person", name: "Hegedűs Sári", tier: "XL", unlimited: true, balance: 0, note: "" },
-  { id: "acc_seed_p024", type: "person", name: "Hevesi Eszter", tier: "XL", unlimited: true, balance: 0, note: "" },
-  { id: "acc_seed_p025", type: "person", name: "Mészáros Levente", tier: "XL", unlimited: true, balance: 0, note: "" },
-  { id: "acc_seed_p026", type: "person", name: "Szlávik Veronika", tier: "XL", unlimited: true, balance: 0, note: "" },
-  { id: "acc_seed_p027", type: "person", name: "Varga Dorottya", tier: "XL", unlimited: true, balance: 0, note: "" },
-  { id: "acc_seed_p028", type: "person", name: "Varga Szemes Lázár", tier: "XL", unlimited: true, balance: 0, note: "" },
+  { id: "acc_seed_p001", type: "person", name: "Farkas Hanga", tier: "XXL Leg", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p002", type: "person", name: "Farkas Kincső", tier: "XXL Leg", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p003", type: "person", name: "Kass Lívia", tier: "XXL Leg", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p004", type: "person", name: "Kovács Boldizsár", tier: "XXL Leg", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p005", type: "person", name: "Vizér Dani", tier: "XXL Leg", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p006", type: "person", name: "Pálinkás Gerdő", tier: "XXL Leg", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p007", type: "person", name: "Ágoston Lili", tier: "XL", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p008", type: "person", name: "Ágoston Rebeka", tier: "XL", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p009", type: "person", name: "Bojti Tádé", tier: "XL", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p010", type: "person", name: "Dombi Ágoston", tier: "XL", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p011", type: "person", name: "Dombi Eszti", tier: "XL", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p012", type: "person", name: "Dravecz Enikő", tier: "XL", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p013", type: "person", name: "Pfeiffer Dániel", tier: "XL", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p014", type: "person", name: "Sóbujtó Ármin", tier: "XL", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p015", type: "person", name: "Sóbujtó Regő", tier: "XL", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p016", type: "person", name: "Pék Máté", tier: "XL", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p017", type: "person", name: "Német Csanád", tier: "XL", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p018", type: "person", name: "Németh Barna András", tier: "XL", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p019", type: "person", name: "Bedő Bella", tier: "XL", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p020", type: "person", name: "Berty Csongor", tier: "XL", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p021", type: "person", name: "Csabai Bálint", tier: "XL", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p022", type: "person", name: "Hegedűs Réka", tier: "XL", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p023", type: "person", name: "Hegedűs Sári", tier: "XL", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p024", type: "person", name: "Hevesi Eszter", tier: "XL", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p025", type: "person", name: "Mészáros Levente", tier: "XL", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p026", type: "person", name: "Szlávik Veronika", tier: "XL", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p027", type: "person", name: "Varga Dorottya", tier: "XL", unlimited: false, balance: 0, note: "" },
+  { id: "acc_seed_p028", type: "person", name: "Varga Szemes Lázár", tier: "XL", unlimited: false, balance: 0, note: "" },
   { id: "acc_seed_p029", type: "person", name: "Garamszegi Balázs", tier: "L", unlimited: false, balance: 3000, note: "" },
   { id: "acc_seed_p030", type: "person", name: "Pozsonyi Zsombor", tier: "L", unlimited: false, balance: 3000, note: "" },
   { id: "acc_seed_p031", type: "person", name: "Pozsonyi Nóra", tier: "M", unlimited: false, balance: 0, note: "" },
@@ -604,7 +604,7 @@ const DEFAULT_PIN = "1234";
 /* A hivatalos itallap verziószáma. Ha ezt megnöveled és újratöltöd az appot,
    a már mentett katalógus is felülíródik a DEFAULT_PRODUCTS-ra (kért viselkedés).
    A kézi termékmódosítások eltűnhetnek — szándékosan, hogy az árlista mindig aktuális legyen. */
-const CATALOG_VERSION = 3;
+const CATALOG_VERSION = 4;
 
 /* Alapanyag/recept verzió. Növeld, ha a DEFAULT_INGREDIENTS/DEFAULT_RECIPES-t
    frissíted (pl. a segédlet alapján) és élesíteni akarod a böngészőkben. */
@@ -613,7 +613,7 @@ const INGREDIENTS_VERSION = 3;
 /* Fiók-seed verzió. Növeld, ha a DEFAULT_ACCOUNTS listát bővíted és be akarod tölteni.
    A seed CSAK akkor tölt be teljesen, ha még egyáltalán nincs mentett fiók.
    Verzió-emeléskor a seed-fiókok (acc_seed_ ID) kerete frissül, ha még érintetlen. */
-const SEED_ACCOUNTS_VERSION = 3;
+const SEED_ACCOUNTS_VERSION = 4;
 const LS_SEED_ACC_VER = "pos_seed_accounts_version";
 
 function loadJSON(key, fallback) {
@@ -878,15 +878,23 @@ function getAllTransactionsEver() {
 function getDailyTransactions() {
   return getAllTransactionsEver().filter(t => isToday(t.time));
 }
+/* Egy tranzakció fiókra terhelt / naplózott értéke.
+   Fiókos (ACCOUNT) tranzakciónál a chargeAmount (kedvezmény/beszerzési ár után),
+   ha van; különben a total. Nem fiókos tranzakciónál a total. */
+function txChargedValue(t) {
+  if (t.payment === "ACCOUNT" && typeof t.chargeAmount === "number") return t.chargeAmount;
+  return t.total;
+}
 function computeStats(txs) {
   const total = txs.reduce((s, t) => s + t.total, 0);
   const tip = txs.reduce((s, t) => s + (t.tip || 0), 0);
   const kp = txs.filter(t => t.payment === "KP").reduce((s, t) => s + t.total, 0);
   const rv = txs.filter(t => t.payment === "REVOLUT").reduce((s, t) => s + t.total, 0);
   // Fiókra terhelt fogyasztás: egyenlegből vonva (charged) vagy comp/korlátlan (comp).
+  // A tényleges (árazott) értéket számoljuk, nem a teljes listaárat.
   const accountTxs = txs.filter(t => t.payment === "ACCOUNT");
-  const accountCharged = accountTxs.filter(t => !t.comp).reduce((s, t) => s + t.total, 0);
-  const accountComp = accountTxs.filter(t => t.comp).reduce((s, t) => s + t.total, 0);
+  const accountCharged = accountTxs.filter(t => !t.comp).reduce((s, t) => s + txChargedValue(t), 0);
+  const accountComp = accountTxs.filter(t => t.comp).reduce((s, t) => s + txChargedValue(t), 0);
   const accountTotal = accountCharged + accountComp;
   // "Valós bevétel" = ténylegesen befolyt pénz (KP + REVOLUT). A fiókos NEM ez.
   const realRevenue = kp + rv;
@@ -900,7 +908,7 @@ function accountBreakdown(txs) {
   txs.filter(t => t.payment === "ACCOUNT").forEach(t => {
     const key = t.accountId || ("name:" + (t.accountName || "?"));
     if (!map[key]) map[key] = { accountId: t.accountId || null, name: t.accountName || "(törölt fiók)", total: 0, items: 0, comp: !!t.comp, count: 0 };
-    map[key].total += t.total;
+    map[key].total += txChargedValue(t);
     map[key].items += t.items.reduce((a, i) => a + i.qty, 0);
     map[key].count += 1;
   });
@@ -909,22 +917,24 @@ function accountBreakdown(txs) {
 
 /* ======================= ACCOUNTS (kasztrendszer / fiókok) ======================= */
 
-/* A rétegek CSAK címkék + javasolt kezdő egyenleg. Nincs mögöttük szabálymotor. */
+/* A rétegek most már a KASZT-SZABÁLYMOTORT vezérlik (tétel-típus szerinti árazás).
+   A suggestBalance a javasolt kezdő egyenleg; suggestUnlimited már csak akkor true,
+   ha tényleg minden ingyen (jelenleg egyik kaszt sem — mind kaszt-vezérelt egyenleggel). */
 const TIER_PRESETS = [
-  { tier: "XXL Leg", label: "XXL Leg — konyhások", suggestBalance: 0, suggestUnlimited: true,
-    note: "Free food (pultból is), napi 5 ingyen ital, utána alkoholmentes ingyen, Free Bérlet" },
-  { tier: "XL", label: "XL — szervezők", suggestBalance: 0, suggestUnlimited: true,
-    note: "Free food (pultból is), Free Bérlet, alkoholmentes ital ingyen" },
+  { tier: "XXL Leg", label: "XXL Leg — konyhások", suggestBalance: 0, suggestUnlimited: false,
+    note: "Alkoholmentes + konyhás kaja ingyen, napi 5 ingyen pia (utána teljes ár), pultos kaja besz. áron" },
+  { tier: "XL", label: "XL — szervezők", suggestBalance: 0, suggestUnlimited: false,
+    note: "Alkoholmentes + konyhás kaja ingyen, alkohol beszerzési áron, pultos kaja besz. áron" },
   { tier: "L", label: "L — fellépők", suggestBalance: 3000, suggestUnlimited: false,
-    note: "Free food (nem pultból, csak aznap), Free Bérlet, 3000 Ft/fő ital-keret" },
+    note: "3000 Ft ital-keret (teljes ár a keretből), free food nem a pultból" },
   { tier: "M", label: "M", suggestBalance: 0, suggestUnlimited: false,
-    note: "Free food (nem pultból), Free Bérlet, alkoholmentes ingyen" },
+    note: "Alkoholmentes ingyen, alkohol teljes ár, free food nem a pultból" },
   { tier: "S", label: "S — aug.22 16:20-ig érkezők", suggestBalance: 0, suggestUnlimited: false,
-    note: "Free Bérlet" },
+    note: "Pultból mindent teljes áron (Free Bérlet jár)" },
   { tier: "XS", label: "XS — egy fő/zenekar", suggestBalance: 0, suggestUnlimited: false,
-    note: "Free napijegy" },
+    note: "Pultból mindent teljes áron (Free napijegy jár)" },
   { tier: "XXS", label: "XXS — zenekar többi vendége", suggestBalance: 0, suggestUnlimited: false,
-    note: "3000 Ft-os napijegy" }
+    note: "Pultból mindent teljes áron (3000 Ft napijegy)" }
 ];
 function tierPreset(tier) { return TIER_PRESETS.find(t => t.tier === tier) || null; }
 
@@ -952,8 +962,107 @@ function findAccount(id) { return state.accounts.find(a => a.id === id) || null;
 
 /* Egy fiókra terhelendő összeg kiszámítása a kosárból, a fiók árazása szerint.
    Visszaad: { amount, mode, note, issues } — amount az egyenlegből levonandó Ft. */
+/* ======================= KASZT-SZABÁLYMOTOR ======================= */
+
+/* Egy termék tétel-típusa: alkohol | alkoholmentes | kaja_konyhas | kaja_pultos.
+   Ha a terméken nincs itemType, kategóriából következtetünk (visszafelé kompatibilis). */
+function productItemType(name) {
+  const p = state.products.find(x => x.name === name);
+  if (p && p.itemType) return p.itemType;
+  const cat = p ? p.category : "";
+  const alk = ["Csapolt sör", "Rövidek", "Longdrink", "Hugo", "Shot", "Koktél", "Fröccsök"];
+  if (alk.includes(cat)) return "alkohol";
+  return "alkoholmentes";
+}
+
+/* Egy termék beszerzési önköltsége EGY db-ra (a recept alapján). */
+function productUnitCost(name) {
+  const pc = productCost(name);
+  return pc.noRecipe ? null : pc.cost;
+}
+
+/* Hány alkoholos db-ot vitt már el egy fiók MA (naptári nap), a tranzakciókból.
+   A comp/ingyen és a fizetett is számít az 5-ös keretbe (a fogyasztás a lényeg). */
+function alcoholCountToday(accId) {
+  const today = new Date();
+  let count = 0;
+  getAllTransactionsEver().forEach(t => {
+    if (t.payment !== "ACCOUNT" || t.accountId !== accId) return;
+    const d = new Date(t.time);
+    if (d.getFullYear() !== today.getFullYear() || d.getMonth() !== today.getMonth() || d.getDate() !== today.getDate()) return;
+    t.items.forEach(i => { if (productItemType(i.name) === "alkohol") count += i.qty; });
+  });
+  return count;
+}
+
+/* A KASZT-SZABÁLYMOTOR: egy kosárra + fiókra kiszámolja a tételes terhelést.
+   Visszaad: { amount, lines: [{name, qty, unitFull, unitCharge, reason}], issues, freeAlcoholUsed }
+   A "kaszt vezérel": ha a fiók tier-je ismert szabály, az dönt; egyébként a kézi árazás. */
+function tierEngineCharge(acc, alreadyAlcoholToday) {
+  const lines = [];
+  const issues = [];
+  let total = 0;
+  let freeAlcUsed = alreadyAlcoholToday || 0;
+
+  // Melyik kasztokra van szabály?
+  const tier = (acc && acc.tier) ? acc.tier : null;
+  const known = ["XXL Leg", "XL", "L", "M", "S", "XS", "XXS"].includes(tier);
+
+  state.cart.forEach(line => {
+    const type = productItemType(line.name);
+    const full = line.price;                  // teljes egységár
+    const cost = productUnitCost(line.name);  // beszerzési önköltség/db (lehet null)
+    for (let n = 0; n < line.qty; n++) {
+      let unit = full, reason = "teljes ár";
+      if (known) {
+        if (type === "alkoholmentes") {
+          if (tier === "XXL Leg" || tier === "XL" || tier === "M") { unit = 0; reason = "alkoholmentes ingyen"; }
+          else { unit = full; reason = "teljes ár"; }
+        } else if (type === "alkohol") {
+          if (tier === "XXL Leg") {
+            if (freeAlcUsed < 5) { unit = 0; reason = `ingyen pia (${freeAlcUsed + 1}/5)`; freeAlcUsed++; }
+            else { unit = full; reason = "napi 5 felett — teljes ár"; }
+          } else if (tier === "XL") {
+            if (cost == null) { unit = full; reason = "nincs besz. ár — teljes ár"; issues.push(line.name + " (nincs besz. ár)"); }
+            else { unit = cost; reason = "beszerzési ár"; }
+          } else { unit = full; reason = "teljes ár"; } // L, M, S, XS, XXS
+        } else if (type === "kaja_konyhas") {
+          if (tier === "XXL Leg" || tier === "XL") { unit = 0; reason = "konyhás kaja ingyen"; }
+          else { unit = full; reason = "teljes ár"; }
+        } else if (type === "kaja_pultos") {
+          // Senkinek nem ingyen; legkedvezőbb a beszerzési ár (XXL Leg / XL).
+          if (tier === "XXL Leg" || tier === "XL") {
+            if (cost == null) { unit = full; reason = "nincs besz. ár — teljes ár"; issues.push(line.name + " (nincs besz. ár)"); }
+            else { unit = cost; reason = "pultos kaja — beszerzési ár"; }
+          } else { unit = full; reason = "teljes ár"; }
+        }
+      } else {
+        // Nincs ismert kaszt: a kézi fiók-árazás dönt (percent/cost/normal).
+        if (acc && acc.pricing === "cost") {
+          if (cost == null) { unit = full; reason = "nincs besz. ár — teljes ár"; issues.push(line.name); }
+          else { unit = cost; reason = "beszerzési ár"; }
+        } else if (acc && acc.pricing === "percent" && acc.discountPercent > 0) {
+          unit = Math.round(full * (1 - acc.discountPercent / 100)); reason = `−${acc.discountPercent}%`;
+        } else { unit = full; reason = "teljes ár"; }
+      }
+      total += unit;
+      lines.push({ name: line.name, unitFull: full, unitCharge: unit, reason });
+    }
+  });
+
+  return { amount: Math.round(total), lines, issues, freeAlcoholUsed: freeAlcUsed };
+}
+
 function accountChargeAmount(acc, cartFullTotal) {
   if (!acc) return { amount: cartFullTotal, mode: "normal", note: "", issues: [] };
+  // A kaszt vezérel, ha ismert tier VAGY nincs kézi árazás beállítva.
+  const tier = acc.tier;
+  const known = ["XXL Leg", "XL", "L", "M", "S", "XS", "XXS"].includes(tier);
+  if (known) {
+    const eng = tierEngineCharge(acc, alcoholCountToday(acc.id));
+    return { amount: eng.amount, mode: "tier", note: tier + " kaszt-szabály", issues: eng.issues, lines: eng.lines };
+  }
+  // Nincs ismert kaszt: kézi árazás.
   const mode = acc.pricing || "normal";
   if (mode === "percent" && acc.discountPercent > 0) {
     const amt = Math.round(cartFullTotal * (1 - acc.discountPercent / 100));
@@ -1296,20 +1405,35 @@ function renderAccountSelected() {
   const charge = accountChargeAmount(acc, total);
   const changeBtn = `<button id="btnChangeAccount" class="mt-2 w-full py-2 rounded-lg bg-slate-700 border border-slate-600 text-xs font-semibold hover:bg-slate-600">🔄 Másik fiók választása</button>`;
 
-  // Árazás-sor: ha kedvezményes vagy beszerzési áras, mutatjuk a teljes → terhelt átváltást.
+  // Árazás-sor: ha kedvezményes / beszerzési / kaszt-szabály, mutatjuk a teljes → terhelt átváltást.
   let pricingLine = "";
   if (charge.mode !== "normal") {
     const issuesWarn = charge.issues && charge.issues.length
-      ? `<div class="text-[11px] text-rose-400 mt-0.5">⚠ Hiányzó ár: ${charge.issues.map(i => esc(i.name)).join(", ")} — ezek nélkül számol.</div>`
+      ? `<div class="text-[11px] text-rose-400 mt-0.5">⚠ Hiányzó besz. ár: ${charge.issues.map(i => esc(typeof i === "string" ? i : i.name)).join(", ")} — teljes áron számol.</div>`
       : "";
-    pricingLine = `<div class="text-xs text-sky-300 mt-0.5">${esc(charge.note)}: teljes ${fmtFt(total)} → terhelve <b>${fmtFt(charge.amount)}</b></div>${issuesWarn}`;
+    // Kaszt-módban tételes bontás (max 6 sor, hogy ne legyen hosszú).
+    let breakdown = "";
+    if (charge.mode === "tier" && charge.lines && charge.lines.length) {
+      const agg = {};
+      charge.lines.forEach(l => {
+        const key = l.name + "|" + l.reason + "|" + l.unitCharge;
+        if (!agg[key]) agg[key] = { name: l.name, reason: l.reason, unit: l.unitCharge, qty: 0 };
+        agg[key].qty++;
+      });
+      const rows = Object.values(agg).slice(0, 8).map(a =>
+        `<div class="flex justify-between gap-2"><span class="truncate">${a.qty}× ${esc(a.name)}</span><span class="shrink-0 ${a.unit === 0 ? "text-emerald-400" : "text-slate-300"}">${a.unit === 0 ? "ingyen" : fmtFt(a.unit)} <span class="text-slate-500">(${esc(a.reason)})</span></span></div>`
+      ).join("");
+      breakdown = `<div class="text-[11px] text-slate-400 mt-1 space-y-0.5 border-t border-slate-700 pt-1">${rows}</div>`;
+    }
+    pricingLine = `<div class="text-xs text-sky-300 mt-0.5">${esc(charge.note)}: teljes ${fmtFt(total)} → terhelve <b>${fmtFt(charge.amount)}</b></div>${breakdown}${issuesWarn}`;
   }
 
   if (acc.unlimited) {
     box.style.borderColor = "#f59e0b";
     box.style.background = "rgba(245,158,11,0.08)";
     box.innerHTML = `<div class="font-semibold text-amber-300">${acc.type === "band" ? "🎸" : "👤"} ${esc(acc.name)} — korlátlan (comp)</div>
-      <div class="text-xs text-slate-400 mt-0.5">Nem csökken egyenleg, csak naplózódik: <b>${fmtFt(total)}</b></div>${changeBtn}`;
+      ${pricingLine}
+      <div class="text-xs text-slate-400 mt-0.5">Nem csökken egyenleg, csak naplózódik: <b>${fmtFt(charge.amount)}</b></div>${changeBtn}`;
   } else {
     const after = acc.balance - charge.amount;
     const short = after < 0;
@@ -1499,8 +1623,20 @@ function checkout() {
     tx.pricingMode = charge.mode;          // "normal" | "percent" | "cost"
     tx.pricingNote = charge.note;          // pl. "−30% kedvezmény"
     tx.fullTotal = itemsTotal;             // teljes ár (kedvezmény előtt) — riporthoz
-    // Egyenleg csökkentése, ha nem korlátlan (negatívba mehet — pultos dönt).
-    if (!account.unlimited) {
+    if (account.unlimited) {
+      // COMP: az egyenleg NEM csökken, de a fogyasztást naplózzuk (Sheet + történet),
+      // hogy lássuk, mennyibe került a szponzorált fogyasztás (a fiók árazása szerint).
+      queueSync("balance", {
+        time: tx.time,
+        accountId: account.id,
+        accountName: account.name,
+        type: "comp",
+        amount: -charge.amount,            // mennyit "ért" a comp fogyasztás (nem vonódik le)
+        newBalance: "korlátlan",
+        note: "Comp fogyasztás" + (charge.note ? " (" + charge.note + ")" : "")
+      });
+    } else {
+      // Nem korlátlan: egyenleg csökkentése (negatívba mehet — pultos dönt).
       adjustAccountBalance(account.id, -charge.amount, "consume", "Kassza terhelés" + (charge.note ? " (" + charge.note + ")" : ""));
     }
   }
@@ -2137,17 +2273,24 @@ function renderAccountDetailModal() {
   const box = document.getElementById("accDetailBody");
   if (!acc) { box.innerHTML = "<p class='text-slate-500'>A fiók nem található.</p>"; return; }
   const hist = accountHistory(acc.id);
-  const spent = hist.reduce((s, t) => s + t.total, 0);
+  const spent = hist.reduce((s, t) => s + txChargedValue(t), 0);
   const items = hist.reduce((s, t) => s + t.items.reduce((a, i) => a + i.qty, 0), 0);
   const icon = acc.type === "band" ? "🎸" : "👤";
 
   const histHtml = hist.length ? hist.map(t => {
     const dt = new Date(t.time).toLocaleString("hu-HU", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
     const itemsStr = t.items.map(i => `${i.qty}× ${esc(i.name)}`).join(", ");
+    const charged = txChargedValue(t);
+    // Ha volt kedvezmény/beszerzési ár (charged < teljes ár), mutatjuk az eredetit is.
+    const priceStr = (typeof t.chargeAmount === "number" && t.chargeAmount !== t.total)
+      ? `<span class="text-[11px] text-slate-500 line-through mr-1">${fmtFt(t.total)}</span>${fmtFt(charged)}`
+      : fmtFt(charged);
+    const compBadge = t.comp ? ' <span class="text-[10px] text-amber-400">(comp)</span>' : "";
+    const noteBadge = t.pricingNote ? ` <span class="text-[10px] text-sky-400">${esc(t.pricingNote)}</span>` : "";
     return `<div class="rounded-lg bg-slate-800/60 border border-slate-700 p-2.5">
       <div class="flex items-center justify-between gap-2 mb-0.5">
         <span class="text-xs text-slate-400 tabular-nums">${dt}</span>
-        <span class="font-bold tabular-nums">${fmtFt(t.total)}${t.comp ? ' <span class="text-[10px] text-amber-400">(comp)</span>' : ""}</span>
+        <span class="font-bold tabular-nums">${priceStr}${compBadge}${noteBadge}</span>
       </div>
       <div class="text-sm text-slate-300">${itemsStr}</div>
     </div>`;
@@ -2191,6 +2334,10 @@ function renderAccountDetailModal() {
 
     <div class="rounded-xl bg-slate-800/60 border border-slate-700 p-3 mb-4">
       <div class="text-xs text-slate-400 font-semibold mb-2">Árazás (fiókra terheléskor)</div>
+      ${["XXL Leg","XL","L","M","S","XS","XXS"].includes(acc.tier) ? `
+      <div class="text-xs text-amber-300/90 bg-amber-500/10 border border-amber-500/30 rounded-lg px-3 py-2 mb-2">
+        ⚙ Ezt a fiókot a <b>${esc(acc.tier)}</b> kaszt-szabály vezérli (tétel-típus szerint: alkohol / alkoholmentes / kaja). A lenti kézi árazás csak akkor él, ha eltávolítod a kasztot.
+      </div>` : ""}
       <div class="flex flex-wrap items-center gap-2">
         <select id="accPricingSel" class="px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm">
           <option value="normal" ${(acc.pricing || "normal") === "normal" ? "selected" : ""}>Normál (teljes ár)</option>
@@ -2746,13 +2893,19 @@ function renderAdminLog() {
     const badgeColor = PAY_COLORS[t.payment] || "#6366f1";
     const payLabel = t.payment === "ACCOUNT" ? `👤 ${esc(t.accountName || "Fiók")}${t.comp ? " (comp)" : ""}` : t.payment;
     const tipStr = t.tip ? `<span class="text-xs font-bold px-2 py-0.5 rounded bg-amber-500/15 text-amber-400">+${fmtFt(t.tip)} jatt</span>` : "";
+    const charged = txChargedValue(t);
+    const priceStr = (t.payment === "ACCOUNT" && typeof t.chargeAmount === "number" && t.chargeAmount !== t.total)
+      ? `<span class="text-[11px] text-slate-500 line-through mr-1">${fmtFt(t.total)}</span>${fmtFt(charged)}`
+      : fmtFt(t.total);
+    const noteStr = (t.payment === "ACCOUNT" && t.pricingNote) ? `<span class="text-[10px] text-sky-400">${esc(t.pricingNote)}</span>` : "";
     return `
       <div class="rounded-lg bg-slate-800/60 border border-slate-700 p-3">
         <div class="flex items-center justify-between gap-2 mb-1 flex-wrap">
           <span class="text-xs text-slate-400 tabular-nums">${time}</span>
           <span class="text-xs font-bold px-2 py-0.5 rounded" style="background:${badgeColor}33; color:${badgeColor}">${payLabel}</span>
           ${tipStr}
-          <span class="font-black tabular-nums">${fmtFt(t.total)}</span>
+          ${noteStr}
+          <span class="font-black tabular-nums">${priceStr}</span>
           ${t.payment === "ACCOUNT" ? "" : `<button data-edit="${t.id}" class="text-xs font-bold px-2 py-1 rounded bg-slate-700 hover:bg-slate-600">✏ Szerk.</button>`}
         </div>
         <div class="text-sm text-slate-300">${itemsStr}</div>
@@ -2941,8 +3094,16 @@ function renderAdminProducts() {
           <span class="text-xs text-slate-500 shrink-0">Ft</span>
           <button data-del="${p.id}" class="text-rose-400/70 hover:text-rose-400 px-2 shrink-0">🗑</button>
         </div>
-        <input data-field="recipe" data-pid="${p.id}" value="${esc(p.recipe || "")}" placeholder="🧪 Keverési segédlet (opcionális)"
-          class="w-full mt-1 ml-4 px-2 py-1 rounded-lg bg-slate-800/60 border border-slate-800 text-xs text-slate-400 placeholder-slate-600" />
+        <div class="flex items-center gap-2 mt-1 ml-4">
+          <select data-field="itemType" data-pid="${p.id}" class="px-2 py-1 rounded-lg bg-slate-800/60 border border-slate-800 text-xs text-slate-400">
+            <option value="alkohol" ${productItemType(p.name) === "alkohol" ? "selected" : ""}>🍺 alkohol</option>
+            <option value="alkoholmentes" ${productItemType(p.name) === "alkoholmentes" ? "selected" : ""}>🥤 alkoholmentes</option>
+            <option value="kaja_konyhas" ${productItemType(p.name) === "kaja_konyhas" ? "selected" : ""}>🍔 konyhás kaja</option>
+            <option value="kaja_pultos" ${productItemType(p.name) === "kaja_pultos" ? "selected" : ""}>🥪 pultos kaja</option>
+          </select>
+          <input data-field="recipe" data-pid="${p.id}" value="${esc(p.recipe || "")}" placeholder="🧪 Keverési segédlet (opcionális)"
+            class="flex-1 min-w-0 px-2 py-1 rounded-lg bg-slate-800/60 border border-slate-800 text-xs text-slate-400 placeholder-slate-600" />
+        </div>
       </div>`).join("");
     return `<div class="mb-4">
       <div class="text-xs font-bold uppercase tracking-wide mb-1" style="color:${catColor(cat)}">${esc(cat)}</div>
@@ -3007,6 +3168,12 @@ function renderAdminProducts() {
     inp.addEventListener("change", () => {
       const p = state.products.find(x => x.id === inp.dataset.pid);
       if (p) { const v = inp.value.trim(); if (v) p.recipe = v; else delete p.recipe; persistProducts(); renderProducts(); }
+    });
+  });
+  panel.querySelectorAll('select[data-field="itemType"]').forEach(sel => {
+    sel.addEventListener("change", () => {
+      const p = state.products.find(x => x.id === sel.dataset.pid);
+      if (p) { p.itemType = sel.value; persistProducts(); }
     });
   });
   panel.querySelectorAll("[data-del]").forEach(btn => {
