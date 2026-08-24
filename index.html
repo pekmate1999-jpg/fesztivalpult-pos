@@ -521,40 +521,52 @@ const DEFAULT_RECIPES = {
    Presetek: XXL Leg / XL = comp (korlátlan), L = 3000 Ft, M/S/XS = 0, XXS = 3000 Ft.
    A zenekarok réteg nélkül, 0 egyenleggel indulnak (a tagok kasztja egyénileg változik). */
 const DEFAULT_ACCOUNTS = [
-  { id: "acc_seed_p001", type: "person", name: "Farkas Hanga", tier: "XXL Leg", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p002", type: "person", name: "Farkas Kincső", tier: "XXL Leg", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p003", type: "person", name: "Kass Lívia", tier: "XXL Leg", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p004", type: "person", name: "Kovács Boldizsár", tier: "XXL Leg", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p005", type: "person", name: "Vizér Dani", tier: "XXL Leg", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p006", type: "person", name: "Pálinkás Gerdő", tier: "XXL Leg", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p007", type: "person", name: "Ágoston Lili", tier: "XL", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p008", type: "person", name: "Ágoston Rebeka", tier: "XL", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p009", type: "person", name: "Bojti Tádé", tier: "XL", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p010", type: "person", name: "Dombi Ágoston", tier: "XL", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p012", type: "person", name: "Dravecz Enikő", tier: "XL", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p013", type: "person", name: "Pfeiffer Dániel", tier: "XL", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p014", type: "person", name: "Sóbujtó Ármin", tier: "XL", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p015", type: "person", name: "Sóbujtó Regő", tier: "XL", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p016", type: "person", name: "Pék Máté", tier: "XL", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p024", type: "person", name: "Hevesi Eszter", tier: "L", unlimited: false, balance: 3000, note: "" },
-  { id: "acc_seed_p029", type: "person", name: "Garamszegi Balázs", tier: "L", unlimited: false, balance: 3000, note: "" },
-  { id: "acc_seed_p030", type: "person", name: "Pozsonyi Zsombor", tier: "L", unlimited: false, balance: 3000, note: "" },
-  { id: "acc_seed_p031", type: "person", name: "Pozsonyi Nóra", tier: "M", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p032", type: "person", name: "Kurucz Gábor", tier: "M", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p033", type: "person", name: "Csibrik Sándor", tier: "M", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p034", type: "person", name: "Ónódi Bence", tier: "M", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p035", type: "person", name: "Dudás Misi", tier: "M", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p036", type: "person", name: "Herczegh Zsófia", tier: "M", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p037", type: "person", name: "Fenyvesi Bálint", tier: "M", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p040", type: "person", name: "Hanyecz Adél", tier: "M", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p041", type: "person", name: "Zsóri Gergely", tier: null, unlimited: false, balance: 0, note: "félár bérlet és 2 ingyen kaja" },
-  { id: "acc_seed_p049", type: "person", name: "Pék Janka", tier: "M", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p055", type: "person", name: "Martincsák Anna", tier: null, unlimited: false, balance: 0, note: "fél áron bérlet" },
-  { id: "acc_seed_p056", type: "person", name: "Ágoston Béla", tier: "M", unlimited: false, balance: 0, note: "" },
-  { id: "acc_seed_p057", type: "person", name: "Dombi Anna", tier: null, unlimited: false, balance: 3000, note: "2 ingyen kaja és 3000 Ft pia" },
+  { id: "acc_seed_p001", type: "person", name: "Farkas Hanga", tier: "XXL Leg", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p002", type: "person", name: "Farkas Kincső", tier: "XXL Leg", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p003", type: "person", name: "Kass Lívia", tier: "XXL Leg", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p004", type: "person", name: "Kovács Boldizsár", tier: "XXL Leg", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p005", type: "person", name: "Vizér Dani", tier: "XXL Leg", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p006", type: "person", name: "Pálinkás Gerdő", tier: "XXL Leg", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p007", type: "person", name: "Ágoston Lili", tier: "XL", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p008", type: "person", name: "Ágoston Rebeka", tier: "XL", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p009", type: "person", name: "Bojti Tádé", tier: "XL", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p010", type: "person", name: "Dombi Ágoston", tier: "XL", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p011", type: "person", name: "Dombi Eszti", tier: "XL", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p012", type: "person", name: "Dravecz Enikő", tier: "XL", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p013", type: "person", name: "Pfeiffer Dániel", tier: "XL", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p014", type: "person", name: "Sóbujtó Ármin", tier: "XL", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p015", type: "person", name: "Sóbujtó Regő", tier: "XL", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p016", type: "person", name: "Pék Máté", tier: "XL", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p017", type: "person", name: "Német Csanád", tier: "XL", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p018", type: "person", name: "Németh Barna András", tier: "XL", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p019", type: "person", name: "Bedő Bella", tier: "XL", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p020", type: "person", name: "Berty Csongor", tier: "XL", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p021", type: "person", name: "Csabai Bálint", tier: "XL", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p022", type: "person", name: "Hegedűs Réka", tier: "XL", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p023", type: "person", name: "Hegedűs Sári", tier: "XL", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p024", type: "person", name: "Hevesi Eszter", tier: "XL", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p025", type: "person", name: "Mészáros Levente", tier: "XL", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p026", type: "person", name: "Szlávik Veronika", tier: "XL", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p027", type: "person", name: "Varga Dorottya", tier: "XL", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p028", type: "person", name: "Varga Szemes Lázár", tier: "XL", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p029", type: "person", name: "Garamszegi Balázs", tier: "L", unlimited: false, balance: 3000, note: "", active: true },
+  { id: "acc_seed_p030", type: "person", name: "Pozsonyi Zsombor", tier: "L", unlimited: false, balance: 3000, note: "", active: true },
+  { id: "acc_seed_p031", type: "person", name: "Pozsonyi Nóra", tier: "M", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p032", type: "person", name: "Kurucz Gábor", tier: "M", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p033", type: "person", name: "Csibrik Sándor", tier: "M", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p034", type: "person", name: "Ónódi Bence", tier: "M", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p035", type: "person", name: "Dudás Misi", tier: "M", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p036", type: "person", name: "Herczegh Zsófia", tier: "M", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p037", type: "person", name: "Fenyvesi Bálint", tier: "M", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p038", type: "person", name: "Hanyecz Adél", tier: "M", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p039", type: "person", name: "Pék Janka", tier: "M", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p040", type: "person", name: "Ágoston Béla", tier: "M", unlimited: false, balance: 0, note: "", active: true },
+  { id: "acc_seed_p041", type: "person", name: "Zsóri Gergely", tier: null, unlimited: false, balance: 0, note: "Egyedi: 2 ingyen konyhás kaja", active: true },
+  { id: "acc_seed_p042", type: "person", name: "Dombi Anna", tier: "L", unlimited: false, balance: 3000, note: "Egyedi: 3000 Ft keret + 2 ingyen konyhás kaja", active: true },
+  { id: "acc_seed_p043", type: "person", name: "Horváth Ábel", tier: "XL", unlimited: false, balance: 0, note: "", active: true },
   { id: "acc_seed_b059", type: "band", name: "Sezlony", tier: "L", unlimited: false, balance: 18000, note: "6 fő × 3000 Ft" },
   { id: "acc_seed_b060", type: "band", name: "The Fless", tier: "L", unlimited: false, balance: 3000, note: "Dávid · 1 fő × 3000 Ft" },
-  { id: "acc_seed_b061", type: "band", name: "Koszmosz936", tier: "L", unlimited: false, balance: 3000, note: "1 fő × 3000 Ft (létszám tisztázandó)" },
+  { id: "acc_seed_b061", type: "band", name: "Koszmosz936", tier: "L", unlimited: false, balance: 24000, note: "8 fő × 3000 Ft" },
   { id: "acc_seed_b062", type: "band", name: "Eugenetooms", tier: "L", unlimited: false, balance: 9000, note: "3 fő × 3000 Ft" },
   { id: "acc_seed_b063", type: "band", name: "Nonszensz", tier: "L", unlimited: false, balance: 12000, note: "4 fő × 3000 Ft" },
   { id: "acc_seed_b064", type: "band", name: "Kemény Viktor", tier: "L", unlimited: false, balance: 3000, note: "1 fő × 3000 Ft" },
@@ -619,7 +631,7 @@ const INGREDIENTS_VERSION = 3;
 /* Fiók-seed verzió. Növeld, ha a DEFAULT_ACCOUNTS listát bővíted és be akarod tölteni.
    A seed CSAK akkor tölt be teljesen, ha még egyáltalán nincs mentett fiók.
    Verzió-emeléskor a seed-fiókok (acc_seed_ ID) kerete frissül, ha még érintetlen. */
-const SEED_ACCOUNTS_VERSION = 6;
+const SEED_ACCOUNTS_VERSION = 8;
 const LS_SEED_ACC_VER = "pos_seed_accounts_version";
 
 function loadJSON(key, fallback) {
@@ -1492,7 +1504,50 @@ function renderAccountPicker() {
   list.sort((a, b) => a.name.localeCompare(b.name, "hu"));
 
   if (!list.length) {
-    listEl.innerHTML = `<div class="text-center text-slate-500 text-xs py-4">Nincs találat. Fiókot az Admin → 💳 Egyenlegek fülön hozhatsz létre.</div>`;
+    const typed = accountPickerSearch.trim();
+    if (typed) {
+      // Gyors hozzáadás: a beírt névvel új fiók, admin PIN nélkül, kaszt-választóval.
+      listEl.innerHTML = `
+        <div class="rounded-lg border border-amber-500/40 bg-amber-500/5 p-3">
+          <div class="text-sm text-slate-300 mb-2">Nincs „<b>${esc(typed)}</b>” a listában. Hozzáadod most?</div>
+          <div class="flex flex-wrap items-center gap-2 mb-2">
+            <select id="quickAddTier" class="px-2 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-xs">
+              <option value="">Nincs kaszt (teljes ár)</option>
+              <option value="XXL Leg">XXL Leg</option>
+              <option value="XL">XL</option>
+              <option value="L">L (3000 Ft keret)</option>
+              <option value="M">M</option>
+            </select>
+            <label class="flex items-center gap-1 text-xs text-slate-400">
+              <input id="quickAddBand" type="checkbox" class="w-3.5 h-3.5 accent-amber-500" /> zenekar
+            </label>
+          </div>
+          <button id="quickAddBtn" class="w-full py-2 rounded-lg bg-amber-500 text-slate-950 font-bold text-sm hover:bg-amber-400">+ „${esc(typed)}” hozzáadása és kiválasztása</button>
+          <p class="text-[11px] text-slate-500 mt-1.5">A kaszt később az Admin → 💳 Egyenlegek fülön módosítható. Az L kaszt 3000 Ft kerettel indul.</p>
+        </div>`;
+      const qBtn = document.getElementById("quickAddBtn");
+      if (qBtn) qBtn.addEventListener("click", () => {
+        const tier = document.getElementById("quickAddTier").value || null;
+        const isBand = document.getElementById("quickAddBand").checked;
+        const preset = tier ? tierPreset(tier) : null;
+        const acc = createAccount({
+          name: typed,
+          type: isBand ? "band" : "person",
+          tier: tier,
+          unlimited: false,
+          balance: preset ? preset.suggestBalance : 0,
+          note: "Kasszából hozzáadva"
+        });
+        state.accountId = acc.id;
+        accountPickerSearch = "";
+        const se = document.getElementById("accountSearch");
+        if (se) se.value = "";
+        renderAccountPicker();
+        renderChangeAndCheckout();
+      });
+    } else {
+      listEl.innerHTML = `<div class="text-center text-slate-500 text-xs py-4">Kezdj el gépelni egy nevet — ha nincs a listában, itt rögtön hozzáadhatod.</div>`;
+    }
   } else {
     listEl.innerHTML = list.map(a => {
       const sel = state.accountId === a.id;
