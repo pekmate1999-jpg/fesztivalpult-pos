@@ -612,7 +612,7 @@ const DEFAULT_ACCOUNTS = [
   { id: "acc_seed_p046", type: "person", name: "Martincsák Anna", tier: null, unlimited: false, balance: 0, note: "Egyedi: fél áron bérlet", active: true },
   { id: "acc_seed_b059", type: "band", name: "Sezlony", tier: "L", unlimited: false, balance: 18000, note: "6 fő × 3000 Ft" },
   { id: "acc_seed_b060", type: "band", name: "The Fless", tier: "L", unlimited: false, balance: 3000, note: "Dávid · 1 fő × 3000 Ft" },
-  { id: "acc_seed_b061", type: "band", name: "Koszmosz936", tier: "L", unlimited: false, balance: 24000, note: "8 fő × 3000 Ft" },
+  { id: "acc_seed_b061", type: "band", name: "Koszmosz936", tier: "M", unlimited: false, balance: 0, note: "Alkoholmentes ingyen (standolni), alkohol teljes ár, nincs keret" },
   { id: "acc_seed_b062", type: "band", name: "Eugenetooms", tier: "L", unlimited: false, balance: 9000, note: "3 fő × 3000 Ft" },
   { id: "acc_seed_b063", type: "band", name: "Nonszensz", tier: "L", unlimited: false, balance: 12000, note: "4 fő × 3000 Ft" },
   { id: "acc_seed_b064", type: "band", name: "Kemény Viktor", tier: "L", unlimited: false, balance: 3000, note: "1 fő × 3000 Ft" },
@@ -622,7 +622,7 @@ const DEFAULT_ACCOUNTS = [
   { id: "acc_seed_b069", type: "band", name: "Cs. M (DJ)", tier: "L", unlimited: false, balance: 3000, note: "1 fő × 3000 Ft" },
   { id: "acc_seed_b070", type: "band", name: "Csanád, Bence", tier: "L", unlimited: false, balance: 6000, note: "2 fő × 3000 Ft" },
   { id: "acc_seed_b071", type: "band", name: "Boros Attila Naked", tier: "L", unlimited: false, balance: 3000, note: "1 fő × 3000 Ft" },
-  { id: "acc_seed_b072", type: "band", name: "Várhegyutca", tier: "L", unlimited: false, balance: 30000, note: "10 fő × 3000 Ft" },
+  { id: "acc_seed_b072", type: "band", name: "Várhegyutca", tier: "M", unlimited: false, balance: 0, note: "Alkoholmentes ingyen (standolni), alkohol teljes ár, nincs keret" },
   { id: "acc_seed_b073", type: "band", name: "Animas", tier: "L", unlimited: false, balance: 15000, note: "5 fő × 3000 Ft" },
 ].map(a => Object.assign({ active: true, createdAt: new Date().toISOString() }, a));
 
@@ -677,7 +677,7 @@ const INGREDIENTS_VERSION = 5;
 /* Fiók-seed verzió. Növeld, ha a DEFAULT_ACCOUNTS listát bővíted és be akarod tölteni.
    A seed CSAK akkor tölt be teljesen, ha még egyáltalán nincs mentett fiók.
    Verzió-emeléskor a seed-fiókok (acc_seed_ ID) kerete frissül, ha még érintetlen. */
-const SEED_ACCOUNTS_VERSION = 10;
+const SEED_ACCOUNTS_VERSION = 11;
 const LS_SEED_ACC_VER = "pos_seed_accounts_version";
 
 function loadJSON(key, fallback) {
