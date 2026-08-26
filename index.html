@@ -604,11 +604,12 @@ const DEFAULT_ACCOUNTS = [
   { id: "acc_seed_p038", type: "person", name: "Hanyecz Adél", tier: "M", unlimited: false, balance: 0, note: "", active: true },
   { id: "acc_seed_p039", type: "person", name: "Pék Janka", tier: "M", unlimited: false, balance: 0, note: "", active: true },
   { id: "acc_seed_p040", type: "person", name: "Ágoston Béla", tier: "M", unlimited: false, balance: 0, note: "", active: true },
-  { id: "acc_seed_p041", type: "person", name: "Zsóri Gergely", tier: null, unlimited: false, balance: 0, note: "Egyedi: 2 ingyen konyhás kaja", active: true },
+  { id: "acc_seed_p041", type: "person", name: "Zsóri Gergely", tier: null, unlimited: false, balance: 0, note: "Egyedi: félár bérlet + 2 ingyen konyhás kaja", active: true },
   { id: "acc_seed_p042", type: "person", name: "Dombi Anna", tier: "L", unlimited: false, balance: 3000, note: "Egyedi: 3000 Ft keret + 2 ingyen konyhás kaja", active: true },
   { id: "acc_seed_p043", type: "person", name: "Horváth Ábel", tier: "XL", unlimited: false, balance: 0, note: "", active: true },
   { id: "acc_seed_p044", type: "person", name: "Roboz Áron", tier: "XL", unlimited: false, balance: 0, note: "", active: true },
   { id: "acc_seed_p045", type: "person", name: "Bakos Milán", tier: null, unlimited: false, balance: 0, note: "Egyedi: félár bérlet", active: true },
+  { id: "acc_seed_p046", type: "person", name: "Martincsák Anna", tier: null, unlimited: false, balance: 0, note: "Egyedi: fél áron bérlet", active: true },
   { id: "acc_seed_b059", type: "band", name: "Sezlony", tier: "L", unlimited: false, balance: 18000, note: "6 fő × 3000 Ft" },
   { id: "acc_seed_b060", type: "band", name: "The Fless", tier: "L", unlimited: false, balance: 3000, note: "Dávid · 1 fő × 3000 Ft" },
   { id: "acc_seed_b061", type: "band", name: "Koszmosz936", tier: "L", unlimited: false, balance: 24000, note: "8 fő × 3000 Ft" },
@@ -676,7 +677,7 @@ const INGREDIENTS_VERSION = 5;
 /* Fiók-seed verzió. Növeld, ha a DEFAULT_ACCOUNTS listát bővíted és be akarod tölteni.
    A seed CSAK akkor tölt be teljesen, ha még egyáltalán nincs mentett fiók.
    Verzió-emeléskor a seed-fiókok (acc_seed_ ID) kerete frissül, ha még érintetlen. */
-const SEED_ACCOUNTS_VERSION = 9;
+const SEED_ACCOUNTS_VERSION = 10;
 const LS_SEED_ACC_VER = "pos_seed_accounts_version";
 
 function loadJSON(key, fallback) {
@@ -1387,7 +1388,7 @@ function renderCatTabs() {
   const cats = getCategories();
   const favTab = { name: "FAV", label: "⭐ Kedvencek", color: FAV_TAB_COLOR };
   const allTab = { name: "ALL", label: "Összes", color: "#e2e8f0" };
-  const all = [favTab, ...cats.map(c => ({ name: c, label: c, color: catColor(c) })), allTab];
+  const all = [favTab, allTab, ...cats.map(c => ({ name: c, label: c, color: catColor(c) }))];
   const tabsHtml = all.map(c => {
     const active = state.category === c.name;
     return `<button data-cat="${esc(c.name)}"
