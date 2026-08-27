@@ -49,12 +49,23 @@
   #vkb .vkb-key.ctl { background: #0f172a; color: #94a3b8; font-size: 13px; }
   #vkb .vkb-key.space { flex: 5 1 0; }
   body.vkb-open { padding-bottom: 240px; }
-  /* Amikor a billentyűzet nyitva van, a jobb oldali panel (fiók-lista) kapjon alsó teret,
-     hogy a lista a billentyűzet fölé görgethető legyen, ne takarja el. */
-  body.vkb-open #cartAside { padding-bottom: 250px; }
-  body.vkb-open #accountList { max-height: 30vh; }
+  /* Modal-panelek érintős görgetése (fiók-részletek, tranzakció-szerkesztő stb.) */
+  #accDetailModal .overflow-y-auto,
+  #txEditModal .overflow-y-auto,
+  #accDetailBody, #txEditItems {
+    -webkit-overflow-scrolling: touch; touch-action: pan-y; overscroll-behavior: contain;
+  }
+  /* Álló nézetben a jobb panel alul van, a billentyűzet takarhatja — adjunk alsó teret. */
+  @media (orientation: portrait) {
+    body.vkb-open #cartAside { padding-bottom: 250px; }
+    body.vkb-open #accountList { max-height: 30vh; }
+  }
   @media (orientation: landscape) {
     #vkb.numeric .vkb-grid { max-width: 380px; }
+    /* Fekvő nézetben a jobb oldali Rendelés-panel szélessége clamp(260px,30vw,460px).
+       A billentyűzet jobb széle érjen véget a panel előtt, ne lógjon alá. */
+    #vkb { right: clamp(260px, 30vw, 460px); }
+    #vkb.text #vkbBody { max-width: none; }
   }
   .catbtn { transition: transform .08s ease, background-color .15s ease, border-color .15s ease; }
   .catbtn:active, .prodcard:active, .qty-btn:active, #btnCheckout:active { transform: scale(0.96); }
@@ -355,8 +366,8 @@
 <!-- ACCOUNT DETAIL MODAL -->
 <div id="accDetailModal" class="fixed inset-0 z-[60] hidden">
   <div id="accDetailOverlay" class="absolute inset-0 bg-black/80"></div>
-  <div class="absolute inset-0 flex items-center justify-center p-4">
-    <div class="w-full max-w-lg bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl p-5 max-h-[90vh] overflow-y-auto">
+  <div class="absolute inset-0 overflow-y-auto p-4" style="-webkit-overflow-scrolling:touch;">
+    <div class="w-full max-w-lg mx-auto my-4 bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl p-5">
       <div class="flex items-center justify-between mb-3">
         <h3 class="font-bold text-lg">💳 Fiók részletei</h3>
         <button id="btnCloseAccDetail" class="text-slate-500 hover:text-slate-300 px-2">✕</button>
@@ -386,8 +397,8 @@
 
 <div id="txEditModal" class="fixed inset-0 z-[70] hidden">
   <div id="txEditOverlay" class="absolute inset-0 bg-black/80"></div>
-  <div class="absolute inset-0 flex items-center justify-center p-4">
-    <div class="w-full max-w-lg bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl p-5 max-h-[90vh] overflow-y-auto">
+  <div class="absolute inset-0 overflow-y-auto p-4" style="-webkit-overflow-scrolling:touch;">
+    <div class="w-full max-w-lg mx-auto my-4 bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl p-5">
       <div class="flex items-center justify-between mb-1">
         <h3 class="font-bold text-lg">✏ Tranzakció szerkesztése</h3>
         <button id="btnCloseTxEdit" class="text-slate-500 hover:text-slate-300 px-2">✕</button>
@@ -728,6 +739,7 @@ const DEFAULT_ACCOUNTS = [
   { id: "acc_seed_p044", type: "person", name: "Roboz Áron", tier: "XL", unlimited: false, balance: 0, note: "", active: true },
   { id: "acc_seed_p045", type: "person", name: "Bakos Milán", tier: null, unlimited: false, balance: 0, note: "Egyedi: félár bérlet", active: true },
   { id: "acc_seed_p046", type: "person", name: "Martincsák Anna", tier: null, unlimited: false, balance: 0, note: "Egyedi: fél áron bérlet", active: true },
+  { id: "acc_seed_p047", type: "person", name: "Rácz András", tier: "XL", unlimited: false, balance: 0, note: "", active: true },
   { id: "acc_seed_b059", type: "band", name: "Sezlony", tier: "L", unlimited: false, balance: 18000, note: "6 fő × 3000 Ft" },
   { id: "acc_seed_b060", type: "band", name: "The Fless", tier: "L", unlimited: false, balance: 3000, note: "Dávid · 1 fő × 3000 Ft" },
   { id: "acc_seed_b061", type: "band", name: "Koszmosz936", tier: "M", unlimited: false, balance: 0, note: "Alkoholmentes ingyen (standolni), alkohol teljes ár, nincs keret" },
@@ -796,7 +808,7 @@ const INGREDIENTS_VERSION = 7;
 /* Fiók-seed verzió. Növeld, ha a DEFAULT_ACCOUNTS listát bővíted és be akarod tölteni.
    A seed CSAK akkor tölt be teljesen, ha még egyáltalán nincs mentett fiók.
    Verzió-emeléskor a seed-fiókok (acc_seed_ ID) kerete frissül, ha még érintetlen. */
-const SEED_ACCOUNTS_VERSION = 11;
+const SEED_ACCOUNTS_VERSION = 12;
 const LS_SEED_ACC_VER = "pos_seed_accounts_version";
 
 function loadJSON(key, fallback) {
@@ -900,6 +912,12 @@ const state = {
       return true;
     });
     if (state.accounts.length !== before) changed = true;
+    // 3) Hozzáadás: a DEFAULT-ban lévő seed-fiókok, amelyek még nincsenek a mentett listában
+    //    (pl. új személy verzió-emeléskor). A helyszíni fiókokat NEM érinti.
+    const haveIds = new Set(state.accounts.map(a => a.id));
+    DEFAULT_ACCOUNTS.forEach(d => {
+      if (!haveIds.has(d.id)) { state.accounts.push(Object.assign({}, d)); changed = true; }
+    });
     if (changed) persistAccounts();
     saveJSON(LS_SEED_ACC_VER, SEED_ACCOUNTS_VERSION);
   }
