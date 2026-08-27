@@ -29,24 +29,29 @@
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
   /* ===== Saját érintő-billentyűzet (natív helyett, hogy ne tűnjön el / pontos legyen) ===== */
-  #vkb { position: fixed; left: 0; right: 0; bottom: 0; z-index: 90; background: #0b1220; border-top: 1px solid #1e293b; box-shadow: 0 -8px 30px -8px rgba(0,0,0,0.7); padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); transform: translateY(110%); transition: transform .16s ease; touch-action: manipulation; }
+  #vkb { position: fixed; left: 0; right: 0; bottom: 0; z-index: 90; background: #0b1220; border-top: 1px solid #1e293b; box-shadow: 0 -8px 30px -8px rgba(0,0,0,0.7); padding: 5px 8px calc(5px + env(safe-area-inset-bottom)); transform: translateY(110%); transition: transform .14s ease; touch-action: manipulation; }
   #vkb.open { transform: translateY(0); }
-  #vkbHint { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 2px 4px 6px; }
-  #vkbHintLabel { font-size: 12px; color: #94a3b8; font-weight: 600; }
-  #vkbPreview { font-size: 15px; font-weight: 800; color: #fbbf24; font-variant-numeric: tabular-nums; max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  #vkb .vkb-grid { display: grid; gap: 6px; }
-  #vkb.numeric .vkb-grid { grid-template-columns: repeat(3, 1fr); max-width: 440px; margin: 0 auto; }
-  #vkb.text .vkb-row { display: flex; gap: 5px; justify-content: center; margin-bottom: 5px; }
-  #vkb .vkb-key { -webkit-user-select: none; user-select: none; touch-action: manipulation; display: flex; align-items: center; justify-content: center; height: 52px; border-radius: 12px; background: #1e293b; border: 1px solid #334155; color: #e2e8f0; font-size: 20px; font-weight: 700; cursor: pointer; }
-  #vkb.text .vkb-key { height: 46px; min-width: 30px; flex: 1 1 0; font-size: 17px; padding: 0 2px; }
-  #vkb .vkb-key:active { transform: scale(0.94); background: #334155; }
-  #vkb .vkb-key.wide { flex: 2.4 1 0; }
+  #vkbHint { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 1px 4px 4px; }
+  #vkbHintLabel { font-size: 11px; color: #94a3b8; font-weight: 600; }
+  #vkbPreview { font-size: 14px; font-weight: 800; color: #fbbf24; font-variant-numeric: tabular-nums; max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #vkb .vkb-grid { display: grid; gap: 5px; }
+  #vkb.numeric .vkb-grid { grid-template-columns: repeat(3, 1fr); max-width: 340px; margin: 0 auto; }
+  #vkb.text #vkbBody { max-width: 900px; margin: 0 auto; }
+  #vkb.text .vkb-row { display: flex; gap: 4px; justify-content: center; margin-bottom: 4px; }
+  #vkb .vkb-key { -webkit-user-select: none; user-select: none; touch-action: manipulation; display: flex; align-items: center; justify-content: center; height: 40px; border-radius: 9px; background: #1e293b; border: 1px solid #334155; color: #e2e8f0; font-size: 17px; font-weight: 700; cursor: pointer; }
+  #vkb.numeric .vkb-key { height: 44px; font-size: 19px; }
+  #vkb.text .vkb-key { height: 38px; min-width: 26px; flex: 1 1 0; font-size: 16px; padding: 0 2px; }
+  #vkb .vkb-key:active { transform: scale(0.93); background: #334155; }
+  #vkb .vkb-key.wide { flex: 2.2 1 0; }
   #vkb .vkb-key.accent { background: #f59e0b; border-color: #f59e0b; color: #0f172a; }
   #vkb .vkb-key.accent:active { background: #d97706; }
   #vkb .vkb-key.danger { color: #fca5a5; }
-  #vkb .vkb-key.ctl { background: #0f172a; color: #94a3b8; }
+  #vkb .vkb-key.ctl { background: #0f172a; color: #94a3b8; font-size: 13px; }
   #vkb .vkb-key.space { flex: 5 1 0; }
-  body.vkb-open { padding-bottom: 320px; }
+  body.vkb-open { padding-bottom: 240px; }
+  @media (orientation: landscape) {
+    #vkb.numeric .vkb-grid { max-width: 380px; }
+  }
   .catbtn { transition: transform .08s ease, background-color .15s ease, border-color .15s ease; }
   .catbtn:active, .prodcard:active, .qty-btn:active, #btnCheckout:active { transform: scale(0.96); }
   .prodcard { transition: transform .08s ease, border-color .15s ease; position: relative; }
@@ -101,25 +106,6 @@
     </div>
   </div>
 
-  <!-- Univerzális fizetés-megerősítő modal (minden fizetési módra) -->
-  <div id="confirmPayModal" class="hidden fixed inset-0 z-[80] bg-black/70 flex items-center justify-center p-4">
-    <div class="bg-slate-900 border-2 rounded-2xl max-w-sm w-full p-5" id="confirmPayCard">
-      <div class="text-center">
-        <div class="text-4xl mb-1" id="confirmPayIcon">✅</div>
-        <h2 class="text-lg font-bold mb-0.5" id="confirmPayTitle">Fizetés megerősítése</h2>
-        <p class="text-slate-400 text-xs mb-3" id="confirmPaySub">Biztosan rögzíted ezt a tranzakciót?</p>
-      </div>
-      <div class="rounded-xl bg-slate-800/60 border border-slate-700 p-3 mb-3">
-        <div id="confirmPayItems" class="text-sm text-slate-300 space-y-0.5 mb-2 max-h-40 overflow-y-auto"></div>
-        <div class="border-t border-slate-700 pt-2 space-y-1" id="confirmPayTotals"></div>
-      </div>
-      <div class="flex gap-2">
-        <button id="btnConfirmPayNo" class="flex-1 px-4 py-3 rounded-xl bg-slate-700 border border-slate-600 font-bold hover:bg-slate-600">✕ Nem</button>
-        <button id="btnConfirmPayYes" class="flex-1 px-4 py-3 rounded-xl font-black text-slate-950">✓ Igen, rögzítés</button>
-      </div>
-    </div>
-  </div>
-
   <!-- Konfetti-réteg (sikeres rögzítés után) -->
   <canvas id="confettiCanvas" class="hidden" style="position:fixed;inset:0;z-index:300;pointer-events:none;width:100%;height:100%"></canvas>
 
@@ -142,11 +128,15 @@
           <label class="text-xs text-slate-400 block mb-1">Kassza a záráskor (KP, Ft) — opcionális, de ajánlott</label>
           <input id="pultCloseCash" type="number" inputmode="numeric" placeholder="pl. 45000" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm text-right tabular-nums" />
         </div>
-        <div class="flex gap-2">
-          <button id="btnPultOpen" class="flex-1 px-4 py-2.5 rounded-lg bg-emerald-600 text-white font-bold text-sm hover:bg-emerald-500">🔓 Pult nyitása</button>
-          <button id="btnPultClose" class="flex-1 px-4 py-2.5 rounded-lg bg-rose-700 text-white font-bold text-sm hover:bg-rose-600">🔒 Pult zárása</button>
+        <div id="pultOpenNameWrap" class="hidden mb-2">
+          <label class="text-xs text-slate-400 block mb-1">Ki nyitja / veszi át a pultot? <span class="text-rose-400">*</span></label>
+          <input id="pultOpenName" data-vkb-text class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm" placeholder="pl. Anna, Peti" />
         </div>
-        <p class="text-[11px] text-slate-500 mt-1.5">Zárt pultnál nem lehet eladást rögzíteni. A nyitás/zárás időpontja és a záró kassza a naplóba (Google Sheet) is felkerül.</p>
+        <div class="flex gap-2">
+          <button id="btnPultOpen" class="flex-1 px-4 py-2.5 rounded-lg bg-emerald-600 text-white font-bold text-sm hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed">🔓 Pult nyitása</button>
+          <button id="btnPultClose" class="flex-1 px-4 py-2.5 rounded-lg bg-rose-700 text-white font-bold text-sm hover:bg-rose-600">🔒 Pult zárása (műszak vége)</button>
+        </div>
+        <p class="text-[11px] text-slate-500 mt-1.5">A <b>zárás befejezi a műszakot</b>. Új eladás csak úgy indulhat, ha valaki a nyitásnál beírja a nevét. A nyitás/zárás időpontja és a záró kassza a naplóba is felkerül.</p>
       </div>
       <div id="shiftCurrentInfo" class="hidden text-xs text-slate-400 bg-slate-800/60 rounded-lg px-3 py-2 mb-3"></div>
       <div class="space-y-3">
@@ -266,6 +256,26 @@
       </div>
     </aside>
   </main>
+</div>
+
+<!-- Univerzális fizetés-megerősítő modal (body-szinten, hogy teljes képernyőt fedjen) -->
+<div id="confirmPayModal" class="fixed inset-0 z-[80] hidden bg-black/75 flex items-center justify-center p-4">
+  <div class="bg-slate-900 border-2 rounded-2xl max-w-md w-full p-5 max-h-[90vh] overflow-y-auto" id="confirmPayCard">
+    <div class="text-center mb-3">
+      <div class="text-4xl mb-1" id="confirmPayIcon">✅</div>
+      <h2 class="text-xl font-black mb-0.5" id="confirmPayTitle">Fizetés megerősítése</h2>
+      <p class="text-slate-400 text-xs" id="confirmPaySub">Biztosan rögzíted ezt a tranzakciót?</p>
+    </div>
+    <div class="rounded-xl bg-slate-800/60 border border-slate-700 p-3 mb-3">
+      <div class="text-[11px] uppercase tracking-wide text-slate-500 font-bold mb-1.5">Rendelés részletei</div>
+      <div id="confirmPayItems" class="text-sm text-slate-200 space-y-1 mb-2 max-h-[40vh] overflow-y-auto"></div>
+      <div class="border-t border-slate-700 pt-2 space-y-1" id="confirmPayTotals"></div>
+    </div>
+    <div class="flex gap-2">
+      <button id="btnConfirmPayNo" class="flex-1 px-4 py-3.5 rounded-xl bg-slate-700 border border-slate-600 font-bold hover:bg-slate-600">✕ Nem</button>
+      <button id="btnConfirmPayYes" class="flex-1 px-4 py-3.5 rounded-xl font-black text-slate-950">✓ Igen, rögzítés</button>
+    </div>
+  </div>
 </div>
 
 <!-- ADMIN MODAL -->
@@ -910,28 +920,40 @@ function startShift(staffIn, staffOut, note) {
 
 /* Pult NYITÁSA — mostantól lehet eladni. Naplózza az időpontot + ki nyitotta. */
 function openPult(staff) {
+  const who = (staff || "").trim();
+  if (!who) return false;   // név kötelező a nyitáshoz
+  // Nyitás = új műszak indítása ezzel a névvel (aki most a pultnál lesz).
+  if (!state.currentShift || state.currentShift.staff !== who) {
+    startShift(who, "", "Pult nyitás");
+  }
   state.pultOpen = true;
   persistPultOpen();
   queueSync("pult", {
     time: new Date().toISOString(),
     action: "nyitás",
-    staff: (staff || (state.currentShift && state.currentShift.staff) || "").trim(),
+    staff: who,
     cash: ""
   });
+  return true;
 }
 
 /* Pult ZÁRÁSA — mostantól nincs eladás. Naplózza az időpontot, ki zárta, és a KP kassza-összeget. */
 function closePult(staff, cashAmount) {
   state.pultOpen = false;
   persistPultOpen();
+  const closingStaff = (staff || (state.currentShift && state.currentShift.staff) || "").trim();
   queueSync("pult", {
     time: new Date().toISOString(),
     action: "zárás",
-    staff: (staff || (state.currentShift && state.currentShift.staff) || "").trim(),
+    staff: closingStaff,
     cash: (cashAmount != null && cashAmount !== "") ? Number(cashAmount) : ""
   });
   // Záráskor egy teljes mentés is (biztonsági pont).
   try { queueSnapshot("pult zárás" + (cashAmount ? " — kassza: " + cashAmount + " Ft" : "")); } catch (e) {}
+  // Zárás = a műszak vége. A currentShift-et lezárjuk (nincs aktív pultos),
+  // így új eladás csak úgy indulhat, ha valaki nyitáskor beírja a nevét.
+  state.currentShift = null;
+  persistShift();
 }
 function persistAccounts() { saveJSON(LS_ACCOUNTS, state.accounts); }
 function persistIngredients() { saveJSON(LS_INGREDIENTS, state.ingredients); }
@@ -1195,7 +1217,7 @@ const VKB = (function () {
     html += `<button type="button" class="vkb-key" data-k="0">0</button>`;
     html += `<button type="button" class="vkb-key ctl" data-k="__clear">C</button>`;
     html += `</div>`;
-    html += `<div class="vkb-grid" style="grid-template-columns:1fr 1fr; margin-top:6px; max-width:440px; margin-left:auto; margin-right:auto;">
+    html += `<div class="vkb-grid" style="grid-template-columns:1fr 1.4fr; margin-top:5px; max-width:340px; margin-left:auto; margin-right:auto;">
       <button type="button" class="vkb-key ctl" data-k="__hide">Bezár</button>
       <button type="button" class="vkb-key accent" data-k="__done">Kész ✓</button>
     </div>`;
@@ -1210,15 +1232,14 @@ const VKB = (function () {
       row.forEach(k => { html += `<button type="button" class="vkb-key" data-k="${k}">${k}</button>`; });
       html += "</div>";
     });
+    // Egyetlen tömör vezérlősor (kevesebb magasság).
     html += `<div class="vkb-row">
-      <button type="button" class="vkb-key wide ctl" data-k="__shift">⇧ Nagy</button>
+      <button type="button" class="vkb-key ctl" data-k="__shift">⇧</button>
       <button type="button" class="vkb-key space" data-k="__space">szóköz</button>
       <button type="button" class="vkb-key danger" data-k="__back">⌫</button>
-    </div>`;
-    html += `<div class="vkb-row">
-      <button type="button" class="vkb-key ctl" data-k="__clear">Törlés</button>
+      <button type="button" class="vkb-key ctl" data-k="__clear">Töröl</button>
       <button type="button" class="vkb-key ctl" data-k="__hide">Bezár</button>
-      <button type="button" class="vkb-key accent" data-k="__done">Kész ✓</button>
+      <button type="button" class="vkb-key accent wide" data-k="__done">Kész ✓</button>
     </div>`;
     body.innerHTML = html;
   }
@@ -2346,11 +2367,15 @@ function openConfirmPay() {
 
   const itemsTotal = cartTotal();
   const tip = Number(state.tip) || 0;
+  const totalCount = state.cart.reduce((s, l) => s + l.qty, 0);
 
-  // Tételsorok.
+  // Részletes tételsorok: mennyiség × név, egységár/db, sorösszeg.
   itemsEl.innerHTML = state.cart.map(l =>
-    `<div class="flex justify-between gap-2"><span class="truncate">${l.qty}× ${esc(l.name)}</span><span class="tabular-nums shrink-0">${fmtFt(l.price * l.qty)}</span></div>`
-  ).join("");
+    `<div class="flex justify-between gap-2 items-baseline">
+       <span class="min-w-0"><b>${l.qty}×</b> ${esc(l.name)} <span class="text-slate-500 text-xs">(${fmtFt(l.price)}/db)</span></span>
+       <span class="tabular-nums shrink-0 font-semibold">${fmtFt(l.price * l.qty)}</span>
+     </div>`
+  ).join("") + `<div class="flex justify-between gap-2 text-xs text-slate-500 pt-1 mt-1 border-t border-slate-700/60"><span>${totalCount} tétel összesen</span><span class="tabular-nums">${fmtFt(itemsTotal)}</span></div>`;
 
   let color, icon, title, sub, totalsHtml;
   const row = (label, val, strong) => `<div class="flex justify-between gap-2 ${strong ? "text-base font-black" : "text-sm"}"><span class="${strong ? "" : "text-slate-400"}">${label}</span><span class="tabular-nums">${val}</span></div>`;
@@ -2677,6 +2702,8 @@ function updatePultStateUI() {
   const openBtn = document.getElementById("btnPultOpen");
   const closeBtn = document.getElementById("btnPultClose");
   const cashWrap = document.getElementById("pultCloseCashWrap");
+  const nameWrap = document.getElementById("pultOpenNameWrap");
+  const nameInput = document.getElementById("pultOpenName");
   if (!box) return;
   if (state.pultOpen) {
     box.style.borderColor = "#10b981";
@@ -2687,15 +2714,19 @@ function updatePultStateUI() {
     openBtn.classList.add("hidden");
     closeBtn.classList.remove("hidden");
     if (cashWrap) cashWrap.classList.remove("hidden");   // záráshoz kérjük a kasszát
+    if (nameWrap) nameWrap.classList.add("hidden");       // nyitott pultnál nem kell nyitó-név
   } else {
     box.style.borderColor = "#f43f5e";
     box.style.background = "rgba(244,63,94,0.06)";
-    label.textContent = "A pult ZÁRVA van";
+    label.textContent = "A pult ZÁRVA van — a műszak lezárva";
     badge.textContent = "🔒 ZÁRVA";
     badge.style.background = "#f43f5e"; badge.style.color = "#fff";
     openBtn.classList.remove("hidden");
     closeBtn.classList.add("hidden");
     if (cashWrap) cashWrap.classList.add("hidden");
+    if (nameWrap) nameWrap.classList.remove("hidden");    // nyitáshoz kötelező név
+    // A nyitás gomb csak akkor aktív, ha be van írva a név.
+    if (openBtn && nameInput) openBtn.disabled = !nameInput.value.trim();
   }
 }
 function openShiftModal() {
@@ -2724,23 +2755,38 @@ document.getElementById("btnShift").addEventListener("click", openShiftModal);
 document.getElementById("btnShiftClose").addEventListener("click", closeShiftModal);
 document.getElementById("btnShiftCancel").addEventListener("click", closeShiftModal);
 document.getElementById("btnPultOpen").addEventListener("click", () => {
-  openPult(state.currentShift && state.currentShift.staff);
+  const nameInput = document.getElementById("pultOpenName");
+  const who = nameInput ? nameInput.value.trim() : "";
+  const msg = document.getElementById("shiftMsg");
+  if (!who) {
+    if (msg) { msg.textContent = "Írd be, ki nyitja a pultot — enélkül nem indulhat új műszak."; msg.className = "text-xs text-rose-400"; }
+    if (nameInput) nameInput.focus();
+    return;
+  }
+  openPult(who);
+  if (nameInput) nameInput.value = "";
   updatePultStateUI();
   updateShiftLabel();
   renderCart();   // a fizetés-gomb újraértékelése
-  const msg = document.getElementById("shiftMsg");
-  msg.textContent = "🔓 A pult kinyitva — mostantól lehet eladni."; msg.className = "text-xs text-emerald-400";
+  if (msg) { msg.textContent = `🔓 A pult kinyitva — ${esc(who)} a pultnál. Mostantól lehet eladni.`; msg.className = "text-xs text-emerald-400"; }
+});
+// A nyitó-név élő figyelése: amíg üres, a nyitás gomb tiltva.
+document.getElementById("pultOpenName").addEventListener("input", () => {
+  const openBtn = document.getElementById("btnPultOpen");
+  const nameInput = document.getElementById("pultOpenName");
+  if (openBtn && nameInput && !state.pultOpen) openBtn.disabled = !nameInput.value.trim();
 });
 document.getElementById("btnPultClose").addEventListener("click", () => {
   const cashEl = document.getElementById("pultCloseCash");
   const cash = cashEl ? cashEl.value : "";
-  if (!confirm("Bezárod a pultot?\n\nMostantól nem lehet eladást rögzíteni, amíg újra ki nem nyitod." + (cash ? `\n\nZáró kassza: ${fmtFt(Number(cash))} KP` : ""))) return;
-  closePult(state.currentShift && state.currentShift.staff, cash);
+  const who = state.currentShift && state.currentShift.staff;
+  if (!confirm("Bezárod a pultot és lezárod a műszakot?\n\nMostantól nem lehet eladást rögzíteni. Új eladás csak úgy indulhat, ha valaki a nyitásnál beírja a nevét." + (cash ? `\n\nZáró kassza: ${fmtFt(Number(cash))} KP` : ""))) return;
+  closePult(who, cash);
   updatePultStateUI();
   updateShiftLabel();
   renderCart();
   const msg = document.getElementById("shiftMsg");
-  msg.textContent = "🔒 A pult bezárva" + (cash ? ` — kassza: ${fmtFt(Number(cash))}` : "") + "."; msg.className = "text-xs text-rose-300";
+  msg.textContent = "🔒 A pult bezárva, a műszak lezárva" + (cash ? ` — kassza: ${fmtFt(Number(cash))}` : "") + "."; msg.className = "text-xs text-rose-300";
 });
 document.getElementById("btnShiftStart").addEventListener("click", () => {
   const staffIn = document.getElementById("shiftStaffIn").value.trim();
