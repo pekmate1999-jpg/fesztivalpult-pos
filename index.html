@@ -1795,18 +1795,18 @@ function renderProducts() {
   grid.innerHTML = list.map((p, idx) => {
     const isFav = state.favorites.includes(p.id);
     const starColor = isFav ? "#fbbf24" : "#64748b";
-    const starStyle = `position:absolute;top:-8px;right:-8px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:16px;line-height:1;border-radius:9999px;border:2px solid #0f172a;background:#1e293b;color:${starColor};z-index:5;padding:0;cursor:pointer;`;
+    const starStyle = `position:absolute;top:4px;right:4px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:1;border-radius:9999px;border:none;background:rgba(15,23,42,0.65);color:${starColor};z-index:5;padding:0;cursor:pointer;`;
     // Népszerű nézetben rangsor-medál (bal felső sarok).
     let medalBadge = "";
     if (popCounts) {
       const medal = idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : `#${idx + 1}`;
-      medalBadge = `<div style="position:absolute;top:-8px;left:-8px;z-index:5;background:#f59e0b;color:#0f172a;font-size:11px;font-weight:900;border-radius:9999px;border:2px solid #0f172a;padding:1px 6px;min-width:22px;text-align:center;">${medal}</div>`;
+      medalBadge = `<div style="position:absolute;top:4px;left:4px;z-index:5;background:#f59e0b;color:#0f172a;font-size:10px;font-weight:900;border-radius:9999px;padding:1px 5px;min-width:20px;text-align:center;">${medal}</div>`;
     }
     return `
-    <div data-id="${p.id}" class="prodcard text-left rounded-xl bg-slate-900 border-2 p-3 flex flex-col justify-between min-h-[92px] active:brightness-90 cursor-pointer" style="position:relative; overflow:visible; border-left-width:5px; border-color:#1e293b; border-left-color:${catColor(p.category)};">
+    <div data-id="${p.id}" class="prodcard text-left rounded-xl bg-slate-900 border-2 p-3 flex flex-col justify-between min-h-[92px] active:brightness-90 cursor-pointer" style="position:relative; overflow:hidden; border-left-width:5px; border-color:#1e293b; border-left-color:${catColor(p.category)};">
       <button type="button" data-fav="${p.id}" aria-label="Kedvencekhez adás" style="${starStyle}">${isFav ? "★" : "☆"}</button>
       ${medalBadge}
-      <div style="padding-right:6px;">
+      <div style="padding-right:26px;">
         <div class="text-sm font-bold leading-snug line-clamp-2">${esc(p.name)}</div>
         <div class="text-lg font-black tabular-nums mt-1" style="color:${catColor(p.category)}">${fmtFt(p.price)}</div>
         ${popCounts ? `<div class="text-[11px] font-bold text-amber-400 mt-1">🔥 ${popCounts[p.name]} db eladva</div>` : ""}
@@ -2780,13 +2780,34 @@ document.getElementById("btnPultClose").addEventListener("click", () => {
   const cashEl = document.getElementById("pultCloseCash");
   const cash = cashEl ? cashEl.value : "";
   const who = state.currentShift && state.currentShift.staff;
-  if (!confirm("Bezárod a pultot és lezárod a műszakot?\n\nMostantól nem lehet eladást rögzíteni. Új eladás csak úgy indulhat, ha valaki a nyitásnál beírja a nevét." + (cash ? `\n\nZáró kassza: ${fmtFt(Number(cash))} KP` : ""))) return;
+  const online = navigator.onLine;
+
+  // Figyelmeztetés zárás előtt, ha nincs net: a felhő-mentés (Google Sheet) nem megy fel.
+  let confirmMsg = "Bezárod a pultot és lezárod a műszakot?\n\nMostantól nem lehet eladást rögzíteni. Új eladás csak úgy indulhat, ha valaki a nyitásnál beírja a nevét." + (cash ? `\n\nZáró kassza: ${fmtFt(Number(cash))} KP` : "");
+  if (!online) {
+    confirmMsg = "⚠ NINCS INTERNET!\n\nA záráskor a mentés a felhőbe (Google Sheet) NEM megy fel most — csak amikor lesz net. Az adatok a gépen biztonságban vannak.\n\nJavaslat: kapcsold be a netet zárás előtt, VAGY zárás után mentsd fájlba (felajánljuk).\n\n" + confirmMsg;
+  }
+  if (!confirm(confirmMsg)) return;
+
   closePult(who, cash);
   updatePultStateUI();
   updateShiftLabel();
   renderCart();
   const msg = document.getElementById("shiftMsg");
-  msg.textContent = "🔒 A pult bezárva, a műszak lezárva" + (cash ? ` — kassza: ${fmtFt(Number(cash))}` : "") + "."; msg.className = "text-xs text-rose-300";
+
+  if (!online) {
+    // Nincs net: erős figyelmeztetés + azonnali helyi fájl-mentés felajánlása.
+    msg.innerHTML = "🔒 Pult bezárva" + (cash ? ` — kassza: ${fmtFt(Number(cash))}` : "") + ". <b class='text-rose-300'>⚠ Nincs net — a felhő-mentés a várólistán vár.</b>";
+    msg.className = "text-xs text-amber-300";
+    if (confirm("Nincs internet. Mentsem ki a teljes állapotot fájlba MOST, biztonság kedvéért?\n\n(Ez a gépre menti — nem kell hozzá net.)")) {
+      try { exportFullBackupFile(); } catch (e) {}
+    }
+  } else {
+    // Van net: a záró snapshot már a sorban van, próbáljuk azonnal felküldeni.
+    msg.textContent = "🔒 A pult bezárva, a műszak lezárva" + (cash ? ` — kassza: ${fmtFt(Number(cash))}` : "") + ". ☁️ Mentés a felhőbe folyamatban…";
+    msg.className = "text-xs text-emerald-400";
+    try { flushSyncQueue(); } catch (e) {}
+  }
 });
 document.getElementById("btnShiftStart").addEventListener("click", () => {
   const staffIn = document.getElementById("shiftStaffIn").value.trim();
