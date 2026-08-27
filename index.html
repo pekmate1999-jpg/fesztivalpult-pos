@@ -108,7 +108,7 @@
       <h1 class="text-lg font-extrabold tracking-tight leading-none">Fesztiválpult <span class="text-slate-500 font-semibold">POS</span></h1>
     </div>
     <div class="flex items-center gap-3">
-      <button id="btnShift" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 active:scale-95 border border-slate-700 text-sm font-semibold transition" title="Műszakváltás — ki viszi a pultot">👤 <span id="shiftStaffLabel" class="text-slate-400">Nincs műszak</span></button>
+      <button id="btnShift" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 active:scale-95 border border-slate-700 text-sm font-semibold transition" title="Pult nyitás / zárás">👤 <span id="shiftStaffLabel" class="text-slate-400">Nincs műszak</span></button>
       <span id="syncBadge" class="hidden text-xs font-semibold tabular-nums" title="Google Sheets szinkron állapota"></span>
       <span id="clock" class="text-sm text-slate-400 tabular-nums hidden sm:inline"></span>
       <button id="btnInstall" class="hidden px-3 py-2 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 active:scale-95 border border-amber-500/40 text-amber-300 text-sm font-semibold transition">⬇ Telepítés</button>
@@ -138,7 +138,7 @@
   <div id="shiftModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-5">
       <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg font-bold">🔄 Műszakváltás</h2>
+        <h2 class="text-lg font-bold">🔓 Pult nyitás / zárás</h2>
         <button id="btnShiftClose" class="text-slate-400 hover:text-white text-xl leading-none">×</button>
       </div>
       <p class="text-slate-400 text-xs mb-4">Rögzíti, ki viszi a pultot mostantól. <b>Nem töröl semmit</b> — a forgalmi adatok folyamatosak maradnak, csak megjelöljük, melyik szakaszt ki vitte.</p>
@@ -164,23 +164,8 @@
         <p class="text-[11px] text-slate-500 mt-1.5">A <b>zárás befejezi a műszakot</b>. Új eladás csak úgy indulhat, ha valaki a nyitásnál beírja a nevét. A nyitás/zárás időpontja és a záró kassza a naplóba is felkerül.</p>
       </div>
       <div id="shiftCurrentInfo" class="hidden text-xs text-slate-400 bg-slate-800/60 rounded-lg px-3 py-2 mb-3"></div>
-      <div class="space-y-3">
-        <div>
-          <label class="text-xs text-slate-400 block mb-1">Átvevő pultos(ok) — ki lesz most a pultnál <span class="text-rose-400">*</span></label>
-          <input id="shiftStaffIn" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm" placeholder="pl. Anna, Peti" />
-        </div>
-        <div>
-          <label class="text-xs text-slate-400 block mb-1">Átadó pultos(ok) — ki adja át (opcionális)</label>
-          <input id="shiftStaffOut" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm" placeholder="az előző műszak" />
-        </div>
-        <div>
-          <label class="text-xs text-slate-400 block mb-1">Megjegyzés (opcionális) — pl. kassza-összeg átadáskor</label>
-          <input id="shiftNote" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm" placeholder="pl. Kassza: 45 000 Ft KP" />
-        </div>
-      </div>
-      <div class="flex gap-2 mt-4">
-        <button id="btnShiftStart" class="flex-1 px-4 py-2.5 rounded-lg bg-amber-500 text-slate-950 font-bold text-sm hover:bg-amber-400">Műszak indítása</button>
-        <button id="btnShiftCancel" class="px-4 py-2.5 rounded-lg bg-slate-700 border border-slate-600 text-sm font-semibold hover:bg-slate-600">Mégse</button>
+      <div class="flex gap-2 mt-1">
+        <button id="btnShiftCancel" class="flex-1 px-4 py-2.5 rounded-lg bg-slate-700 border border-slate-600 text-sm font-semibold hover:bg-slate-600">Bezár</button>
       </div>
       <p id="shiftMsg" class="text-xs mt-2"></p>
     </div>
@@ -563,10 +548,11 @@ const DEFAULT_PRODUCTS = [
   { "category": "Étel", "name": "Tányér+evőeszköz", "price": 250, "itemType": "kaja_pultos" },
   { "category": "Konyha", "name": "Ebéd", "price": 1590, "itemType": "kaja_konyhas" },
   { "category": "Konyha", "name": "Vacsora", "price": 1790, "itemType": "kaja_konyhas" },
-  { "category": "Konyha", "name": "Tányér+evőeszköz (konyha)", "price": 250, "itemType": "kaja_konyhas" },
+  { "category": "Konyha", "name": "Tányér+evőeszköz (konyha)", "price": 250, "itemType": "egyeb" },
   { "category": "Jegy", "name": "Napijegy", "price": 6490, "itemType": "egyeb" },
   { "category": "Jegy", "name": "Bérlet", "price": 12990, "itemType": "egyeb" },
   { "category": "Jegy", "name": "Támogatói", "price": 19990, "itemType": "egyeb" },
+  { "category": "Jegy", "name": "Transzfer jegy", "price": 1000, "itemType": "egyeb" },
   { "category": "Meleg", "name": "Gyümölcstea", "price": 450, "itemType": "alkoholmentes" },
   { "category": "Meleg", "name": "Presszó", "price": 400, "itemType": "alkoholmentes" },
   { "category": "Meleg", "name": "Hosszúkávé", "price": 400, "itemType": "alkoholmentes" },
@@ -824,7 +810,7 @@ const DEFAULT_PIN = "1234";
 /* A hivatalos itallap verziószáma. Ha ezt megnöveled és újratöltöd az appot,
    a már mentett katalógus is felülíródik a DEFAULT_PRODUCTS-ra (kért viselkedés).
    A kézi termékmódosítások eltűnhetnek — szándékosan, hogy az árlista mindig aktuális legyen. */
-const CATALOG_VERSION = 9;
+const CATALOG_VERSION = 10;
 
 /* Alapanyag/recept verzió. Növeld, ha a DEFAULT_INGREDIENTS/DEFAULT_RECIPES-t
    frissíted (pl. a segédlet alapján) és élesíteni akarod a böngészőkben. */
@@ -1615,7 +1601,8 @@ function tierEngineCharge(acc, alreadyAlcoholToday) {
             else { unit = cost; reason = "beszerzési ár"; }
           } else { unit = full; reason = "teljes ár"; } // L, M, S, XS, XXS
         } else if (type === "kaja_konyhas") {
-          if (tier === "XXL Leg" || tier === "XL") { unit = 0; reason = "konyhás kaja ingyen"; }
+          // Konyhás kaja (ebéd/vacsora) INGYEN: XXL Leg, XL és L (fellépők) kasztnak.
+          if (tier === "XXL Leg" || tier === "XL" || tier === "L") { unit = 0; reason = "konyhás kaja ingyen"; }
           else { unit = full; reason = "teljes ár"; }
         } else if (type === "kaja_pultos") {
           // Pultos kaja: MINDEN kaszt teljes áron fizeti, semmilyen kedvezmény.
@@ -2816,19 +2803,17 @@ function openShiftModal() {
     const since = new Date(state.currentShift.startedAt).toLocaleString("hu-HU", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
     info.innerHTML = `Jelenlegi műszak: <b class="text-amber-300">${esc(state.currentShift.staff)}</b> (${since} óta)`;
     info.classList.remove("hidden");
-    document.getElementById("shiftStaffOut").value = state.currentShift.staff;
   } else {
     info.classList.add("hidden");
   }
-  document.getElementById("shiftStaffIn").value = "";
-  document.getElementById("shiftNote").value = "";
   document.getElementById("shiftMsg").textContent = "";
   const cash = document.getElementById("pultCloseCash");
   if (cash) cash.value = "";
+  const on = document.getElementById("pultOpenName");
+  if (on) on.value = "";
   updatePultStateUI();
   m.classList.remove("hidden");
   bindAllVkbInputs(m);
-  setTimeout(() => document.getElementById("shiftStaffIn").focus(), 50);
 }
 function closeShiftModal() { document.getElementById("shiftModal").classList.add("hidden"); }
 document.getElementById("btnShift").addEventListener("click", openShiftModal);
@@ -2888,14 +2873,6 @@ document.getElementById("btnPultClose").addEventListener("click", () => {
     msg.className = "text-xs text-emerald-400";
     try { flushSyncQueue(); } catch (e) {}
   }
-});
-document.getElementById("btnShiftStart").addEventListener("click", () => {
-  const staffIn = document.getElementById("shiftStaffIn").value.trim();
-  const msg = document.getElementById("shiftMsg");
-  if (!staffIn) { msg.textContent = "Add meg, ki veszi át a pultot."; msg.className = "text-xs text-rose-400"; return; }
-  startShift(staffIn, document.getElementById("shiftStaffOut").value, document.getElementById("shiftNote").value);
-  updateShiftLabel();
-  closeShiftModal();
 });
 updateShiftLabel();
 
@@ -4108,11 +4085,12 @@ function renderAdminLog() {
     const noteStr = (t.payment === "ACCOUNT" && t.pricingNote) ? `<span class="text-[10px] text-sky-400">${esc(t.pricingNote)}</span>` : "";
     const voided = t.voided === true;
     const voidBadge = voided ? `<span class="text-xs font-bold px-2 py-0.5 rounded bg-rose-500/20 text-rose-300">↩ SZTORNÓ</span>` : "";
-    // Sztornó gomb csak fiókos tranzakciónál (a KP/Revolut szerkeszthető a ✏-vel).
-    const actionBtn = voided ? ""
-      : (t.payment === "ACCOUNT"
-          ? `<button data-void="${t.id}" class="text-xs font-bold px-2 py-1 rounded bg-rose-950/60 border border-rose-800 text-rose-300 hover:bg-rose-900/60">↩ Sztornó</button>`
-          : `<button data-edit="${t.id}" class="text-xs font-bold px-2 py-1 rounded bg-slate-700 hover:bg-slate-600">✏ Szerk.</button>`);
+    // Szerkesztés minden tranzakciónál elérhető; fiókosnál a Sztornó is megmarad.
+    const editBtn = `<button data-edit="${t.id}" class="text-xs font-bold px-2 py-1 rounded bg-slate-700 hover:bg-slate-600">✏ Szerk.</button>`;
+    const voidBtn = (t.payment === "ACCOUNT")
+      ? `<button data-void="${t.id}" class="text-xs font-bold px-2 py-1 rounded bg-rose-950/60 border border-rose-800 text-rose-300 hover:bg-rose-900/60">↩ Sztornó</button>`
+      : "";
+    const actionBtn = voided ? "" : (editBtn + " " + voidBtn);
     return `
       <div class="rounded-lg bg-slate-800/60 border ${voided ? "border-rose-900/50 opacity-60" : "border-slate-700"} p-3">
         <div class="flex items-center justify-between gap-2 mb-1 flex-wrap">
@@ -5047,9 +5025,6 @@ bindVkb(document.getElementById("customName"), "text");
 bindVkb(document.getElementById("customAmount"), "numeric");
 bindVkb(document.getElementById("txEditTip"), "numeric");
 bindVkb(document.getElementById("txEditReceived"), "numeric");
-bindVkb(document.getElementById("shiftStaffIn"), "text");
-bindVkb(document.getElementById("shiftStaffOut"), "text");
-bindVkb(document.getElementById("shiftNote"), "text");
 bindVkb(document.getElementById("pultOpenName"), "text");
 bindVkb(document.getElementById("pultCloseCash"), "numeric");
 document.getElementById("btnCloseEditPin").addEventListener("click", closeEditPin);
