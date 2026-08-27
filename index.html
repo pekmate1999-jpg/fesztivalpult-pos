@@ -27,6 +27,26 @@
   .glow-warn { box-shadow: 0 0 40px -8px #f43f5e; }
   .glow-idle { box-shadow: none; }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+  /* ===== Saját érintő-billentyűzet (natív helyett, hogy ne tűnjön el / pontos legyen) ===== */
+  #vkb { position: fixed; left: 0; right: 0; bottom: 0; z-index: 90; background: #0b1220; border-top: 1px solid #1e293b; box-shadow: 0 -8px 30px -8px rgba(0,0,0,0.7); padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); transform: translateY(110%); transition: transform .16s ease; touch-action: manipulation; }
+  #vkb.open { transform: translateY(0); }
+  #vkbHint { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 2px 4px 6px; }
+  #vkbHintLabel { font-size: 12px; color: #94a3b8; font-weight: 600; }
+  #vkbPreview { font-size: 15px; font-weight: 800; color: #fbbf24; font-variant-numeric: tabular-nums; max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #vkb .vkb-grid { display: grid; gap: 6px; }
+  #vkb.numeric .vkb-grid { grid-template-columns: repeat(3, 1fr); max-width: 440px; margin: 0 auto; }
+  #vkb.text .vkb-row { display: flex; gap: 5px; justify-content: center; margin-bottom: 5px; }
+  #vkb .vkb-key { -webkit-user-select: none; user-select: none; touch-action: manipulation; display: flex; align-items: center; justify-content: center; height: 52px; border-radius: 12px; background: #1e293b; border: 1px solid #334155; color: #e2e8f0; font-size: 20px; font-weight: 700; cursor: pointer; }
+  #vkb.text .vkb-key { height: 46px; min-width: 30px; flex: 1 1 0; font-size: 17px; padding: 0 2px; }
+  #vkb .vkb-key:active { transform: scale(0.94); background: #334155; }
+  #vkb .vkb-key.wide { flex: 2.4 1 0; }
+  #vkb .vkb-key.accent { background: #f59e0b; border-color: #f59e0b; color: #0f172a; }
+  #vkb .vkb-key.accent:active { background: #d97706; }
+  #vkb .vkb-key.danger { color: #fca5a5; }
+  #vkb .vkb-key.ctl { background: #0f172a; color: #94a3b8; }
+  #vkb .vkb-key.space { flex: 5 1 0; }
+  body.vkb-open { padding-bottom: 320px; }
   .catbtn { transition: transform .08s ease, background-color .15s ease, border-color .15s ease; }
   .catbtn:active, .prodcard:active, .qty-btn:active, #btnCheckout:active { transform: scale(0.96); }
   .prodcard { transition: transform .08s ease, border-color .15s ease; position: relative; }
@@ -81,6 +101,28 @@
     </div>
   </div>
 
+  <!-- Univerzális fizetés-megerősítő modal (minden fizetési módra) -->
+  <div id="confirmPayModal" class="hidden fixed inset-0 z-[80] bg-black/70 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border-2 rounded-2xl max-w-sm w-full p-5" id="confirmPayCard">
+      <div class="text-center">
+        <div class="text-4xl mb-1" id="confirmPayIcon">✅</div>
+        <h2 class="text-lg font-bold mb-0.5" id="confirmPayTitle">Fizetés megerősítése</h2>
+        <p class="text-slate-400 text-xs mb-3" id="confirmPaySub">Biztosan rögzíted ezt a tranzakciót?</p>
+      </div>
+      <div class="rounded-xl bg-slate-800/60 border border-slate-700 p-3 mb-3">
+        <div id="confirmPayItems" class="text-sm text-slate-300 space-y-0.5 mb-2 max-h-40 overflow-y-auto"></div>
+        <div class="border-t border-slate-700 pt-2 space-y-1" id="confirmPayTotals"></div>
+      </div>
+      <div class="flex gap-2">
+        <button id="btnConfirmPayNo" class="flex-1 px-4 py-3 rounded-xl bg-slate-700 border border-slate-600 font-bold hover:bg-slate-600">✕ Nem</button>
+        <button id="btnConfirmPayYes" class="flex-1 px-4 py-3 rounded-xl font-black text-slate-950">✓ Igen, rögzítés</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Konfetti-réteg (sikeres rögzítés után) -->
+  <canvas id="confettiCanvas" class="hidden" style="position:fixed;inset:0;z-index:300;pointer-events:none;width:100%;height:100%"></canvas>
+
   <!-- Műszakváltás modal -->
   <div id="shiftModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-5">
@@ -89,6 +131,23 @@
         <button id="btnShiftClose" class="text-slate-400 hover:text-white text-xl leading-none">×</button>
       </div>
       <p class="text-slate-400 text-xs mb-4">Rögzíti, ki viszi a pultot mostantól. <b>Nem töröl semmit</b> — a forgalmi adatok folyamatosak maradnak, csak megjelöljük, melyik szakaszt ki vitte.</p>
+
+      <!-- Pult nyitva/zárva -->
+      <div class="rounded-xl border p-3 mb-4" id="pultStateBox">
+        <div class="flex items-center justify-between gap-2 mb-2">
+          <span class="text-sm font-bold" id="pultStateLabel">Pult állapota</span>
+          <span class="text-xs font-black px-2.5 py-1 rounded-full" id="pultStateBadge">—</span>
+        </div>
+        <div id="pultCloseCashWrap" class="hidden mb-2">
+          <label class="text-xs text-slate-400 block mb-1">Kassza a záráskor (KP, Ft) — opcionális, de ajánlott</label>
+          <input id="pultCloseCash" type="number" inputmode="numeric" placeholder="pl. 45000" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm text-right tabular-nums" />
+        </div>
+        <div class="flex gap-2">
+          <button id="btnPultOpen" class="flex-1 px-4 py-2.5 rounded-lg bg-emerald-600 text-white font-bold text-sm hover:bg-emerald-500">🔓 Pult nyitása</button>
+          <button id="btnPultClose" class="flex-1 px-4 py-2.5 rounded-lg bg-rose-700 text-white font-bold text-sm hover:bg-rose-600">🔒 Pult zárása</button>
+        </div>
+        <p class="text-[11px] text-slate-500 mt-1.5">Zárt pultnál nem lehet eladást rögzíteni. A nyitás/zárás időpontja és a záró kassza a naplóba (Google Sheet) is felkerül.</p>
+      </div>
       <div id="shiftCurrentInfo" class="hidden text-xs text-slate-400 bg-slate-800/60 rounded-lg px-3 py-2 mb-3"></div>
       <div class="space-y-3">
         <div>
@@ -164,6 +223,10 @@
             <button data-atype="all" class="acc-filter flex-1 py-1.5 rounded-lg border border-slate-700 bg-slate-800 text-xs font-semibold">Mind</button>
             <button data-atype="person" class="acc-filter flex-1 py-1.5 rounded-lg border border-slate-700 bg-slate-800 text-xs font-semibold">👤 Személy</button>
             <button data-atype="band" class="acc-filter flex-1 py-1.5 rounded-lg border border-slate-700 bg-slate-800 text-xs font-semibold">🎸 Zenekar</button>
+          </div>
+          <div class="flex gap-1.5" id="accountSortToggle">
+            <button data-asort="name" class="acc-sort flex-1 py-1.5 rounded-lg border border-slate-700 bg-slate-800 text-xs font-semibold">🔤 Név szerint</button>
+            <button data-asort="consumption" class="acc-sort flex-1 py-1.5 rounded-lg border border-slate-700 bg-slate-800 text-xs font-semibold">📊 Fogyasztás szerint</button>
           </div>
           <div id="accountList" class="max-h-44 overflow-y-auto space-y-1.5 pr-0.5"></div>
           <div id="accountSelected" class="hidden rounded-lg border p-2.5 text-sm"></div>
@@ -290,7 +353,7 @@
 </div>
 
 <!-- TRANSACTION EDIT MODAL -->
-<div id="txEditModal" class="fixed inset-0 z-[60] hidden">
+<div id="txEditModal" class="fixed inset-0 z-[70] hidden">
   <div id="txEditOverlay" class="absolute inset-0 bg-black/80"></div>
   <div class="absolute inset-0 flex items-center justify-center p-4">
     <div class="w-full max-w-lg bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl p-5 max-h-[90vh] overflow-y-auto">
@@ -307,17 +370,19 @@
         <button id="btnTxEditAddItem" class="px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm font-semibold hover:bg-slate-700">+ Tétel</button>
       </div>
 
-      <div class="grid grid-cols-2 gap-2 mb-3">
+      <div id="txEditAccountInfo" class="hidden mb-3 rounded-lg border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-xs"></div>
+
+      <div id="txEditPayRow" class="grid grid-cols-2 gap-2 mb-3">
         <button data-txpay="KP" class="tx-pay-btn py-2.5 rounded-xl border-2 border-slate-700 bg-slate-800 font-bold text-sm">💵 KP</button>
         <button data-txpay="REVOLUT" class="tx-pay-btn py-2.5 rounded-xl border-2 border-slate-700 bg-slate-800 font-bold text-sm">💳 REVOLUT</button>
       </div>
 
       <div class="grid grid-cols-2 gap-2 mb-4">
-        <div>
+        <div id="txEditTipWrap">
           <label class="text-xs text-slate-400 block mb-1">Jatt (Ft)</label>
           <input id="txEditTip" type="number" inputmode="numeric" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm text-right tabular-nums" />
         </div>
-        <div>
+        <div id="txEditReceivedWrap">
           <label class="text-xs text-slate-400 block mb-1">Kapott összeg (Ft, KP esetén)</label>
           <input id="txEditReceived" type="number" inputmode="numeric" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm text-right tabular-nums" />
         </div>
@@ -334,6 +399,15 @@
       </div>
     </div>
   </div>
+</div>
+
+<!-- SAJÁT ÉRINTŐ-BILLENTYŰZET -->
+<div id="vkb" class="numeric" aria-hidden="true">
+  <div id="vkbHint">
+    <span id="vkbHintLabel">Bevitel</span>
+    <span id="vkbPreview"></span>
+  </div>
+  <div id="vkbBody"></div>
 </div>
 
 <script>
@@ -431,7 +505,18 @@ const DEFAULT_PRODUCTS = [
   { "category": "Meleg", "name": "Presszó", "price": 400, "itemType": "alkoholmentes" },
   { "category": "Meleg", "name": "Hosszúkávé", "price": 400, "itemType": "alkoholmentes" },
   { "category": "Meleg", "name": "Tej", "price": 50, "itemType": "alkoholmentes" },
-  { "category": "Meleg", "name": "Növényi tej", "price": 150, "itemType": "alkoholmentes" }
+  { "category": "Meleg", "name": "Növényi tej", "price": 150, "itemType": "alkoholmentes" },
+  { "category": "Egyéb", "name": "Merch repohár", "price": 1000, "itemType": "egyeb" },
+  { "category": "Sör", "name": "Repohár", "price": 200, "itemType": "egyeb" },
+  { "category": "Üdítő", "name": "Repohár", "price": 200, "itemType": "egyeb" },
+  { "category": "Gyümölcslé", "name": "Repohár", "price": 200, "itemType": "egyeb" },
+  { "category": "Rövid", "name": "Repohár", "price": 200, "itemType": "egyeb" },
+  { "category": "Fröccs", "name": "Repohár", "price": 200, "itemType": "egyeb" },
+  { "category": "Long", "name": "Repohár", "price": 200, "itemType": "egyeb" },
+  { "category": "Koktél", "name": "Repohár", "price": 200, "itemType": "egyeb" },
+  { "category": "Shot", "name": "Repohár", "price": 200, "itemType": "egyeb" },
+  { "category": "Egyéb", "name": "Repohár", "price": 200, "itemType": "egyeb" },
+  { "category": "Meleg", "name": "Repohár", "price": 200, "itemType": "egyeb" }
 ].map((p, i) => ({ id: "p" + (i + 1), ...p }));
 
 /* ======================= ALAPANYAGOK + RECEPTEK ======================= */
@@ -479,7 +564,7 @@ const DEFAULT_INGREDIENTS = [
   { id: "ing_berentzen", name: "Berentzen sour apple", category: "Szeszek", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml", costPerServing: 258, costServingAmount: 40 },
   { id: "ing_limoncello", name: "Limoncello", category: "Szeszek", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml", costPerServing: 266, costServingAmount: 40 },
   { id: "ing_aperol", name: "Aperol", category: "Szeszek", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml", costPerServing: 290, costServingAmount: 40 },
-  { id: "ing_rovid", name: "Rövid (általános alapszesz)", category: "Szeszek", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml", costPerServing: 350, costServingAmount: 40 },
+  { id: "ing_rovid", name: "Rövid (általános — szeszek átlagára, ideiglenes)", category: "Szeszek", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml", costPerServing: 393, costServingAmount: 40 },
   { id: "ing_bor", name: "Bor (fehér/rozé, fröccsalap)", category: "Borok", purchaseUnit: "üveg", contentAmount: 750, contentUnit: "ml", costPerServing: 126, costServingAmount: 100 },
   { id: "ing_hugo", name: "Hugo (kimért)", category: "Borok", purchaseUnit: "üveg", contentAmount: 750, contentUnit: "ml", costPerServing: 180, costServingAmount: 100 },
   { id: "ing_szorp", name: "Szörp (Piroska)", category: "Szörpök", purchaseUnit: "üveg", contentAmount: 700, contentUnit: "ml", costPerServing: null, costServingAmount: 40 },
@@ -550,7 +635,7 @@ const DEFAULT_RECIPES = {
   "Bloody brain": [{ ingredientId: "ing_rovid", amount: 40, unit: "ml" }],
   "Arbaro bomba (10 db)": [{ ingredientId: "ing_rovid", amount: 200, unit: "ml" }, { ingredientId: "ing_energia", amount: 1, unit: "db" }],
   "Arbaro shot": [{ ingredientId: "ing_rovid", amount: 20, unit: "ml" }],
-  "Aperol spritz": [{ ingredientId: "ing_bor", amount: 200, unit: "ml" }, { ingredientId: "ing_aperol", amount: 80, unit: "ml" }, { ingredientId: "ing_szoda", amount: 40, unit: "ml" }],
+  "Aperol spritz": [{ ingredientId: "ing_aperol", amount: 40, unit: "ml" }, { ingredientId: "ing_bor", amount: 100, unit: "ml" }, { ingredientId: "ing_szoda", amount: 150, unit: "ml" }],
   "Mojito": [{ ingredientId: "ing_rovid", amount: 40, unit: "ml" }, { ingredientId: "ing_szoda", amount: 250, unit: "ml" }, { ingredientId: "ing_lime", amount: 20, unit: "g" }],
   "Pina colada": [{ ingredientId: "ing_rovid", amount: 40, unit: "ml" }, { ingredientId: "ing_gyumolcsle", amount: 250, unit: "ml" }],
   "Tubi-szóda": [{ ingredientId: "ing_rovid", amount: 40, unit: "ml" }, { ingredientId: "ing_szoda", amount: 250, unit: "ml" }],
@@ -663,16 +748,17 @@ const LS_SYNC_QUEUE = "pos_sync_queue_v1";
 const LS_SYNC_CFG = "pos_sync_config_v1";
 const LS_CATALOG_VER = "pos_catalog_version";
 const LS_SHIFT = "pos_current_shift_v1";   // aktuális pultos-műszak (ki viszi most)
+const LS_PULT_OPEN = "pos_pult_open_v1";   // a pult nyitva van-e (true/false)
 const DEFAULT_PIN = "1234";
 
 /* A hivatalos itallap verziószáma. Ha ezt megnöveled és újratöltöd az appot,
    a már mentett katalógus is felülíródik a DEFAULT_PRODUCTS-ra (kért viselkedés).
    A kézi termékmódosítások eltűnhetnek — szándékosan, hogy az árlista mindig aktuális legyen. */
-const CATALOG_VERSION = 6;
+const CATALOG_VERSION = 7;
 
 /* Alapanyag/recept verzió. Növeld, ha a DEFAULT_INGREDIENTS/DEFAULT_RECIPES-t
    frissíted (pl. a segédlet alapján) és élesíteni akarod a böngészőkben. */
-const INGREDIENTS_VERSION = 5;
+const INGREDIENTS_VERSION = 7;
 
 /* Fiók-seed verzió. Növeld, ha a DEFAULT_ACCOUNTS listát bővíted és be akarod tölteni.
    A seed CSAK akkor tölt be teljesen, ha még egyáltalán nincs mentett fiók.
@@ -710,7 +796,8 @@ const state = {
   accountId: null,
   received: 0,
   tip: loadJSON(LS_TIP, 0),
-  currentShift: loadJSON(LS_SHIFT, null)   // { id, startedAt, staff, note } — ki viszi most a pultot
+  currentShift: loadJSON(LS_SHIFT, null),   // { id, startedAt, staff, note } — ki viszi most a pultot
+  pultOpen: loadJSON(LS_PULT_OPEN, true)     // a pult nyitva van-e (zárva → nincs eladás)
 };
 
 /* Katalógus-migráció: ha a mentett verzió elmarad a kódban lévőtől,
@@ -793,6 +880,7 @@ function persistPin() { saveJSON(LS_PIN, state.pin); }
 function persistFavorites() { saveJSON(LS_FAV, state.favorites); }
 function persistTip() { saveJSON(LS_TIP, state.tip); }
 function persistShift() { saveJSON(LS_SHIFT, state.currentShift); }
+function persistPultOpen() { saveJSON(LS_PULT_OPEN, state.pultOpen); }
 
 /* Új pultos-műszak indítása (műszakváltás). NEM töröl semmit — csak naplózza,
    ki viszi a pultot mostantól. A tranzakciók megkapják ezt a shiftId-t. */
@@ -818,6 +906,32 @@ function startShift(staffIn, staffOut, note) {
   // Minden műszakváltáskor egy teljes mentés is (biztonsági pont).
   try { queueSnapshot("műszakváltás: " + (shift.staff || "?")); } catch (e) {}
   return shift;
+}
+
+/* Pult NYITÁSA — mostantól lehet eladni. Naplózza az időpontot + ki nyitotta. */
+function openPult(staff) {
+  state.pultOpen = true;
+  persistPultOpen();
+  queueSync("pult", {
+    time: new Date().toISOString(),
+    action: "nyitás",
+    staff: (staff || (state.currentShift && state.currentShift.staff) || "").trim(),
+    cash: ""
+  });
+}
+
+/* Pult ZÁRÁSA — mostantól nincs eladás. Naplózza az időpontot, ki zárta, és a KP kassza-összeget. */
+function closePult(staff, cashAmount) {
+  state.pultOpen = false;
+  persistPultOpen();
+  queueSync("pult", {
+    time: new Date().toISOString(),
+    action: "zárás",
+    staff: (staff || (state.currentShift && state.currentShift.staff) || "").trim(),
+    cash: (cashAmount != null && cashAmount !== "") ? Number(cashAmount) : ""
+  });
+  // Záráskor egy teljes mentés is (biztonsági pont).
+  try { queueSnapshot("pult zárás" + (cashAmount ? " — kassza: " + cashAmount + " Ft" : "")); } catch (e) {}
 }
 function persistAccounts() { saveJSON(LS_ACCOUNTS, state.accounts); }
 function persistIngredients() { saveJSON(LS_INGREDIENTS, state.ingredients); }
@@ -919,7 +1033,7 @@ async function flushSyncQueue() {
 // A visszaállításhoz mentendő localStorage kulcsok (minden állapot, ami az appot leírja).
 const BACKUP_KEYS = [
   LS_PRODUCTS, LS_TX, LS_HISTORY, LS_FAV, LS_TIP, LS_ACCOUNTS,
-  LS_INGREDIENTS, LS_RECIPES, LS_PIN, LS_SHIFT,
+  LS_INGREDIENTS, LS_RECIPES, LS_PIN, LS_SHIFT, LS_PULT_OPEN,
   LS_CATALOG_VER, LS_INGR_VER, LS_SEED_ACC_VER
 ];
 
@@ -1014,6 +1128,203 @@ window.addEventListener("offline", updateSyncBadge);
 
 const fmtFt = n => new Intl.NumberFormat("hu-HU").format(Math.round(n || 0)) + " Ft";
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+
+/* Ékezet-független, kisbetűsített normalizálás kereséshez. */
+function normText(s) {
+  return (s == null ? "" : String(s)).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+/* Illeszkedik-e a keresett szöveg a névre: minden beírt szónak (token) szerepelnie kell
+   valahol a névben (nem csak prefix, keresztnévre / vezetéknévre is talál), ékezet nélkül. */
+function nameMatches(name, extra, query) {
+  const nq = normText(query).trim();
+  if (!nq) return true;
+  const hay = normText((name || "") + " " + (extra || ""));
+  return nq.split(/\s+/).every(tok => hay.includes(tok));
+}
+
+/* #4: fiókok rendezése — "name" (ábécé) vagy "consumption" (elvitt érték, csökkenő).
+   Mindkét helyen (kasszás fiókválasztó + Admin → Egyenlegek) használjuk. */
+let accountSortMode = "name";   // "name" | "consumption"
+
+/* Fiókonként az összes elvitt (terhelt/comp) érték — a teljes eseményre. */
+function accountSpendMap() {
+  const map = {};
+  getAllTransactionsEver().forEach(t => {
+    if (t.payment !== "ACCOUNT" || t.voided || !t.accountId) return;
+    map[t.accountId] = (map[t.accountId] || 0) + txChargedValue(t);
+  });
+  return map;
+}
+let _accSpendCache = null;
+function accountSortComparator(a, b) {
+  if (accountSortMode === "consumption") {
+    if (!_accSpendCache) _accSpendCache = accountSpendMap();
+    const sa = _accSpendCache[a.id] || 0;
+    const sb = _accSpendCache[b.id] || 0;
+    if (sb !== sa) return sb - sa;   // több fogyasztás elöl
+    return a.name.localeCompare(b.name, "hu");
+  }
+  return a.name.localeCompare(b.name, "hu");
+}
+/* A fogyasztás-cache érvénytelenítése (terhelés/sztornó/szerkesztés után). */
+function invalidateAccSpendCache() { _accSpendCache = null; }
+
+/* ======================= SAJÁT ÉRINTŐ-BILLENTYŰZET =======================
+   Érintős laptopon a natív billentyűzet megbízhatatlan (eltűnik egy leütés után,
+   nehéz pontosan számot bevinni). Ehelyett minden [data-vkb] mezőt a saját
+   on-screen billentyűzetünkkel kezelünk. A natív billentyű letiltva (inputmode=none,
+   readonly a fókusz idejére nem kell — csak megakadályozzuk a rendszer-billentyűt). */
+const VKB = (function () {
+  let target = null;          // az aktuális input elem
+  let onChangeCb = null;      // opcionális callback minden változásnál
+  const el = () => document.getElementById("vkb");
+
+  const NUM_KEYS = ["1","2","3","4","5","6","7","8","9"];
+  const QWERTY = [
+    ["q","w","e","r","t","z","u","i","o","p"],
+    ["a","s","d","f","g","h","j","k","l"],
+    ["í","y","x","c","v","b","n","m"],
+    ["á","é","ő","ú","ö","ü","ó"]
+  ];
+
+  function buildNumeric() {
+    const body = document.getElementById("vkbBody");
+    let html = '<div class="vkb-grid">';
+    NUM_KEYS.forEach(k => { html += `<button type="button" class="vkb-key" data-k="${k}">${k}</button>`; });
+    html += `<button type="button" class="vkb-key danger" data-k="__back">⌫</button>`;
+    html += `<button type="button" class="vkb-key" data-k="0">0</button>`;
+    html += `<button type="button" class="vkb-key ctl" data-k="__clear">C</button>`;
+    html += `</div>`;
+    html += `<div class="vkb-grid" style="grid-template-columns:1fr 1fr; margin-top:6px; max-width:440px; margin-left:auto; margin-right:auto;">
+      <button type="button" class="vkb-key ctl" data-k="__hide">Bezár</button>
+      <button type="button" class="vkb-key accent" data-k="__done">Kész ✓</button>
+    </div>`;
+    body.innerHTML = html;
+  }
+
+  function buildText() {
+    const body = document.getElementById("vkbBody");
+    let html = "";
+    QWERTY.forEach(row => {
+      html += '<div class="vkb-row">';
+      row.forEach(k => { html += `<button type="button" class="vkb-key" data-k="${k}">${k}</button>`; });
+      html += "</div>";
+    });
+    html += `<div class="vkb-row">
+      <button type="button" class="vkb-key wide ctl" data-k="__shift">⇧ Nagy</button>
+      <button type="button" class="vkb-key space" data-k="__space">szóköz</button>
+      <button type="button" class="vkb-key danger" data-k="__back">⌫</button>
+    </div>`;
+    html += `<div class="vkb-row">
+      <button type="button" class="vkb-key ctl" data-k="__clear">Törlés</button>
+      <button type="button" class="vkb-key ctl" data-k="__hide">Bezár</button>
+      <button type="button" class="vkb-key accent" data-k="__done">Kész ✓</button>
+    </div>`;
+    body.innerHTML = html;
+  }
+
+  let shiftOn = false;
+  function setPreview() {
+    const p = document.getElementById("vkbPreview");
+    if (p && target) p.textContent = target.value || "";
+  }
+  function fireInput() {
+    if (!target) return;
+    target.dispatchEvent(new Event("input", { bubbles: true }));
+    setPreview();
+    if (onChangeCb) onChangeCb(target.value);
+  }
+
+  function press(k) {
+    if (!target) return;
+    if (k === "__back") { target.value = target.value.slice(0, -1); fireInput(); return; }
+    if (k === "__clear") { target.value = ""; fireInput(); return; }
+    if (k === "__space") { target.value += " "; fireInput(); return; }
+    if (k === "__shift") { shiftOn = !shiftOn; return; }
+    if (k === "__hide" || k === "__done") { hide(); return; }
+    // sima karakter
+    let ch = k;
+    if (shiftOn) { ch = ch.toUpperCase(); shiftOn = false; }
+    target.value += ch;
+    fireInput();
+  }
+
+  function show(input, mode, cb) {
+    target = input;
+    onChangeCb = cb || null;
+    shiftOn = false;
+    const box = el();
+    box.classList.remove("numeric", "text");
+    box.classList.add(mode === "text" ? "text" : "numeric");
+    if (mode === "text") buildText(); else buildNumeric();
+    const label = document.getElementById("vkbHintLabel");
+    if (label) label.textContent = input.getAttribute("data-vkb-label") || (mode === "text" ? "Név / szöveg" : "Összeg");
+    box.classList.add("open");
+    box.setAttribute("aria-hidden", "false");
+    document.body.classList.add("vkb-open");
+    setPreview();
+    // A mezőt görgessük láthatóba (a billentyűzet ne takarja).
+    try { input.scrollIntoView({ block: "center", behavior: "smooth" }); } catch (e) {}
+  }
+
+  function hide() {
+    const box = el();
+    box.classList.remove("open");
+    box.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("vkb-open");
+    if (target) {
+      // Záráskor egy change esemény, hogy a mentő-logikák (pl. ártétel) lefussanak.
+      target.dispatchEvent(new Event("change", { bubbles: true }));
+      try { target.blur(); } catch (e) {}
+    }
+    target = null;
+    onChangeCb = null;
+  }
+
+  function isFor(input) { return target === input; }
+
+  // Egyetlen delegált listener a billentyűkre (a body-t újraépítjük, ezért delegálunk).
+  document.addEventListener("DOMContentLoaded", () => {}, { once: true });
+  function initListener() {
+    const box = el();
+    if (!box) return;
+    box.addEventListener("click", e => {
+      const btn = e.target.closest("[data-k]");
+      if (!btn) return;
+      e.preventDefault();
+      press(btn.dataset.k);
+    });
+  }
+
+  return { show, hide, isFor, initListener, get target() { return target; } };
+})();
+
+/* Egy input mezőt a saját billentyűzetre köt. mode: "numeric" | "text".
+   A natív billentyűt letiltjuk (inputmode=none), így nem tűnik el / nem ugrál. */
+function bindVkb(input, mode) {
+  if (!input || input._vkbBound) return;
+  input._vkbBound = true;
+  input.setAttribute("inputmode", "none");
+  input.setAttribute("data-vkb", mode || "numeric");
+  const open = (e) => {
+    // Ne engedjük a natív billentyűt felugrani.
+    try { e.preventDefault(); } catch (err) {}
+    VKB.show(input, mode || "numeric");
+  };
+  input.addEventListener("focus", open);
+  input.addEventListener("click", open);
+  // pointerdown-nál is nyitunk, hogy első koppintásra jöjjön (érintőn megbízhatóbb).
+  input.addEventListener("pointerdown", (e) => { if (!VKB.isFor(input)) open(e); });
+}
+
+/* Végigmegy a dokumentumon és minden számbeviteli mezőt a saját numpadra köt,
+   a nevet/szöveget kérő mezőket a szöveges billentyűzetre. Újrarendezés után
+   ismét meghívható (a már bekötött mezőket kihagyja a _vkbBound flag miatt). */
+function bindAllVkbInputs(root) {
+  const scope = root || document;
+  scope.querySelectorAll('input[type="number"], input[inputmode="numeric"]').forEach(i => bindVkb(i, "numeric"));
+  scope.querySelectorAll('input[type="search"], input[data-vkb-text]').forEach(i => bindVkb(i, "text"));
+}
 
 function getCategories() {
   const seen = [];
@@ -1387,8 +1698,9 @@ function fmtUnits(units, purchaseUnit) {
 function renderCatTabs() {
   const cats = getCategories();
   const favTab = { name: "FAV", label: "⭐ Kedvencek", color: FAV_TAB_COLOR };
+  const popTab = { name: "POP", label: "🔥 Népszerű", color: "#fb923c" };
   const allTab = { name: "ALL", label: "Összes", color: "#e2e8f0" };
-  const all = [favTab, allTab, ...cats.map(c => ({ name: c, label: c, color: catColor(c) }))];
+  const all = [favTab, popTab, allTab, ...cats.map(c => ({ name: c, label: c, color: catColor(c) }))];
   const tabsHtml = all.map(c => {
     const active = state.category === c.name;
     return `<button data-cat="${esc(c.name)}"
@@ -1409,13 +1721,31 @@ function renderCatTabs() {
 
 /* ======================= RENDER: PRODUCT GRID ======================= */
 
+/* Termékenkénti eladott darabszám az összes (nem sztornózott) tranzakcióból,
+   minden műszakból. A "🔥 Népszerű" fül ez alapján rangsorol. */
+function productPopularity() {
+  const counts = {};
+  getAllTransactionsEver().forEach(t => {
+    if (t.voided) return;
+    t.items.forEach(i => { counts[i.name] = (counts[i.name] || 0) + i.qty; });
+  });
+  return counts;
+}
+
 function renderProducts() {
   const q = state.search.trim().toLowerCase();
   let list = state.products;
+  let popCounts = null;
   if (q) {
     // Ha van keresési szöveg, MINDEN termékben keresünk (a kategória-fültől függetlenül),
     // hogy rohamban ne kelljen a megfelelő fülre navigálni.
     list = list.filter(p => p.name.toLowerCase().includes(q) || (p.category || "").toLowerCase().includes(q));
+  } else if (state.category === "POP") {
+    // Legnépszerűbb termékek: eladott darabszám szerint, csak amit már eladtak.
+    popCounts = productPopularity();
+    list = list.filter(p => (popCounts[p.name] || 0) > 0)
+      .slice()
+      .sort((a, b) => (popCounts[b.name] || 0) - (popCounts[a.name] || 0) || a.name.localeCompare(b.name, "hu"));
   } else if (state.category === "FAV") {
     list = list.filter(p => state.favorites.includes(p.id));
   } else if (state.category !== "ALL") {
@@ -1431,6 +1761,8 @@ function renderProducts() {
   if (!list.length) {
     const empty = state.category === "FAV"
       ? { icon: "⭐", text: "Még nincs kedvenc tétel", hint: "Csillagozz meg egy terméket a hozzáadáshoz" }
+      : state.category === "POP"
+      ? { icon: "🔥", text: "Még nincs eladás", hint: "Amint fogytak termékek, itt jelennek meg a legnépszerűbbek" }
       : { icon: "🔍", text: "Nincs találat", hint: "" };
     grid.innerHTML = `<div class="col-span-full flex flex-col items-center justify-center py-16 text-slate-500 text-center px-4">
       <div class="text-4xl mb-2">${empty.icon}</div>
@@ -1439,16 +1771,24 @@ function renderProducts() {
     </div>`;
     return;
   }
-  grid.innerHTML = list.map(p => {
+  grid.innerHTML = list.map((p, idx) => {
     const isFav = state.favorites.includes(p.id);
     const starColor = isFav ? "#fbbf24" : "#64748b";
     const starStyle = `position:absolute;top:-8px;right:-8px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:16px;line-height:1;border-radius:9999px;border:2px solid #0f172a;background:#1e293b;color:${starColor};z-index:5;padding:0;cursor:pointer;`;
+    // Népszerű nézetben rangsor-medál (bal felső sarok).
+    let medalBadge = "";
+    if (popCounts) {
+      const medal = idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : `#${idx + 1}`;
+      medalBadge = `<div style="position:absolute;top:-8px;left:-8px;z-index:5;background:#f59e0b;color:#0f172a;font-size:11px;font-weight:900;border-radius:9999px;border:2px solid #0f172a;padding:1px 6px;min-width:22px;text-align:center;">${medal}</div>`;
+    }
     return `
     <div data-id="${p.id}" class="prodcard text-left rounded-xl bg-slate-900 border-2 p-3 flex flex-col justify-between min-h-[92px] active:brightness-90 cursor-pointer" style="position:relative; overflow:visible; border-left-width:5px; border-color:#1e293b; border-left-color:${catColor(p.category)};">
       <button type="button" data-fav="${p.id}" aria-label="Kedvencekhez adás" style="${starStyle}">${isFav ? "★" : "☆"}</button>
+      ${medalBadge}
       <div style="padding-right:6px;">
         <div class="text-sm font-bold leading-snug line-clamp-2">${esc(p.name)}</div>
         <div class="text-lg font-black tabular-nums mt-1" style="color:${catColor(p.category)}">${fmtFt(p.price)}</div>
+        ${popCounts ? `<div class="text-[11px] font-bold text-amber-400 mt-1">🔥 ${popCounts[p.name]} db eladva</div>` : ""}
       </div>
       ${p.recipe ? `<div class="text-[10.5px] leading-snug text-slate-500 border-t border-slate-800 mt-2 pt-1.5 line-clamp-3">🧪 ${esc(p.recipe)}</div>` : ""}
     </div>
@@ -1535,9 +1875,11 @@ function renderAccountPicker() {
   const selectedAcc = findAccount(state.accountId);
 
   // Ha már ki van választva fiók: csukjuk össze a keresőt+listát, hogy ne kelljen görgetni.
+  const sortToggleEl = document.getElementById("accountSortToggle");
   if (selectedAcc) {
     if (searchEl) searchEl.classList.add("hidden");
     if (filterEl) filterEl.classList.add("hidden");
+    if (sortToggleEl) sortToggleEl.classList.add("hidden");
     listEl.classList.add("hidden");
     renderAccountSelected();
     return;
@@ -1545,6 +1887,7 @@ function renderAccountPicker() {
   // Nincs kiválasztva: mutatjuk a keresőt+listát.
   if (searchEl) searchEl.classList.remove("hidden");
   if (filterEl) filterEl.classList.remove("hidden");
+  if (sortToggleEl) sortToggleEl.classList.remove("hidden");
   listEl.classList.remove("hidden");
 
   document.querySelectorAll(".acc-filter").forEach(b => {
@@ -1553,11 +1896,19 @@ function renderAccountPicker() {
     b.style.borderColor = on ? "#f59e0b" : "#334155";
     b.style.color = on ? "#0f172a" : "#e2e8f0";
   });
-  const q = accountPickerSearch.trim().toLowerCase();
+  const sortToggle = document.getElementById("accountSortToggle");
+  if (sortToggle) sortToggle.classList.remove("hidden");
+  document.querySelectorAll(".acc-sort").forEach(b => {
+    const on = b.dataset.asort === accountSortMode;
+    b.style.backgroundColor = on ? "#6366f1" : "#1e293b";
+    b.style.borderColor = on ? "#6366f1" : "#334155";
+    b.style.color = on ? "#fff" : "#e2e8f0";
+  });
+  const q = accountPickerSearch.trim();
   let list = state.accounts.filter(a => a.active !== false);
   if (accountPickerFilter !== "all") list = list.filter(a => a.type === accountPickerFilter);
-  if (q) list = list.filter(a => a.name.toLowerCase().includes(q) || (a.tier || "").toLowerCase().includes(q));
-  list.sort((a, b) => a.name.localeCompare(b.name, "hu"));
+  if (q) list = list.filter(a => nameMatches(a.name, a.tier, q));
+  list.sort(accountSortComparator);
 
   if (!list.length) {
     const typed = accountPickerSearch.trim();
@@ -1605,6 +1956,7 @@ function renderAccountPicker() {
       listEl.innerHTML = `<div class="text-center text-slate-500 text-xs py-4">Kezdj el gépelni egy nevet — ha nincs a listában, itt rögtön hozzáadhatod.</div>`;
     }
   } else {
+    if (accountSortMode === "consumption" && !_accSpendCache) _accSpendCache = accountSpendMap();
     listEl.innerHTML = list.map(a => {
       const sel = state.accountId === a.id;
       const icon = a.type === "band" ? "🎸" : "👤";
@@ -1612,8 +1964,10 @@ function renderAccountPicker() {
         ? `<span class="text-amber-400 font-bold">∞ korlátlan</span>`
         : `<span class="${a.balance < 0 ? "text-rose-400" : "text-emerald-400"} font-bold tabular-nums">${fmtFt(a.balance)}</span>`;
       const tierBadge = a.tier ? `<span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-700 text-slate-300 ml-1">${esc(a.tier)}</span>` : "";
+      const spend = accountSortMode === "consumption" ? (_accSpendCache[a.id] || 0) : null;
+      const spendBadge = spend != null ? `<div class="text-[10px] text-slate-400 tabular-nums">📊 elvitt: ${fmtFt(spend)}</div>` : "";
       return `<button data-accpick="${a.id}" class="w-full text-left rounded-lg border px-2.5 py-2 flex items-center justify-between gap-2 ${sel ? "border-amber-500 bg-amber-500/10" : "border-slate-700 bg-slate-800/60 hover:bg-slate-800"}">
-        <span class="min-w-0"><span class="text-sm font-semibold truncate">${icon} ${esc(a.name)}</span>${tierBadge}</span>
+        <span class="min-w-0"><span class="text-sm font-semibold truncate">${icon} ${esc(a.name)}</span>${tierBadge}${spendBadge}</span>
         <span class="text-xs shrink-0">${bal}</span>
       </button>`;
     }).join("");
@@ -1775,14 +2129,18 @@ function renderChangeAndCheckout() {
   updateChangeSlider();
 
   const checkoutBtn = document.getElementById("btnCheckout");
-  const canCheckout = state.cart.length > 0 && state.payment && (
+  const canCheckout = state.pultOpen && state.cart.length > 0 && state.payment && (
     state.payment === "REVOLUT" ||
     (state.payment === "ACCOUNT" && !!findAccount(state.accountId)) ||
     (state.payment === "KP" && state.received >= total)
   );
   checkoutBtn.disabled = !canCheckout;
   // ACCOUNT módban a jatt-sorból eredő tip nem releváns; a gomb felirat jelezze a módot.
-  checkoutBtn.textContent = state.payment === "ACCOUNT" ? "Terhelés rögzítése" : "Fizetés rögzítése";
+  if (!state.pultOpen) {
+    checkoutBtn.textContent = "🔒 A pult zárva — nincs eladás";
+  } else {
+    checkoutBtn.textContent = state.payment === "ACCOUNT" ? "Terhelés rögzítése" : "Fizetés rögzítése";
+  }
 }
 
 /* ======================= CART ACTIONS ======================= */
@@ -1827,15 +2185,17 @@ function checkout() {
   const itemsTotal = cartTotal();
   const tip = Number(state.tip) || 0;
   const total = itemsTotal + tip;
+  if (!state.pultOpen) { alert("A pult zárva van. Nyisd ki a 👤 műszak-gombnál, mielőtt eladást rögzítesz."); return; }
   if (!state.cart.length || !state.payment) return;
   if (state.payment === "KP" && state.received < total) return;
 
-  // REVOLUT: megerősítő popup, mielőtt rögzítünk — biztosan megjött-e az utalás.
-  if (state.payment === "REVOLUT" && !checkout._revolutConfirmed) {
-    openRevolutConfirm(total);
+  // Univerzális megerősítő popup MINDEN fizetési módra (a tranzakció részleteivel).
+  // A régi Revolut-specifikus popupot ez váltja ki (nincs dupla megerősítés).
+  if (!checkout._confirmed) {
+    openConfirmPay();
     return;
   }
-  checkout._revolutConfirmed = false;  // reset a következő tranzakcióhoz
+  checkout._confirmed = false;  // reset a következő tranzakcióhoz
 
   let account = null;
   let effTip = tip;
@@ -1957,9 +2317,145 @@ function checkout() {
   state.tip = 0;
   state.payment = null;
   state.accountId = null;
+  // #1 javítás: a fiókkereső állapotát is nullázzuk, hogy a következő terhelésnél
+  // ne maradjon bent az előző keresés (se a szöveg, se a szűrő, se a mező értéke).
+  accountPickerSearch = "";
+  accountPickerFilter = "all";
+  invalidateAccSpendCache();   // #4: a fogyasztás-cache frissüljön a következő terheléshez
+  const accSearchEl = document.getElementById("accountSearch");
+  if (accSearchEl) accSearchEl.value = "";
   persistCart();
   persistTip();
   renderCart();
+  launchConfetti();   // sikeres rögzítés: konfetti + pénz ikonok
+}
+
+/* Sikeres fizetés popup — nagy, jól látható, magától eltűnik. Érintős pultnál
+   gyors vizuális megerősítés, hogy a tranzakció rögzült. */
+/* Univerzális fizetés-megerősítő popup megnyitása (a checkout hívja rögzítés előtt).
+   A kosár + fizetési mód alapján kiírja a részleteket, és Igen/Nem választ kér. */
+function openConfirmPay() {
+  const m = document.getElementById("confirmPayModal");
+  const card = document.getElementById("confirmPayCard");
+  const iconEl = document.getElementById("confirmPayIcon");
+  const titleEl = document.getElementById("confirmPayTitle");
+  const subEl = document.getElementById("confirmPaySub");
+  const itemsEl = document.getElementById("confirmPayItems");
+  const totalsEl = document.getElementById("confirmPayTotals");
+  const yesBtn = document.getElementById("btnConfirmPayYes");
+
+  const itemsTotal = cartTotal();
+  const tip = Number(state.tip) || 0;
+
+  // Tételsorok.
+  itemsEl.innerHTML = state.cart.map(l =>
+    `<div class="flex justify-between gap-2"><span class="truncate">${l.qty}× ${esc(l.name)}</span><span class="tabular-nums shrink-0">${fmtFt(l.price * l.qty)}</span></div>`
+  ).join("");
+
+  let color, icon, title, sub, totalsHtml;
+  const row = (label, val, strong) => `<div class="flex justify-between gap-2 ${strong ? "text-base font-black" : "text-sm"}"><span class="${strong ? "" : "text-slate-400"}">${label}</span><span class="tabular-nums">${val}</span></div>`;
+
+  if (state.payment === "KP") {
+    color = "#10b981"; icon = "💵"; title = "Készpénzes fizetés";
+    const change = state.received - (itemsTotal + tip);
+    sub = "Ellenőrizd az összeget, majd erősítsd meg.";
+    totalsHtml = (tip > 0 ? row("Ebből jatt", fmtFt(tip)) : "")
+      + row("Fizetendő", fmtFt(itemsTotal + tip), true)
+      + row("Kapott", fmtFt(state.received))
+      + `<div class="flex justify-between gap-2 text-base font-black" style="color:${change > 0 ? "#34d399" : "#94a3b8"}"><span>Visszajáró</span><span class="tabular-nums">${fmtFt(Math.max(0, change))}</span></div>`;
+  } else if (state.payment === "REVOLUT") {
+    color = "#6366f1"; icon = "💳"; title = "Revolut utalás";
+    sub = "Csak akkor Igen, ha a beérkezést a telefonon láttad!";
+    totalsHtml = (tip > 0 ? row("Ebből jatt", fmtFt(tip)) : "")
+      + row("Beérkezett összeg", fmtFt(itemsTotal + tip), true);
+  } else {
+    color = "#f59e0b"; icon = "👤"; title = "Fiókra terhelés";
+    const acc = findAccount(state.accountId);
+    if (!acc) { alert("Válassz ki egy fiókot a terheléshez."); return; }
+    const charge = accountChargeAmount(acc, itemsTotal);
+    sub = `${esc(acc.name)}${acc.unlimited ? " — korlátlan (comp)" : ""}`;
+    const after = acc.unlimited ? null : acc.balance - charge.amount;
+    totalsHtml = row("Teljes ár", fmtFt(itemsTotal))
+      + row("Terhelve", fmtFt(charge.amount), true)
+      + (acc.unlimited ? row("Egyenleg", "nem csökken (comp)")
+          : `<div class="flex justify-between gap-2 text-sm"><span class="text-slate-400">Egyenleg után</span><span class="tabular-nums ${after < 0 ? "text-rose-400" : "text-emerald-400"}">${fmtFt(after)}</span></div>`
+            + (after < 0 ? `<div class="text-[11px] text-rose-400 font-semibold">⚠ Keret túllépve: ${fmtFt(-after)} tartozás</div>` : ""));
+  }
+
+  card.style.borderColor = color;
+  iconEl.textContent = icon;
+  titleEl.textContent = title;
+  subEl.textContent = sub;
+  totalsEl.innerHTML = totalsHtml;
+  yesBtn.style.backgroundColor = color;
+  m.classList.remove("hidden");
+}
+function closeConfirmPay() { document.getElementById("confirmPayModal").classList.add("hidden"); }
+
+/* Konfetti + pénz-ikon robbanás sikeres rögzítés után (rövid, nem blokkoló). */
+function launchConfetti() {
+  const canvas = document.getElementById("confettiCanvas");
+  if (!canvas || !canvas.getContext) return;
+  canvas.classList.remove("hidden");
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width = window.innerWidth;
+  const H = canvas.height = window.innerHeight;
+
+  const COLORS = ["#f59e0b", "#10b981", "#6366f1", "#f43f5e", "#facc15", "#38bdf8"];
+  const MONEY = ["💵", "🪙", "💶", "💰"];
+  const parts = [];
+  const N = 90;
+  for (let i = 0; i < N; i++) {
+    const money = Math.random() < 0.28;
+    parts.push({
+      x: W / 2 + (Math.random() - 0.5) * 120,
+      y: H / 2 + (Math.random() - 0.5) * 40,
+      vx: (Math.random() - 0.5) * 14,
+      vy: (Math.random() * -12) - 4,
+      g: 0.32 + Math.random() * 0.15,
+      rot: Math.random() * Math.PI,
+      vr: (Math.random() - 0.5) * 0.3,
+      size: money ? (20 + Math.random() * 12) : (6 + Math.random() * 6),
+      color: COLORS[(Math.random() * COLORS.length) | 0],
+      money,
+      emoji: MONEY[(Math.random() * MONEY.length) | 0],
+      life: 1
+    });
+  }
+  const start = performance.now();
+  const DURATION = 1500;
+  function frame(now) {
+    const t = now - start;
+    ctx.clearRect(0, 0, W, H);
+    parts.forEach(p => {
+      p.vy += p.g;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += p.vr;
+      p.life = Math.max(0, 1 - t / DURATION);
+      ctx.save();
+      ctx.globalAlpha = p.life;
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      if (p.money) {
+        ctx.font = p.size + "px serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(p.emoji, 0, 0);
+      } else {
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+      }
+      ctx.restore();
+    });
+    if (t < DURATION) {
+      requestAnimationFrame(frame);
+    } else {
+      ctx.clearRect(0, 0, W, H);
+      canvas.classList.add("hidden");
+    }
+  }
+  requestAnimationFrame(frame);
 }
 
 /* ======================= EVENT WIRING: MAIN UI ======================= */
@@ -2017,6 +2513,13 @@ document.getElementById("accountTypeFilter").addEventListener("click", e => {
   const btn = e.target.closest("[data-atype]");
   if (!btn) return;
   accountPickerFilter = btn.dataset.atype;
+  renderAccountPicker();
+});
+document.getElementById("accountSortToggle").addEventListener("click", e => {
+  const btn = e.target.closest("[data-asort]");
+  if (!btn) return;
+  accountSortMode = btn.dataset.asort;
+  if (accountSortMode === "consumption") _accSpendCache = accountSpendMap();
   renderAccountPicker();
 });
 document.getElementById("accountList").addEventListener("click", e => {
@@ -2137,20 +2640,62 @@ function closeRevolutConfirm() { document.getElementById("revolutModal").classLi
 document.getElementById("btnRevolutCancel").addEventListener("click", closeRevolutConfirm);
 document.getElementById("btnRevolutConfirm").addEventListener("click", () => {
   closeRevolutConfirm();
-  checkout._revolutConfirmed = true;
+  checkout._confirmed = true;
   checkout();
 });
+
+// Univerzális fizetés-megerősítő: Igen → rögzítés + konfetti; Nem → bezárás.
+document.getElementById("btnConfirmPayYes").addEventListener("click", () => {
+  closeConfirmPay();
+  checkout._confirmed = true;
+  checkout();
+});
+document.getElementById("btnConfirmPayNo").addEventListener("click", closeConfirmPay);
 
 /* ======================= MŰSZAKVÁLTÁS ======================= */
 function updateShiftLabel() {
   const lbl = document.getElementById("shiftStaffLabel");
   if (!lbl) return;
-  if (state.currentShift && state.currentShift.staff) {
+  const closed = !state.pultOpen;
+  if (closed) {
+    lbl.textContent = state.currentShift && state.currentShift.staff ? ("🔒 ZÁRVA · " + state.currentShift.staff) : "🔒 ZÁRVA";
+    lbl.className = "text-rose-300 font-bold";
+  } else if (state.currentShift && state.currentShift.staff) {
     lbl.textContent = state.currentShift.staff;
     lbl.className = "text-amber-300 font-semibold";
   } else {
     lbl.textContent = "Nincs műszak";
     lbl.className = "text-slate-400";
+  }
+}
+
+/* A műszak-modal pult-állapot sávjának frissítése (nyitva/zárva + gombok). */
+function updatePultStateUI() {
+  const box = document.getElementById("pultStateBox");
+  const label = document.getElementById("pultStateLabel");
+  const badge = document.getElementById("pultStateBadge");
+  const openBtn = document.getElementById("btnPultOpen");
+  const closeBtn = document.getElementById("btnPultClose");
+  const cashWrap = document.getElementById("pultCloseCashWrap");
+  if (!box) return;
+  if (state.pultOpen) {
+    box.style.borderColor = "#10b981";
+    box.style.background = "rgba(16,185,129,0.06)";
+    label.textContent = "A pult NYITVA van";
+    badge.textContent = "🔓 NYITVA";
+    badge.style.background = "#10b981"; badge.style.color = "#0f172a";
+    openBtn.classList.add("hidden");
+    closeBtn.classList.remove("hidden");
+    if (cashWrap) cashWrap.classList.remove("hidden");   // záráshoz kérjük a kasszát
+  } else {
+    box.style.borderColor = "#f43f5e";
+    box.style.background = "rgba(244,63,94,0.06)";
+    label.textContent = "A pult ZÁRVA van";
+    badge.textContent = "🔒 ZÁRVA";
+    badge.style.background = "#f43f5e"; badge.style.color = "#fff";
+    openBtn.classList.remove("hidden");
+    closeBtn.classList.add("hidden");
+    if (cashWrap) cashWrap.classList.add("hidden");
   }
 }
 function openShiftModal() {
@@ -2167,13 +2712,36 @@ function openShiftModal() {
   document.getElementById("shiftStaffIn").value = "";
   document.getElementById("shiftNote").value = "";
   document.getElementById("shiftMsg").textContent = "";
+  const cash = document.getElementById("pultCloseCash");
+  if (cash) cash.value = "";
+  updatePultStateUI();
   m.classList.remove("hidden");
+  bindAllVkbInputs(m);
   setTimeout(() => document.getElementById("shiftStaffIn").focus(), 50);
 }
 function closeShiftModal() { document.getElementById("shiftModal").classList.add("hidden"); }
 document.getElementById("btnShift").addEventListener("click", openShiftModal);
 document.getElementById("btnShiftClose").addEventListener("click", closeShiftModal);
 document.getElementById("btnShiftCancel").addEventListener("click", closeShiftModal);
+document.getElementById("btnPultOpen").addEventListener("click", () => {
+  openPult(state.currentShift && state.currentShift.staff);
+  updatePultStateUI();
+  updateShiftLabel();
+  renderCart();   // a fizetés-gomb újraértékelése
+  const msg = document.getElementById("shiftMsg");
+  msg.textContent = "🔓 A pult kinyitva — mostantól lehet eladni."; msg.className = "text-xs text-emerald-400";
+});
+document.getElementById("btnPultClose").addEventListener("click", () => {
+  const cashEl = document.getElementById("pultCloseCash");
+  const cash = cashEl ? cashEl.value : "";
+  if (!confirm("Bezárod a pultot?\n\nMostantól nem lehet eladást rögzíteni, amíg újra ki nem nyitod." + (cash ? `\n\nZáró kassza: ${fmtFt(Number(cash))} KP` : ""))) return;
+  closePult(state.currentShift && state.currentShift.staff, cash);
+  updatePultStateUI();
+  updateShiftLabel();
+  renderCart();
+  const msg = document.getElementById("shiftMsg");
+  msg.textContent = "🔒 A pult bezárva" + (cash ? ` — kassza: ${fmtFt(Number(cash))}` : "") + "."; msg.className = "text-xs text-rose-300";
+});
 document.getElementById("btnShiftStart").addEventListener("click", () => {
   const staffIn = document.getElementById("shiftStaffIn").value.trim();
   const msg = document.getElementById("shiftMsg");
@@ -2186,7 +2754,7 @@ updateShiftLabel();
 
 document.getElementById("btnCloseAdmin").addEventListener("click", closeAdmin);
 document.getElementById("adminOverlay").addEventListener("click", closeAdmin);
-document.addEventListener("keydown", e => { if (e.key === "Escape") { closeAdmin(); closePinModal(); closeCustomRevenueModal(); closeTxEditModal(); closeAccountDetail(); } });
+document.addEventListener("keydown", e => { if (e.key === "Escape") { closeAdmin(); closePinModal(); closeCustomRevenueModal(); closeTxEditModal(); closeAccountDetail(); closeConfirmPay(); } });
 document.getElementById("btnCloseAccDetail").addEventListener("click", closeAccountDetail);
 document.getElementById("accDetailOverlay").addEventListener("click", closeAccountDetail);
 
@@ -2266,6 +2834,7 @@ function renderAdminAll() {
   renderAdminIngredients();
   renderAdminProducts();
   renderAdminData();
+  bindAllVkbInputs(document.getElementById("adminModal"));
 }
 
 /* ======================= ADMIN: STATS ======================= */
@@ -2396,6 +2965,46 @@ let accountsAdminFilter = "all";
 let accountsAdminSearch = "";
 let openAccountDetailId = null;
 
+/* A szűrt+rendezett fiók-sorok legyártása (a teljes és a részleges rerenderhez is). */
+function buildAdminAccountRows() {
+  const q = accountsAdminSearch.trim();
+  let list = state.accounts.slice();
+  if (accountsAdminFilter === "person" || accountsAdminFilter === "band") list = list.filter(a => a.type === accountsAdminFilter);
+  else if (accountsAdminFilter === "unlimited") list = list.filter(a => a.unlimited);
+  else if (accountsAdminFilter === "inactive") list = list.filter(a => a.active === false);
+  if (accountsAdminFilter !== "inactive") list = list.filter(a => a.active !== false);
+  if (q) list = list.filter(a => nameMatches(a.name, a.tier, q));
+  list.sort(accountSortComparator);
+  const spendMap = accountSortMode === "consumption" ? (_accSpendCache || (_accSpendCache = accountSpendMap())) : accountSpendMap();
+  if (!list.length) return `<tr><td colspan="7" class="px-3 py-6 text-center text-slate-500 text-sm">Nincs találat.</td></tr>`;
+  return list.map(a => {
+    const icon = a.type === "band" ? "🎸" : "👤";
+    const bal = a.unlimited
+      ? `<span class="text-amber-400 font-bold">∞</span>`
+      : `<span class="${a.balance < 0 ? "text-rose-400" : "text-emerald-400"} font-bold tabular-nums">${fmtFt(a.balance)}</span>`;
+    const spent = spendMap[a.id] || 0;
+    return `<tr class="border-t border-slate-800 ${a.active === false ? "opacity-50" : ""}">
+      <td class="px-3 py-2"><button data-accdetail="${a.id}" class="text-left hover:text-amber-400 font-semibold">${icon} ${esc(a.name)}</button></td>
+      <td class="px-3 py-2 text-slate-400 text-xs">${a.type === "band" ? "Zenekar" : "Személy"}</td>
+      <td class="px-3 py-2 text-slate-400 text-xs">${esc(a.tier || "—")}</td>
+      <td class="px-3 py-2 text-right">${bal}</td>
+      <td class="px-3 py-2 text-right tabular-nums ${spent > 0 ? "text-slate-200 font-semibold" : "text-slate-500"}">${fmtFt(spent)}</td>
+      <td class="px-3 py-2 text-center">${a.unlimited ? '<span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400">comp</span>' : ""}</td>
+      <td class="px-3 py-2 text-right"><button data-accdetail="${a.id}" class="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-xs font-semibold">Részletek</button></td>
+    </tr>`;
+  }).join("");
+}
+
+/* Csak a fiók-tábla törzsét frissíti (kereséskor — a billentyűzet/fókusz megmarad). */
+function rerenderAdminAccountRows() {
+  const tb = document.getElementById("accAdminTbody");
+  if (!tb) { renderAdminAccounts(); return; }
+  tb.innerHTML = buildAdminAccountRows();
+  tb.querySelectorAll("[data-accdetail]").forEach(b => {
+    b.addEventListener("click", () => openAccountDetail(b.dataset.accdetail));
+  });
+}
+
 function renderAdminAccounts() {
   const panel = document.getElementById("adminPanelAccounts");
   const tierOpts = TIER_PRESETS.map(t => `<option value="${esc(t.tier)}">${esc(t.label)}</option>`).join("");
@@ -2405,30 +3014,8 @@ function renderAdminAccounts() {
   const totalOwed = activeAccts.filter(a => !a.unlimited).reduce((s, a) => s + Math.max(0, a.balance), 0);
   const negCount = activeAccts.filter(a => !a.unlimited && a.balance < 0).length;
 
-  // Szűrt lista
-  const q = accountsAdminSearch.trim().toLowerCase();
-  let list = state.accounts.slice();
-  if (accountsAdminFilter === "person" || accountsAdminFilter === "band") list = list.filter(a => a.type === accountsAdminFilter);
-  else if (accountsAdminFilter === "unlimited") list = list.filter(a => a.unlimited);
-  else if (accountsAdminFilter === "inactive") list = list.filter(a => a.active === false);
-  if (accountsAdminFilter !== "inactive") list = list.filter(a => a.active !== false);
-  if (q) list = list.filter(a => a.name.toLowerCase().includes(q) || (a.tier || "").toLowerCase().includes(q));
-  list.sort((a, b) => a.name.localeCompare(b.name, "hu"));
-
-  const rows = list.length ? list.map(a => {
-    const icon = a.type === "band" ? "🎸" : "👤";
-    const bal = a.unlimited
-      ? `<span class="text-amber-400 font-bold">∞</span>`
-      : `<span class="${a.balance < 0 ? "text-rose-400" : "text-emerald-400"} font-bold tabular-nums">${fmtFt(a.balance)}</span>`;
-    return `<tr class="border-t border-slate-800 ${a.active === false ? "opacity-50" : ""}">
-      <td class="px-3 py-2"><button data-accdetail="${a.id}" class="text-left hover:text-amber-400 font-semibold">${icon} ${esc(a.name)}</button></td>
-      <td class="px-3 py-2 text-slate-400 text-xs">${a.type === "band" ? "Zenekar" : "Személy"}</td>
-      <td class="px-3 py-2 text-slate-400 text-xs">${esc(a.tier || "—")}</td>
-      <td class="px-3 py-2 text-right">${bal}</td>
-      <td class="px-3 py-2 text-center">${a.unlimited ? '<span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400">comp</span>' : ""}</td>
-      <td class="px-3 py-2 text-right"><button data-accdetail="${a.id}" class="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-xs font-semibold">Részletek</button></td>
-    </tr>`;
-  }).join("") : `<tr><td colspan="6" class="px-3 py-6 text-center text-slate-500 text-sm">Nincs fiók. Hozz létre lentebb, vagy használd a tömeges importot.</td></tr>`;
+  // Szűrt+rendezett sorok (megosztott builder — #2 ékezet-független keresés, #4 rendezés).
+  const rows = buildAdminAccountRows();
 
   const filterBtn = (val, label) => {
     const on = accountsAdminFilter === val;
@@ -2460,6 +3047,11 @@ function renderAdminAccounts() {
       ${filterBtn("unlimited", "∞ Comp")}
       ${filterBtn("inactive", "Inaktív")}
     </div>
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="text-xs text-slate-500 font-semibold">Rendezés:</span>
+      <button data-accsort="name" class="px-3 py-1.5 rounded-lg border text-xs font-semibold ${accountSortMode === "name" ? "bg-indigo-500 border-indigo-500 text-white" : "bg-slate-800 border-slate-700 text-slate-200"}">🔤 Név</button>
+      <button data-accsort="consumption" class="px-3 py-1.5 rounded-lg border text-xs font-semibold ${accountSortMode === "consumption" ? "bg-indigo-500 border-indigo-500 text-white" : "bg-slate-800 border-slate-700 text-slate-200"}">📊 Fogyasztás szerint</button>
+    </div>
 
     <div class="overflow-x-auto rounded-xl border border-slate-700 mb-8">
       <table class="w-full text-sm">
@@ -2468,10 +3060,11 @@ function renderAdminAccounts() {
           <th class="text-left px-3 py-2 font-semibold">Típus</th>
           <th class="text-left px-3 py-2 font-semibold">Réteg</th>
           <th class="text-right px-3 py-2 font-semibold">Egyenleg</th>
+          <th class="text-right px-3 py-2 font-semibold">Elvitt érték</th>
           <th class="text-center px-3 py-2 font-semibold">Korlátlan</th>
           <th class="text-right px-3 py-2 font-semibold"></th>
         </tr></thead>
-        <tbody>${rows}</tbody>
+        <tbody id="accAdminTbody">${rows}</tbody>
       </table>
     </div>
 
@@ -2544,20 +3137,31 @@ Vendég Béla; XXS; 3000"></textarea>
   `;
 
   // --- események ---
-  document.getElementById("accAdminSearch").addEventListener("input", e => {
+  // #6 javítás: a kereső NEM építi újra a teljes panelt (az elvette a fókuszt / becsukta
+  // a billentyűzetet). Csak a tábla törzsét (tbody) frissítjük. A saját billentyűzet
+  // targetje (accAdminSearch) így végig él marad.
+  const accSearchInput = document.getElementById("accAdminSearch");
+  bindVkb(accSearchInput, "text");
+  accSearchInput.addEventListener("input", e => {
     accountsAdminSearch = e.target.value;
-    // csak a táblát frissítjük, hogy a fókusz megmaradjon — teljes újrarender helyett
-    renderAdminAccounts();
-    document.getElementById("accAdminSearch").focus();
+    rerenderAdminAccountRows();
   });
   panel.querySelectorAll("[data-accfilter]").forEach(b => {
     b.addEventListener("click", () => { accountsAdminFilter = b.dataset.accfilter; renderAdminAccounts(); });
+  });
+  panel.querySelectorAll("[data-accsort]").forEach(b => {
+    b.addEventListener("click", () => {
+      accountSortMode = b.dataset.accsort;
+      if (accountSortMode === "consumption") _accSpendCache = accountSpendMap();
+      renderAdminAccounts();
+    });
   });
   panel.querySelectorAll("[data-accdetail]").forEach(b => {
     b.addEventListener("click", () => openAccountDetail(b.dataset.accdetail));
   });
 
   const tierSel = document.getElementById("newAccTier");
+  bindAllVkbInputs(panel);
   const tierHint = document.getElementById("tierHint");
   tierSel.addEventListener("change", () => {
     const preset = tierPreset(tierSel.value);
@@ -2651,18 +3255,25 @@ function renderAccountDetailModal() {
     const dt = new Date(t.time).toLocaleString("hu-HU", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
     const itemsStr = t.items.map(i => `${i.qty}× ${esc(i.name)}`).join(", ");
     const charged = txChargedValue(t);
+    const voided = t.voided === true;
     // Ha volt kedvezmény/beszerzési ár (charged < teljes ár), mutatjuk az eredetit is.
     const priceStr = (typeof t.chargeAmount === "number" && t.chargeAmount !== t.total)
       ? `<span class="text-[11px] text-slate-500 line-through mr-1">${fmtFt(t.total)}</span>${fmtFt(charged)}`
       : fmtFt(charged);
     const compBadge = t.comp ? ' <span class="text-[10px] text-amber-400">(comp)</span>' : "";
     const noteBadge = t.pricingNote ? ` <span class="text-[10px] text-sky-400">${esc(t.pricingNote)}</span>` : "";
-    return `<div class="rounded-lg bg-slate-800/60 border border-slate-700 p-2.5">
+    const voidBadge = voided ? ' <span class="text-[10px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300">↩ sztornó</span>' : "";
+    // #5: minden rendelés utólag szerkeszthető / törölhető — a hibák javításához.
+    const editBtn = voided ? "" : `<button data-accedit="${t.id}" class="text-[11px] font-bold px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 shrink-0">✏ Javít</button>`;
+    return `<div class="rounded-lg bg-slate-800/60 border ${voided ? "border-rose-900/50 opacity-60" : "border-slate-700"} p-2.5">
       <div class="flex items-center justify-between gap-2 mb-0.5">
         <span class="text-xs text-slate-400 tabular-nums">${dt}</span>
-        <span class="font-bold tabular-nums">${priceStr}${compBadge}${noteBadge}</span>
+        <span class="font-bold tabular-nums ${voided ? "line-through text-slate-500" : ""}">${priceStr}${compBadge}${noteBadge}${voidBadge}</span>
       </div>
-      <div class="text-sm text-slate-300">${itemsStr}</div>
+      <div class="flex items-center justify-between gap-2">
+        <div class="text-sm ${voided ? "text-slate-500 line-through" : "text-slate-300"}">${itemsStr}</div>
+        ${editBtn}
+      </div>
     </div>`;
   }).join("") : `<p class="text-slate-500 text-sm">Még nincs fogyasztás ezen a fiókon.</p>`;
 
@@ -2737,10 +3348,16 @@ function renderAccountDetailModal() {
   box.querySelectorAll("[data-acctop]").forEach(b => {
     b.addEventListener("click", () => {
       adjustAccountBalance(acc.id, Number(b.dataset.acctop), "topup", "Gyors feltöltés");
+      invalidateAccSpendCache();
       renderAccountDetailModal();
       renderAdminAccounts();
     });
   });
+  // #5: egy fiók korábbi rendelésének utólagos javítása.
+  box.querySelectorAll("[data-accedit]").forEach(b => {
+    b.addEventListener("click", () => openTxEditModal(b.dataset.accedit));
+  });
+  bindAllVkbInputs(box);
   const adjInput = box.querySelector("#accAdjustInput");
   const adjBtn = box.querySelector("#btnAccAdjust");
   if (adjBtn) adjBtn.addEventListener("click", () => {
@@ -3216,7 +3833,13 @@ function renderRecipeEditor() {
     <div id="recEditArea" class="mt-5"></div>
   `;
   box.querySelectorAll("[data-recedit]").forEach(b => {
-    b.addEventListener("click", () => { recipeEditProduct = b.dataset.recedit; renderRecipeEditArea(); });
+    b.addEventListener("click", () => {
+      recipeEditProduct = b.dataset.recedit;
+      renderRecipeEditArea();
+      // A szerkesztő a lista alján nyílik — görgessünk oda, hogy látható legyen.
+      const area = document.getElementById("recEditArea");
+      if (area) { try { area.scrollIntoView({ block: "center", behavior: "smooth" }); } catch (e) { area.scrollIntoView(); } }
+    });
   });
   if (recipeEditProduct) renderRecipeEditArea();
 }
@@ -3290,6 +3913,7 @@ function renderRecipeEditArea() {
     renderRecipeEditArea();
     renderRecipeEditor();
   });
+  bindAllVkbInputs(area);
 }
 
 /* ======================= ADMIN: LOG ======================= */
@@ -3399,6 +4023,7 @@ function voidAccountTx(txId) {
       type: "void", amount: refund, newBalance: "(törölt fiók)", note: "Sztornó (fiók már törölve)"
     });
   }
+  invalidateAccSpendCache();
   renderAdminAll();
 }
 
@@ -3409,21 +4034,31 @@ let editingTxId = null;
 let editDraft = null;
 
 function openTxEditModal(txId) {
-  const tx = state.transactions.find(t => t.id === txId);
-  if (!tx) return;
-  if (tx.payment === "ACCOUNT") {
-    alert("Fiókra terhelt tranzakció itt nem szerkeszthető, mert az érintené a fiók egyenlegét.\n\nHa hiba történt: töröld ezt a tételt (a 🗑 gombbal a naplóban nem elérhető fiókosnál — helyette az Egyenlegek fülön a fiók egyenlegét igazítsd ki kézzel), vagy rögzítsd újra helyesen.");
-    return;
+  // A tranzakció lehet az aktuális műszakban VAGY egy korábbi (lezárt) műszakban.
+  let tx = state.transactions.find(t => t.id === txId);
+  let inHistory = false;
+  if (!tx) {
+    for (const sh of state.shiftHistory) {
+      const found = sh.transactions.find(t => t.id === txId);
+      if (found) { tx = found; inHistory = true; break; }
+    }
   }
+  if (!tx) return;
+  if (tx.voided) { alert("Ez a tranzakció sztornózva van, nem szerkeszthető."); return; }
   editingTxId = txId;
   editDraft = {
     items: tx.items.map(i => ({ ...i })),
     payment: tx.payment,
     tip: tx.tip || 0,
-    received: tx.received || 0
+    received: tx.received || 0,
+    isAccount: tx.payment === "ACCOUNT",
+    accountId: tx.accountId || null,
+    accountName: tx.accountName || "",
+    inHistory
   };
   renderTxEditModal();
   txEditModal.classList.remove("hidden");
+  bindAllVkbInputs(txEditModal);
 }
 function closeTxEditModal() {
   txEditModal.classList.add("hidden");
@@ -3451,21 +4086,53 @@ function renderTxEditModal() {
     </div>
   `).join("") : `<p class="text-slate-500 text-sm">Nincs tétel — mentéskor a teljes tranzakció törlődik.</p>`;
 
-  document.querySelectorAll(".tx-pay-btn").forEach(btn => {
-    const active = editDraft.payment === btn.dataset.txpay;
-    const isKP = btn.dataset.txpay === "KP";
-    const activeColor = isKP ? "#10b981" : "#6366f1";
-    btn.style.backgroundColor = active ? activeColor : "#1e293b";
-    btn.style.borderColor = active ? activeColor : "#334155";
-    btn.style.color = active ? "#0f172a" : "#e2e8f0";
-  });
+  const payRow = document.getElementById("txEditPayRow");
+  const recvWrap = document.getElementById("txEditReceivedWrap");
+  const tipWrap = document.getElementById("txEditTipWrap");
+  const accInfo = document.getElementById("txEditAccountInfo");
 
-  document.getElementById("txEditTip").value = editDraft.tip || "";
-  document.getElementById("txEditReceived").value = editDraft.received || "";
-  document.getElementById("txEditTotal").textContent = fmtFt(txEditItemsTotal() + (Number(editDraft.tip) || 0));
+  if (editDraft.isAccount) {
+    // Fiók-mód: nincs KP/Revolut váltás, nincs jatt/kapott — a kaszt-szabály árazza újra.
+    if (payRow) payRow.classList.add("hidden");
+    if (recvWrap) recvWrap.classList.add("hidden");
+    if (tipWrap) tipWrap.classList.add("hidden");
+    const acc = findAccount(editDraft.accountId);
+    const fullTotal = txEditItemsTotal();
+    let newCharge = fullTotal, noteStr = "";
+    if (acc) {
+      const ch = accountChargeAmount(acc, fullTotal);
+      newCharge = ch.amount; noteStr = ch.note ? ` · ${esc(ch.note)}` : "";
+    }
+    if (accInfo) {
+      accInfo.classList.remove("hidden");
+      const accName = editDraft.accountName || (acc ? acc.name : "ismeretlen fiók");
+      const compNote = (acc && acc.unlimited) ? " (comp — egyenleg nem változik)" : "";
+      accInfo.innerHTML = `<div class="text-amber-300 font-semibold">👤 ${esc(accName)}${compNote}</div>
+        <div class="text-slate-300 mt-0.5">Új terhelés a kaszt-szabály szerint: <b class="tabular-nums">${fmtFt(newCharge)}</b>${noteStr}</div>
+        ${acc && !acc.unlimited ? `<div class="text-slate-400 mt-0.5 text-[11px]">Mentéskor a régi terhelés visszakerül, az új levonódik. A fiók egyenlege ennek megfelelően frissül.</div>` : ""}`;
+    }
+    document.getElementById("txEditTotal").textContent = fmtFt(newCharge);
+  } else {
+    if (payRow) payRow.classList.remove("hidden");
+    if (recvWrap) recvWrap.classList.remove("hidden");
+    if (tipWrap) tipWrap.classList.remove("hidden");
+    if (accInfo) accInfo.classList.add("hidden");
+    document.querySelectorAll(".tx-pay-btn").forEach(btn => {
+      const active = editDraft.payment === btn.dataset.txpay;
+      const isKP = btn.dataset.txpay === "KP";
+      const activeColor = isKP ? "#10b981" : "#6366f1";
+      btn.style.backgroundColor = active ? activeColor : "#1e293b";
+      btn.style.borderColor = active ? activeColor : "#334155";
+      btn.style.color = active ? "#0f172a" : "#e2e8f0";
+    });
+    document.getElementById("txEditTip").value = editDraft.tip || "";
+    document.getElementById("txEditReceived").value = editDraft.received || "";
+    document.getElementById("txEditTotal").textContent = fmtFt(txEditItemsTotal() + (Number(editDraft.tip) || 0));
+  }
 
   const select = document.getElementById("txEditAddSelect");
   select.innerHTML = state.products.map(p => `<option value="${p.id}">${esc(p.category)} — ${esc(p.name)} (${fmtFt(p.price)})</option>`).join("");
+  bindAllVkbInputs(document.getElementById("txEditItems"));
 }
 
 document.getElementById("btnCloseTxEdit").addEventListener("click", closeTxEditModal);
@@ -3509,28 +4176,105 @@ document.getElementById("txEditTip").addEventListener("input", e => {
 document.getElementById("txEditReceived").addEventListener("input", e => {
   editDraft.received = Number(e.target.value) || 0;
 });
+/* Megkeresi a szerkesztett tranzakciót akár az aktuális, akár egy lezárt műszakban.
+   Visszaad: { tx, persist } — a persist a megfelelő mentőt hívja. */
+function findEditableTx(txId) {
+  let tx = state.transactions.find(t => t.id === txId);
+  if (tx) return { tx, persist: persistTx };
+  for (const sh of state.shiftHistory) {
+    const found = sh.transactions.find(t => t.id === txId);
+    if (found) return { tx: found, persist: persistHistory };
+  }
+  return { tx: null, persist: () => {} };
+}
+
+/* Egy fiókos tranzakció egyenleg-hatásának visszavonása (a régi terhelés visszaadása). */
+function reverseAccountCharge(tx) {
+  if (tx.payment !== "ACCOUNT" || tx.comp) return;   // comp nem mozgat egyenleget
+  const acc = findAccount(tx.accountId);
+  const refund = typeof tx.chargeAmount === "number" ? tx.chargeAmount : tx.total;
+  if (acc && !acc.unlimited) adjustAccountBalance(acc.id, refund, "adjust", "Szerkesztés: régi terhelés visszavonva");
+}
+
 document.getElementById("btnTxEditDelete").addEventListener("click", () => {
   if (!editingTxId) return;
-  if (!confirm("Biztosan törlöd ezt a tranzakciót?")) return;
-  state.transactions = state.transactions.filter(t => t.id !== editingTxId);
-  persistTx();
+  const { tx, persist } = findEditableTx(editingTxId);
+  if (!tx) return;
+  if (!confirm("Biztosan törlöd ezt a tranzakciót?" + (tx.payment === "ACCOUNT" && !tx.comp ? "\n\nA fiók egyenlegére a terhelt összeg visszakerül." : ""))) return;
+  // Fiókosnál az egyenleget vissza kell adni törlés előtt.
+  reverseAccountCharge(tx);
+  if (persist === persistTx) {
+    state.transactions = state.transactions.filter(t => t.id !== editingTxId);
+  } else {
+    state.shiftHistory.forEach(sh => { sh.transactions = sh.transactions.filter(t => t.id !== editingTxId); });
+  }
+  persist();
+  invalidateAccSpendCache();
   closeTxEditModal();
-  renderAdminLog();
-  renderAdminStats();
+  renderAdminAll();
 });
 document.getElementById("btnTxEditSave").addEventListener("click", () => {
-  const tx = state.transactions.find(t => t.id === editingTxId);
+  const { tx, persist } = findEditableTx(editingTxId);
   if (!tx) return;
   if (!editDraft.items.length) {
     if (!confirm("Nincs tétel a tranzakcióban. Törlöd helyette a teljes tranzakciót?")) return;
-    state.transactions = state.transactions.filter(t => t.id !== editingTxId);
-    persistTx();
+    reverseAccountCharge(tx);
+    if (persist === persistTx) {
+      state.transactions = state.transactions.filter(t => t.id !== editingTxId);
+    } else {
+      state.shiftHistory.forEach(sh => { sh.transactions = sh.transactions.filter(t => t.id !== editingTxId); });
+    }
+    persist();
+    invalidateAccSpendCache();
     closeTxEditModal();
-    renderAdminLog();
-    renderAdminStats();
+    renderAdminAll();
     return;
   }
   const itemsTotal = txEditItemsTotal();
+
+  if (editDraft.isAccount) {
+    // FIÓK-MÓD: a régi terhelést visszaadjuk, az újat (kaszt-szabály szerint) levonjuk.
+    reverseAccountCharge(tx);
+    const acc = findAccount(tx.accountId);
+    tx.items = editDraft.items.map(i => ({ ...i }));
+    tx.total = itemsTotal;
+    tx.tip = 0;
+    tx.grandTotal = itemsTotal;
+    tx.fullTotal = itemsTotal;
+    if (acc) {
+      const charge = accountChargeAmount(acc, itemsTotal);
+      tx.chargeAmount = charge.amount;
+      tx.pricingMode = charge.mode;
+      tx.pricingNote = charge.note;
+      // Új tételes bontás a "Terhelt" oszlophoz.
+      if (charge.lines && charge.lines.length) {
+        const agg = {};
+        charge.lines.forEach(l => {
+          const key = l.name + "||" + l.reason;
+          if (!agg[key]) agg[key] = { name: l.name, reason: l.reason, charged: 0, full: 0, qty: 0 };
+          agg[key].charged += l.unitCharge; agg[key].full += l.unitFull; agg[key].qty++;
+        });
+        tx.chargedLines = Object.values(agg);
+      } else { tx.chargedLines = null; }
+      // Új terhelés levonása (comp fióknál csak napló).
+      if (!acc.unlimited) {
+        adjustAccountBalance(acc.id, -charge.amount, "adjust", "Szerkesztés: új terhelés");
+      } else {
+        tx.comp = true;
+      }
+    } else {
+      // Fiók már törölve — csak az értéket frissítjük, egyenleg-mozgás nélkül.
+      tx.chargeAmount = itemsTotal;
+    }
+    tx.editedAt = new Date().toISOString();
+    persist();
+    invalidateAccSpendCache();
+    closeTxEditModal();
+    renderAdminAll();
+    return;
+  }
+
+  // KP/REVOLUT mód (eredeti logika).
   const tip = Number(editDraft.tip) || 0;
   const total = itemsTotal + tip;
   tx.items = editDraft.items.map(i => ({ ...i }));
@@ -3545,10 +4289,11 @@ document.getElementById("btnTxEditSave").addEventListener("click", () => {
     tx.received = total;
     tx.change = 0;
   }
-  persistTx();
+  tx.editedAt = new Date().toISOString();
+  persist();
+  invalidateAccSpendCache();
   closeTxEditModal();
-  renderAdminLog();
-  renderAdminStats();
+  renderAdminAll();
 });
 
 /* ======================= ADMIN: PRODUCTS CRUD ======================= */
@@ -3690,6 +4435,51 @@ function downloadCSV(csv, filename) {
   a.remove();
   URL.revokeObjectURL(url);
 }
+
+/* ======================= HELYI TELJES MENTÉS FÁJLBA (offline biztonsági háló) =======================
+   Ez a Drive-tól FÜGGETLEN. Egy .json fájlba menti a teljes állapotot (localStorage minden kulcsa),
+   és bármikor visszatölthető. Így a frissítés / cache-törlés SOHA nem jelent adatvesztést:
+   frissítés előtt egy kattintás mentés, gond esetén egy kattintás visszatöltés. */
+function exportFullBackupFile() {
+  const snap = collectFullState();
+  const json = JSON.stringify(snap, null, 2);
+  const blob = new Blob([json], { type: "application/json;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const stamp = new Date().toISOString().slice(0, 16).replace(/[:T]/g, "-");
+  a.href = url;
+  a.download = `fesztivalpult_mentes_${stamp}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+/* Visszatöltés helyi fájlból: beolvassa a .json-t és visszaírja a localStorage-ba, majd újratölt. */
+function importFullBackupFile(file, statusEl) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const parsed = JSON.parse(reader.result);
+      const data = parsed && parsed.data ? parsed.data : null;
+      if (!data || typeof data !== "object") throw new Error("Ismeretlen mentés-formátum (nincs 'data' mező).");
+      const keys = Object.keys(data);
+      if (!keys.length) throw new Error("A mentés üres.");
+      const savedAt = parsed._meta && parsed._meta.savedAt ? new Date(parsed._meta.savedAt).toLocaleString("hu-HU") : "ismeretlen idő";
+      if (!confirm(`Visszatöltöd ezt a mentést?\n\nKészült: ${savedAt}\nKulcsok: ${keys.length} db\n\nA JELENLEGI állapotot felülírja. (Előtte érdemes a mostani állapotról is menteni.)`)) {
+        if (statusEl) { statusEl.textContent = "Visszatöltés megszakítva."; statusEl.className = "text-xs text-slate-400 mt-2"; }
+        return;
+      }
+      keys.forEach(k => localStorage.setItem(k, data[k]));
+      if (statusEl) { statusEl.textContent = "✓ Visszatöltve. Az app újratölt…"; statusEl.className = "text-xs text-emerald-400 mt-2"; }
+      setTimeout(() => location.reload(), 800);
+    } catch (err) {
+      if (statusEl) { statusEl.textContent = "⚠ Hiba: " + err.message; statusEl.className = "text-xs text-rose-400 mt-2"; }
+    }
+  };
+  reader.onerror = () => { if (statusEl) { statusEl.textContent = "⚠ A fájl nem olvasható."; statusEl.className = "text-xs text-rose-400 mt-2"; } };
+  reader.readAsText(file);
+}
 function exportCSV() {
   downloadCSV(transactionsToCSV(state.transactions), `eladasok_aktualis_muszak_${new Date().toISOString().slice(0, 10)}.csv`);
 }
@@ -3710,6 +4500,26 @@ function renderAdminData() {
   const panel = document.getElementById("adminPanelData");
   const shifts = [...state.shiftHistory].reverse();
   panel.innerHTML = `
+    <div class="rounded-2xl border-2 border-emerald-500/50 bg-emerald-500/5 p-4 mb-6">
+      <h3 class="text-lg font-bold mb-1 text-emerald-300">💾 Teljes mentés fájlba (biztonsági háló)</h3>
+      <p class="text-slate-400 text-xs mb-3">Ez a Google Sheettől független. A teljes állapotot (fiókok, tranzakciók, egyenlegek, katalógus, minden) egy <b>.json fájlba</b> menti a készülékre. <b class="text-emerald-300">Frissítés vagy cache-törlés előtt mindig ments egyet</b> — így az adat sosem veszik el. Gond esetén ugyanitt visszatöltheted.</p>
+      <div class="flex flex-wrap gap-2 items-center">
+        <button id="btnExportBackup" class="px-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold">⬇ Mentés fájlba most</button>
+        <label class="px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 hover:bg-slate-700 font-semibold cursor-pointer">
+          ⬆ Visszatöltés fájlból
+          <input id="importBackupFile" type="file" accept="application/json,.json" class="hidden" />
+        </label>
+      </div>
+      <p id="backupStatus" class="text-xs text-slate-400 mt-2"></p>
+    </div>
+
+    <div class="rounded-2xl border border-slate-700 bg-slate-800/40 p-4 mb-6">
+      <h3 class="text-base font-bold mb-1">⬆️ App frissítése (adatvesztés nélkül)</h3>
+      <p class="text-slate-400 text-xs mb-3">Ha új verziót töltöttél fel, ezzel frissítheted az appot <b>anélkül</b>, hogy a böngésző „webhelyadatait" törölnéd. Csak a gyorsítótárat üríti — a fiókok, tranzakciók, egyenlegek <b>megmaradnak</b>. Tipp: előbb ments fájlba a fenti gombbal.</p>
+      <button id="btnForceUpdate" class="px-4 py-3 rounded-xl bg-slate-800 border border-slate-600 hover:bg-slate-700 font-semibold">🔄 App frissítése most</button>
+      <p id="updateStatus" class="text-xs text-slate-400 mt-2"></p>
+    </div>
+
     <h3 class="text-lg font-bold mb-3">Adatok exportálása</h3>
     <button id="btnExportCsv" class="px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 hover:bg-slate-700 font-semibold">⬇ Aktuális műszak exportálása (CSV)</button>
 
@@ -3776,6 +4586,22 @@ function renderAdminData() {
 
   document.getElementById("btnExportCsv").addEventListener("click", exportCSV);
 
+  // Helyi teljes mentés / visszatöltés (biztonsági háló, cache-független).
+  const btnExportBackup = document.getElementById("btnExportBackup");
+  if (btnExportBackup) btnExportBackup.addEventListener("click", () => {
+    exportFullBackupFile();
+    const s = document.getElementById("backupStatus");
+    if (s) { s.textContent = "✓ Mentés letöltve. Tedd el biztos helyre (pl. felhő/e-mail)."; s.className = "text-xs text-emerald-400 mt-2"; }
+  });
+  const importBackupFile = document.getElementById("importBackupFile");
+  if (importBackupFile) importBackupFile.addEventListener("change", e => {
+    const f = e.target.files && e.target.files[0];
+    if (f) importFullBackupFile(f, document.getElementById("backupStatus"));
+    e.target.value = "";
+  });
+  const btnForceUpdate = document.getElementById("btnForceUpdate");
+  if (btnForceUpdate) btnForceUpdate.addEventListener("click", () => forceAppUpdate(document.getElementById("updateStatus")));
+
   const btnExportAllShifts = document.getElementById("btnExportAllShifts");
   if (btnExportAllShifts) btnExportAllShifts.addEventListener("click", exportAllShiftsCSV);
   panel.querySelectorAll("[data-shift-export]").forEach(btn => {
@@ -3838,10 +4664,80 @@ function renderAdminData() {
 /* ======================= PWA: TELEPÍTHETŐSÉG, OFFLINE, ÉBREN TARTÁS ======================= */
 
 // Service worker regisztráció - offline működéshez (fesztiválon a net néha megbízhatatlan)
+// FONTOS: a frissítés NEM igényel "webhelyadatok törlését". Az új verzió automatikusan
+// aktiválódik és egyszer újratölt — a localStorage (minden adatod) érintetlen marad.
+let swRefreshing = false;
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("sw.js").catch(err => console.warn("Service worker regisztráció sikertelen:", err));
+    navigator.serviceWorker.register("sw.js").then(reg => {
+      // Ha új service worker vár aktiválásra, kérjük, hogy azonnal vegye át.
+      function promptActivate(worker) {
+        if (!worker) return;
+        // Ha a sw.js támogatja a SKIP_WAITING üzenetet, ezzel azonnal aktiválódik.
+        try { worker.postMessage({ type: "SKIP_WAITING" }); } catch (e) {}
+      }
+      // Új verzió telepítése közben.
+      reg.addEventListener("updatefound", () => {
+        const nw = reg.installing;
+        if (!nw) return;
+        nw.addEventListener("statechange", () => {
+          if (nw.state === "installed" && navigator.serviceWorker.controller) {
+            // Van már régi controller → ez egy FRISSÍTÉS. Jelezzük a felhasználónak.
+            showUpdateToast(() => promptActivate(reg.waiting || nw));
+          }
+        });
+      });
+      // Rendszeres frissítés-ellenőrzés (a GitHub Pages új index/sw-jét felismeri).
+      setInterval(() => { reg.update().catch(() => {}); }, 60 * 1000);
+    }).catch(err => console.warn("Service worker regisztráció sikertelen:", err));
+
+    // Amikor az új service worker átveszi az irányítást, EGYSZER újratöltünk.
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (swRefreshing) return;
+      swRefreshing = true;
+      location.reload();
+    });
   });
+}
+
+// Kis "Új verzió elérhető" sáv, amivel biztonságosan (adatvesztés nélkül) frissíthetsz.
+function showUpdateToast(onAccept) {
+  if (document.getElementById("updateToast")) return;
+  const bar = document.createElement("div");
+  bar.id = "updateToast";
+  bar.style.cssText = "position:fixed;left:12px;right:12px;bottom:12px;z-index:200;background:#0f172a;border:1px solid #f59e0b;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 10px 40px -8px rgba(0,0,0,.7);max-width:520px;margin:0 auto;";
+  bar.innerHTML = '<span style="font-size:20px">⬆️</span>'
+    + '<div style="flex:1;font-size:13px;color:#e2e8f0"><b>Új verzió érhető el.</b> A frissítés az adataidat megtartja.</div>'
+    + '<button id="updateNow" style="padding:8px 14px;border-radius:10px;background:#f59e0b;color:#0f172a;font-weight:800;border:none">Frissítés</button>'
+    + '<button id="updateLater" style="padding:8px 10px;border-radius:10px;background:#1e293b;color:#94a3b8;border:1px solid #334155">Később</button>';
+  document.body.appendChild(bar);
+  document.getElementById("updateNow").addEventListener("click", () => {
+    bar.querySelector("#updateNow").textContent = "Frissítés…";
+    if (onAccept) onAccept();
+    // Ha 3 mp múlva sem váltott automatikusan (régi sw.js SKIP_WAITING nélkül), kézzel töltünk.
+    setTimeout(() => { if (!swRefreshing) { swRefreshing = true; location.reload(); } }, 3000);
+  });
+  document.getElementById("updateLater").addEventListener("click", () => bar.remove());
+}
+
+/* Kézi "App frissítése" — a cache-t üríti (a localStorage-ot NEM!), és újratölt.
+   Ez a biztonságos alternatívája a "webhelyadatok törlésének". */
+async function forceAppUpdate(statusEl) {
+  try {
+    if (statusEl) { statusEl.textContent = "Frissítés… gyorsítótár ürítése (az adatok megmaradnak)."; statusEl.className = "text-xs text-amber-400 mt-2"; }
+    if ("caches" in window) {
+      const names = await caches.keys();
+      await Promise.all(names.map(n => caches.delete(n)));
+    }
+    if ("serviceWorker" in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r => r.update().catch(() => {})));
+    }
+    swRefreshing = true;
+    setTimeout(() => location.reload(true), 400);
+  } catch (e) {
+    if (statusEl) { statusEl.textContent = "⚠ Hiba a frissítéskor: " + e.message; statusEl.className = "text-xs text-rose-400 mt-2"; }
+  }
 }
 
 // "Telepítés" gomb - Android Chrome-on saját ikonnal, teljes képernyős módban indítható appá teszi
@@ -3888,6 +4784,32 @@ renderProducts();
 renderCart();
 updateSyncBadge();
 if (syncConfig.enabled && navigator.onLine) flushSyncQueue();
+
+/* ===== Saját érintő-billentyűzet aktiválása ===== */
+VKB.initListener();
+// A statikus mezőket rögtön bekötjük. A dinamikusan létrejövőket (admin modalok,
+// txEdit stb.) az adott render után bindAllVkbInputs-szal kötjük, ill. a #accAdminSearch
+// már bekötve. A search típusú kasszamezők a szöveges billentyűzetet kapják.
+bindVkb(document.getElementById("tipInput"), "numeric");
+bindVkb(document.getElementById("receivedInput"), "numeric");
+bindVkb(document.getElementById("searchInput"), "text");
+bindVkb(document.getElementById("accountSearch"), "text");
+bindVkb(document.getElementById("customName"), "text");
+bindVkb(document.getElementById("customAmount"), "numeric");
+bindVkb(document.getElementById("txEditTip"), "numeric");
+bindVkb(document.getElementById("txEditReceived"), "numeric");
+bindVkb(document.getElementById("shiftStaffIn"), "text");
+bindVkb(document.getElementById("shiftStaffOut"), "text");
+bindVkb(document.getElementById("shiftNote"), "text");
+// Ha valaki bárhová kattint a billentyűzeten kívül és nincs aktív mező, ne maradjon nyitva.
+document.addEventListener("pointerdown", (e) => {
+  const t = VKB.target;
+  if (!t) return;
+  if (e.target.closest("#vkb")) return;      // a billentyűzeten belül
+  if (e.target === t) return;                // ugyanaz a mező
+  if (e.target.closest("[data-vkb]")) return; // másik VKB-mezőre vált
+  VKB.hide();
+}, true);
 </script>
 </body>
 </html>
