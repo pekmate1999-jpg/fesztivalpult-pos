@@ -15,7 +15,7 @@
  * Verzióemeléskor NÖVELD a CACHE_VERSION-t — ettől a régi cache kiürül és friss lesz.
  */
 
-const CACHE_VERSION = "v3";
+const CACHE_VERSION = "v9";
 const CACHE_NAME = "fesztivalpult-" + CACHE_VERSION;
 
 // Offline-hoz előre elrakott fájlok (a repódban ezek legyenek elérhetők).
