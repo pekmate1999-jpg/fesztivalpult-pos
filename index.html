@@ -4223,6 +4223,7 @@ function doOpenTxEditModal(txId) {
 
 /* Belépési pont: jelszót kér, és csak helyes jelszó után nyitja a szerkesztőt. */
 function openTxEditModal(txId) {
+  try { VKB.hide(); } catch (e) {}   // csukjuk a numpadot, hogy a jelszó-ablak elérhető legyen
   requestEditPin(() => doOpenTxEditModal(txId));
 }
 function closeTxEditModal() {
