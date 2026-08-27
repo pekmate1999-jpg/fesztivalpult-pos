@@ -49,6 +49,10 @@
   #vkb .vkb-key.ctl { background: #0f172a; color: #94a3b8; font-size: 13px; }
   #vkb .vkb-key.space { flex: 5 1 0; }
   body.vkb-open { padding-bottom: 240px; }
+  /* Amikor a billentyűzet nyitva van, a jobb oldali panel (fiók-lista) kapjon alsó teret,
+     hogy a lista a billentyűzet fölé görgethető legyen, ne takarja el. */
+  body.vkb-open #cartAside { padding-bottom: 250px; }
+  body.vkb-open #accountList { max-height: 30vh; }
   @media (orientation: landscape) {
     #vkb.numeric .vkb-grid { max-width: 380px; }
   }
@@ -363,6 +367,23 @@
 </div>
 
 <!-- TRANSACTION EDIT MODAL -->
+<!-- SZERKESZTÉS JELSZÓ MODAL (fogyasztás-szerkesztés / törlés védelme) -->
+<div id="editPinModal" class="fixed inset-0 z-[85] hidden">
+  <div class="absolute inset-0 bg-black/80"></div>
+  <div class="absolute inset-0 flex items-center justify-center p-4">
+    <div class="w-full max-w-xs bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl p-5">
+      <div class="flex items-center justify-between mb-1">
+        <h3 class="font-bold text-lg">🔒 Szerkesztés jelszó</h3>
+        <button id="btnCloseEditPin" class="text-slate-500 hover:text-slate-300 px-2">✕</button>
+      </div>
+      <p class="text-xs text-slate-500 mb-3">A rendelés szerkesztéséhez / törléséhez add meg a szerkesztő-jelszót.</p>
+      <input id="editPinInput" type="password" inputmode="numeric" placeholder="••••" class="w-full px-3 py-3 rounded-lg bg-slate-800 border border-slate-700 text-center text-2xl tabular-nums tracking-widest mb-2" />
+      <div id="editPinError" class="hidden text-center text-rose-400 text-xs font-semibold mb-2">Helytelen jelszó.</div>
+      <button id="btnEditPinOk" class="w-full py-3 rounded-xl bg-amber-500 text-slate-950 font-extrabold hover:bg-amber-400">Megerősítés</button>
+    </div>
+  </div>
+</div>
+
 <div id="txEditModal" class="fixed inset-0 z-[70] hidden">
   <div id="txEditOverlay" class="absolute inset-0 bg-black/80"></div>
   <div class="absolute inset-0 flex items-center justify-center p-4">
@@ -526,7 +547,9 @@ const DEFAULT_PRODUCTS = [
   { "category": "Koktél", "name": "Repohár", "price": 200, "itemType": "egyeb" },
   { "category": "Shot", "name": "Repohár", "price": 200, "itemType": "egyeb" },
   { "category": "Egyéb", "name": "Repohár", "price": 200, "itemType": "egyeb" },
-  { "category": "Meleg", "name": "Repohár", "price": 200, "itemType": "egyeb" }
+  { "category": "Meleg", "name": "Repohár", "price": 200, "itemType": "egyeb" },
+  { "category": "Fröccs", "name": "Szóda", "price": 50, "itemType": "alkoholmentes" },
+  { "category": "Gyümölcslé", "name": "Szóda", "price": 50, "itemType": "alkoholmentes" }
 ].map((p, i) => ({ id: "p" + (i + 1), ...p }));
 
 /* ======================= ALAPANYAGOK + RECEPTEK ======================= */
@@ -764,7 +787,7 @@ const DEFAULT_PIN = "1234";
 /* A hivatalos itallap verziószáma. Ha ezt megnöveled és újratöltöd az appot,
    a már mentett katalógus is felülíródik a DEFAULT_PRODUCTS-ra (kért viselkedés).
    A kézi termékmódosítások eltűnhetnek — szándékosan, hogy az árlista mindig aktuális legyen. */
-const CATALOG_VERSION = 7;
+const CATALOG_VERSION = 8;
 
 /* Alapanyag/recept verzió. Növeld, ha a DEFAULT_INGREDIENTS/DEFAULT_RECIPES-t
    frissíted (pl. a segédlet alapján) és élesíteni akarod a böngészőkben. */
@@ -2821,7 +2844,7 @@ updateShiftLabel();
 
 document.getElementById("btnCloseAdmin").addEventListener("click", closeAdmin);
 document.getElementById("adminOverlay").addEventListener("click", closeAdmin);
-document.addEventListener("keydown", e => { if (e.key === "Escape") { closeAdmin(); closePinModal(); closeCustomRevenueModal(); closeTxEditModal(); closeAccountDetail(); closeConfirmPay(); } });
+document.addEventListener("keydown", e => { if (e.key === "Escape") { closeAdmin(); closePinModal(); closeCustomRevenueModal(); closeTxEditModal(); closeAccountDetail(); closeConfirmPay(); closeEditPin(); } });
 document.getElementById("btnCloseAccDetail").addEventListener("click", closeAccountDetail);
 document.getElementById("accDetailOverlay").addEventListener("click", closeAccountDetail);
 
@@ -4101,7 +4124,39 @@ const txEditModal = document.getElementById("txEditModal");
 let editingTxId = null;
 let editDraft = null;
 
-function openTxEditModal(txId) {
+/* A szerkesztő-jelszó (az admin PIN-től független). Minden fogyasztás-szerkesztés/törlés előtt kell. */
+const EDIT_PIN = "1527";
+let editPinCallback = null;
+
+function requestEditPin(callback) {
+  editPinCallback = callback;
+  const inp = document.getElementById("editPinInput");
+  const err = document.getElementById("editPinError");
+  if (inp) inp.value = "";
+  if (err) err.classList.add("hidden");
+  document.getElementById("editPinModal").classList.remove("hidden");
+  setTimeout(() => { if (inp) inp.focus(); }, 50);
+}
+function closeEditPin() {
+  document.getElementById("editPinModal").classList.add("hidden");
+  editPinCallback = null;
+}
+function submitEditPin() {
+  const inp = document.getElementById("editPinInput");
+  const err = document.getElementById("editPinError");
+  if (inp && inp.value === EDIT_PIN) {
+    const cb = editPinCallback;
+    closeEditPin();
+    if (cb) cb();
+  } else {
+    if (err) err.classList.remove("hidden");
+    if (inp) { inp.value = ""; inp.focus(); }
+  }
+}
+
+/* A tényleges tranzakció-szerkesztő megnyitása (jelszó után hívódik). */
+function doOpenTxEditModal(txId) {
+  try { VKB.hide(); } catch (e) {}
   // A tranzakció lehet az aktuális műszakban VAGY egy korábbi (lezárt) műszakban.
   let tx = state.transactions.find(t => t.id === txId);
   let inHistory = false;
@@ -4127,6 +4182,11 @@ function openTxEditModal(txId) {
   renderTxEditModal();
   txEditModal.classList.remove("hidden");
   bindAllVkbInputs(txEditModal);
+}
+
+/* Belépési pont: jelszót kér, és csak helyes jelszó után nyitja a szerkesztőt. */
+function openTxEditModal(txId) {
+  requestEditPin(() => doOpenTxEditModal(txId));
 }
 function closeTxEditModal() {
   txEditModal.classList.add("hidden");
@@ -4588,6 +4648,16 @@ function renderAdminData() {
       <p id="updateStatus" class="text-xs text-slate-400 mt-2"></p>
     </div>
 
+    <div class="rounded-2xl border border-slate-700 bg-slate-800/40 p-4 mb-6">
+      <h3 class="text-base font-bold mb-1">☁️ Szinkron-hibák kezelése</h3>
+      <p class="text-slate-400 text-xs mb-3">Ha a fejlécben „⚠ X hiba" látszik: ezek a Google Sheetre fel nem küldött sorok. <b>Az adataid a gépen ettől biztonságban vannak</b> (a helyi mentés mindig sikerül). A hiba általában azért van, mert a Google Apps Script (webhook) régi verziója nem ismer egy-egy új sortípust. Az alábbi gombbal a beragadt hibás sorokat kiürítheted, hogy eltűnjön a jelzés.</p>
+      <div class="flex flex-wrap gap-2 items-center">
+        <button id="btnRetrySync" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm">🔁 Újraküldés megkísérlése</button>
+        <button id="btnClearSyncErrors" class="px-4 py-2.5 rounded-xl bg-slate-800 border border-slate-600 hover:bg-slate-700 font-semibold text-sm">🧹 Hibás sorok törlése a sorból</button>
+      </div>
+      <p id="syncCleanStatus" class="text-xs text-slate-400 mt-2"></p>
+    </div>
+
     <h3 class="text-lg font-bold mb-3">Adatok exportálása</h3>
     <button id="btnExportCsv" class="px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 hover:bg-slate-700 font-semibold">⬇ Aktuális műszak exportálása (CSV)</button>
 
@@ -4669,6 +4739,41 @@ function renderAdminData() {
   });
   const btnForceUpdate = document.getElementById("btnForceUpdate");
   if (btnForceUpdate) btnForceUpdate.addEventListener("click", () => forceAppUpdate(document.getElementById("updateStatus")));
+
+  const btnRetrySync = document.getElementById("btnRetrySync");
+  if (btnRetrySync) btnRetrySync.addEventListener("click", async () => {
+    const s = document.getElementById("syncCleanStatus");
+    if (!navigator.onLine) { if (s) { s.textContent = "📴 Nincs net — előbb csatlakozz, aztán próbáld újra."; s.className = "text-xs text-rose-400 mt-2"; } return; }
+    // A hibás sorokat visszaállítjuk 'pending'-re, hogy újrapróbálja őket.
+    syncQueue.forEach(q => { if (q.status === "error") q.status = "pending"; });
+    persistSyncQueue();
+    if (s) { s.textContent = "🔁 Újraküldés folyamatban…"; s.className = "text-xs text-amber-400 mt-2"; }
+    try { await flushSyncQueue(); } catch (e) {}
+    const errLeft = syncQueue.filter(q => q.status === "error").length;
+    const pendLeft = pendingCount();
+    if (s) {
+      if (errLeft > 0) { s.textContent = `⚠ ${errLeft} sor továbbra is hibás. Valószínűleg a Google Apps Script (webhook) régi verziója nem ismeri ezeket — a „Hibás sorok törlése" gombbal eltüntetheted a jelzést. Az adatok a gépen biztonságban vannak.`; s.className = "text-xs text-amber-300 mt-2"; }
+      else if (pendLeft === 0) { s.textContent = "✓ Minden sor felküldve, nincs több hiba."; s.className = "text-xs text-emerald-400 mt-2"; }
+      else { s.textContent = `⏳ ${pendLeft} sor még sorban áll.`; s.className = "text-xs text-amber-400 mt-2"; }
+    }
+    updateSyncBadge();
+  });
+
+  const btnClearSyncErrors = document.getElementById("btnClearSyncErrors");
+  if (btnClearSyncErrors) btnClearSyncErrors.addEventListener("click", () => {
+    const errCount = syncQueue.filter(q => q.status === "error").length;
+    if (!errCount) {
+      const s = document.getElementById("syncCleanStatus");
+      if (s) { s.textContent = "Nincs hibás sor a sorban."; s.className = "text-xs text-slate-400 mt-2"; }
+      return;
+    }
+    if (!confirm(`Törölsz ${errCount} beragadt (hibás) szinkron-sort?\n\nEzek a Google Sheetre nem mennek fel (a webhook nem fogadta el), de az adataid a gépen ettől biztonságban vannak. A törlés csak a felküldési várólistát tisztítja.`)) return;
+    syncQueue = syncQueue.filter(q => q.status !== "error");
+    persistSyncQueue();
+    updateSyncBadge();
+    const s = document.getElementById("syncCleanStatus");
+    if (s) { s.textContent = `🧹 ${errCount} hibás sor törölve a várólistából. A „hiba" jelzés eltűnt.`; s.className = "text-xs text-emerald-400 mt-2"; }
+  });
 
   const btnExportAllShifts = document.getElementById("btnExportAllShifts");
   if (btnExportAllShifts) btnExportAllShifts.addEventListener("click", exportAllShiftsCSV);
@@ -4869,6 +4974,12 @@ bindVkb(document.getElementById("txEditReceived"), "numeric");
 bindVkb(document.getElementById("shiftStaffIn"), "text");
 bindVkb(document.getElementById("shiftStaffOut"), "text");
 bindVkb(document.getElementById("shiftNote"), "text");
+bindVkb(document.getElementById("pultOpenName"), "text");
+bindVkb(document.getElementById("pultCloseCash"), "numeric");
+bindVkb(document.getElementById("editPinInput"), "numeric");
+document.getElementById("btnEditPinOk").addEventListener("click", submitEditPin);
+document.getElementById("btnCloseEditPin").addEventListener("click", closeEditPin);
+document.getElementById("editPinInput").addEventListener("keydown", e => { if (e.key === "Enter") submitEditPin(); });
 // Ha valaki bárhová kattint a billentyűzeten kívül és nincs aktív mező, ne maradjon nyitva.
 document.addEventListener("pointerdown", (e) => {
   const t = VKB.target;
