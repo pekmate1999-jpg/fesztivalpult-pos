@@ -49,6 +49,10 @@
   #vkb .vkb-key.ctl { background: #0f172a; color: #94a3b8; font-size: 13px; }
   #vkb .vkb-key.space { flex: 5 1 0; }
   body.vkb-open { padding-bottom: 240px; }
+  /* Szerkesztő-modalok: ha a billentyűzet nyitva van, adjunk nagy alsó teret,
+     hogy az épp szerkesztett tétel a numpad fölé görgethető legyen (ne takarja el). */
+  body.vkb-open #accDetailModal > .overflow-y-auto,
+  body.vkb-open #txEditModal > .overflow-y-auto { padding-bottom: 300px; }
   /* Modal-panelek érintős görgetése (fiók-részletek, tranzakció-szerkesztő stb.) */
   #accDetailModal .overflow-y-auto,
   #txEditModal .overflow-y-auto,
@@ -549,6 +553,7 @@ const DEFAULT_PRODUCTS = [
   { "category": "Meleg", "name": "Tej", "price": 50, "itemType": "alkoholmentes" },
   { "category": "Meleg", "name": "Növényi tej", "price": 150, "itemType": "alkoholmentes" },
   { "category": "Egyéb", "name": "Merch repohár", "price": 1000, "itemType": "egyeb" },
+  { "category": "Egyéb", "name": "Bioszappan", "price": 200, "itemType": "egyeb" },
   { "category": "Sör", "name": "Repohár", "price": 200, "itemType": "egyeb" },
   { "category": "Üdítő", "name": "Repohár", "price": 200, "itemType": "egyeb" },
   { "category": "Gyümölcslé", "name": "Repohár", "price": 200, "itemType": "egyeb" },
@@ -799,7 +804,7 @@ const DEFAULT_PIN = "1234";
 /* A hivatalos itallap verziószáma. Ha ezt megnöveled és újratöltöd az appot,
    a már mentett katalógus is felülíródik a DEFAULT_PRODUCTS-ra (kért viselkedés).
    A kézi termékmódosítások eltűnhetnek — szándékosan, hogy az árlista mindig aktuális legyen. */
-const CATALOG_VERSION = 8;
+const CATALOG_VERSION = 9;
 
 /* Alapanyag/recept verzió. Növeld, ha a DEFAULT_INGREDIENTS/DEFAULT_RECIPES-t
    frissíted (pl. a segédlet alapján) és élesíteni akarod a böngészőkben. */
@@ -1326,7 +1331,21 @@ const VKB = (function () {
     document.body.classList.add("vkb-open");
     setPreview();
     // A mezőt görgessük láthatóba (a billentyűzet ne takarja).
-    try { input.scrollIntoView({ block: "center", behavior: "smooth" }); } catch (e) {}
+    // A mezőt görgessük a billentyűzet FÖLÉ (a numpad az alsó ~240px-et foglalja).
+    // Ezért a látható terület felső részébe húzzuk, ne középre (ott a numpad takarná).
+    try {
+      input.scrollIntoView({ block: "start", behavior: "smooth" });
+      // Kis korrekció: hagyjunk teret fölötte, hogy a címke/gombok is látszódjanak.
+      setTimeout(() => {
+        const r = input.getBoundingClientRect();
+        if (r.top < 90 || r.bottom > window.innerHeight - 250) {
+          const sc = input.closest(".overflow-y-auto") || window;
+          const dy = r.top - 120;
+          if (sc === window) window.scrollBy({ top: dy, behavior: "smooth" });
+          else sc.scrollBy({ top: dy, behavior: "smooth" });
+        }
+      }, 60);
+    } catch (e) {}
   }
 
   function hide() {
