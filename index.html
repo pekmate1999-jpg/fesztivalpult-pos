@@ -61,7 +61,7 @@
   .fav-star:not(.is-fav) { color: #64748b; }
 
   /* Dynamic layout: driven by orientation + fluid sizing, works across phone and tablet without fixed breakpoints */
-  #mainLayout { display: flex; flex-direction: column; flex: 1 1 0%; min-height: 0; }
+  #mainLayout { display: flex; flex-direction: column; flex: 1 1 0%; min-height: 0; position: relative; z-index: 0; }
   #productSection { border-bottom: 1px solid #1e293b; }
   #cartAside { width: 100%; max-height: 42vh; overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y; overscroll-behavior: contain; }
   #productGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); -webkit-overflow-scrolling: touch; touch-action: pan-y; overscroll-behavior: contain; }
@@ -1795,12 +1795,12 @@ function renderProducts() {
   grid.innerHTML = list.map((p, idx) => {
     const isFav = state.favorites.includes(p.id);
     const starColor = isFav ? "#fbbf24" : "#64748b";
-    const starStyle = `position:absolute;top:4px;right:4px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:1;border-radius:9999px;border:none;background:rgba(15,23,42,0.65);color:${starColor};z-index:5;padding:0;cursor:pointer;`;
+    const starStyle = `position:absolute;top:4px;right:4px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:1;border-radius:9999px;border:none;background:rgba(15,23,42,0.65);color:${starColor};z-index:2;padding:0;cursor:pointer;`;
     // Népszerű nézetben rangsor-medál (bal felső sarok).
     let medalBadge = "";
     if (popCounts) {
       const medal = idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : `#${idx + 1}`;
-      medalBadge = `<div style="position:absolute;top:4px;left:4px;z-index:5;background:#f59e0b;color:#0f172a;font-size:10px;font-weight:900;border-radius:9999px;padding:1px 5px;min-width:20px;text-align:center;">${medal}</div>`;
+      medalBadge = `<div style="position:absolute;top:4px;left:4px;z-index:2;background:#f59e0b;color:#0f172a;font-size:10px;font-weight:900;border-radius:9999px;padding:1px 5px;min-width:20px;text-align:center;">${medal}</div>`;
     }
     return `
     <div data-id="${p.id}" class="prodcard text-left rounded-xl bg-slate-900 border-2 p-3 flex flex-col justify-between min-h-[92px] active:brightness-90 cursor-pointer" style="position:relative; overflow:hidden; border-left-width:5px; border-color:#1e293b; border-left-color:${catColor(p.category)};">
