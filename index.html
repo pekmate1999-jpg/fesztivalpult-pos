@@ -29,8 +29,8 @@
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
   /* ===== Saját érintő-billentyűzet (natív helyett, hogy ne tűnjön el / pontos legyen) ===== */
-  #vkb { position: fixed; left: 0; right: 0; bottom: 0; z-index: 90; background: #0b1220; border-top: 1px solid #1e293b; box-shadow: 0 -8px 30px -8px rgba(0,0,0,0.7); padding: 5px 8px calc(5px + env(safe-area-inset-bottom)); transform: translateY(110%); transition: transform .14s ease; touch-action: manipulation; }
-  #vkb.open { transform: translateY(0); }
+  #vkb { position: fixed; left: 0; right: 0; bottom: 0; z-index: 110; background: #0b1220; border-top: 1px solid #1e293b; box-shadow: 0 -8px 30px -8px rgba(0,0,0,0.7); padding: 5px 8px calc(5px + env(safe-area-inset-bottom)); transform: translateY(110%); transition: transform .14s ease; touch-action: manipulation; pointer-events: none; }
+  #vkb.open { transform: translateY(0); pointer-events: auto; }
   #vkbHint { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 1px 4px 4px; }
   #vkbHintLabel { font-size: 11px; color: #94a3b8; font-weight: 600; }
   #vkbPreview { font-size: 14px; font-weight: 800; color: #fbbf24; font-variant-numeric: tabular-nums; max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -3301,6 +3301,7 @@ function bulkImportAccounts(raw) {
 
 /* ---- Fiók részletnézet (modal) ---- */
 function openAccountDetail(accId) {
+  try { VKB.hide(); } catch (e) {}   // ne ragadjon nyitva a billentyűzet a modal fölött
   openAccountDetailId = accId;
   renderAccountDetailModal();
   document.getElementById("accDetailModal").classList.remove("hidden");
