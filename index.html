@@ -49,6 +49,12 @@
   #vkb .vkb-key.ctl { background: #0f172a; color: #94a3b8; font-size: 13px; }
   #vkb .vkb-key.space { flex: 5 1 0; }
   body.vkb-open { padding-bottom: 240px; }
+  /* Szerkesztés-jelszó beépített numpad gombjai */
+  .epk { height: 54px; border-radius: 12px; background: #1e293b; border: 1px solid #334155; color: #e2e8f0; font-size: 22px; font-weight: 800; cursor: pointer; -webkit-user-select: none; user-select: none; touch-action: manipulation; display: flex; align-items: center; justify-content: center; }
+  .epk:active { transform: scale(0.94); background: #334155; }
+  .epk-ctl { color: #fca5a5; font-size: 20px; }
+  .epk-ok { background: #f59e0b; border-color: #f59e0b; color: #0f172a; }
+  .epk-ok:active { background: #d97706; }
   /* Szerkesztő-modalok: ha a billentyűzet nyitva van, adjunk nagy alsó teret,
      hogy az épp szerkesztett tétel a numpad fölé görgethető legyen (ne takarja el). */
   body.vkb-open #accDetailModal > .overflow-y-auto,
@@ -392,9 +398,23 @@
         <button id="btnCloseEditPin" class="text-slate-500 hover:text-slate-300 px-2">✕</button>
       </div>
       <p class="text-xs text-slate-500 mb-3">A rendelés szerkesztéséhez / törléséhez add meg a szerkesztő-jelszót.</p>
-      <input id="editPinInput" type="password" inputmode="numeric" placeholder="••••" class="w-full px-3 py-3 rounded-lg bg-slate-800 border border-slate-700 text-center text-2xl tabular-nums tracking-widest mb-2" />
+      <div id="editPinDisplay" class="w-full px-3 py-3 rounded-lg bg-slate-800 border border-slate-700 text-center text-3xl tabular-nums tracking-[0.4em] mb-2 min-h-[52px]">····</div>
       <div id="editPinError" class="hidden text-center text-rose-400 text-xs font-semibold mb-2">Helytelen jelszó.</div>
-      <button id="btnEditPinOk" class="w-full py-3 rounded-xl bg-amber-500 text-slate-950 font-extrabold hover:bg-amber-400">Megerősítés</button>
+      <!-- Beépített numpad — nem takar semmit, közvetlenül a jelszóhoz ír. -->
+      <div class="grid grid-cols-3 gap-2" id="editPinPad">
+        <button data-pin="1" class="epk">1</button>
+        <button data-pin="2" class="epk">2</button>
+        <button data-pin="3" class="epk">3</button>
+        <button data-pin="4" class="epk">4</button>
+        <button data-pin="5" class="epk">5</button>
+        <button data-pin="6" class="epk">6</button>
+        <button data-pin="7" class="epk">7</button>
+        <button data-pin="8" class="epk">8</button>
+        <button data-pin="9" class="epk">9</button>
+        <button data-pin="back" class="epk epk-ctl">⌫</button>
+        <button data-pin="0" class="epk">0</button>
+        <button data-pin="ok" class="epk epk-ok">✓</button>
+      </div>
     </div>
   </div>
 </div>
@@ -4164,33 +4184,51 @@ let editDraft = null;
 /* A szerkesztő-jelszó (az admin PIN-től független). Minden fogyasztás-szerkesztés/törlés előtt kell. */
 const EDIT_PIN = "1527";
 let editPinCallback = null;
+let editPinValue = "";
+
+function renderEditPinDisplay() {
+  const disp = document.getElementById("editPinDisplay");
+  if (!disp) return;
+  // Pontok a beírt számjegyekhez, üresre "····".
+  disp.textContent = editPinValue ? "•".repeat(editPinValue.length) : "····";
+}
 
 function requestEditPin(callback) {
+  try { VKB.hide(); } catch (e) {}   // biztos, ami biztos: semmilyen más billentyűzet ne takarjon
   editPinCallback = callback;
-  const inp = document.getElementById("editPinInput");
+  editPinValue = "";
   const err = document.getElementById("editPinError");
-  if (inp) inp.value = "";
   if (err) err.classList.add("hidden");
+  renderEditPinDisplay();
   document.getElementById("editPinModal").classList.remove("hidden");
-  setTimeout(() => { if (inp) inp.focus(); }, 50);
 }
 function closeEditPin() {
   document.getElementById("editPinModal").classList.add("hidden");
   editPinCallback = null;
+  editPinValue = "";
+}
+function editPinPress(k) {
+  const err = document.getElementById("editPinError");
+  if (k === "back") { editPinValue = editPinValue.slice(0, -1); if (err) err.classList.add("hidden"); renderEditPinDisplay(); return; }
+  if (k === "ok") { submitEditPin(); return; }
+  if (editPinValue.length < 8) editPinValue += k;
+  if (err) err.classList.add("hidden");
+  renderEditPinDisplay();
+  // Ha eléri a helyes hosszt és egyezik, azonnal beengedhet (kényelem).
+  if (editPinValue === EDIT_PIN) submitEditPin();
 }
 function submitEditPin() {
-  const inp = document.getElementById("editPinInput");
   const err = document.getElementById("editPinError");
-  if (inp && inp.value === EDIT_PIN) {
+  if (editPinValue === EDIT_PIN) {
     const cb = editPinCallback;
     closeEditPin();
     if (cb) cb();
   } else {
     if (err) err.classList.remove("hidden");
-    if (inp) { inp.value = ""; inp.focus(); }
+    editPinValue = "";
+    renderEditPinDisplay();
   }
 }
-
 /* A tényleges tranzakció-szerkesztő megnyitása (jelszó után hívódik). */
 function doOpenTxEditModal(txId) {
   try { VKB.hide(); } catch (e) {}
@@ -5014,10 +5052,12 @@ bindVkb(document.getElementById("shiftStaffOut"), "text");
 bindVkb(document.getElementById("shiftNote"), "text");
 bindVkb(document.getElementById("pultOpenName"), "text");
 bindVkb(document.getElementById("pultCloseCash"), "numeric");
-bindVkb(document.getElementById("editPinInput"), "numeric");
-document.getElementById("btnEditPinOk").addEventListener("click", submitEditPin);
 document.getElementById("btnCloseEditPin").addEventListener("click", closeEditPin);
-document.getElementById("editPinInput").addEventListener("keydown", e => { if (e.key === "Enter") submitEditPin(); });
+document.getElementById("editPinPad").addEventListener("click", e => {
+  const btn = e.target.closest("[data-pin]");
+  if (!btn) return;
+  editPinPress(btn.dataset.pin);
+});
 // Ha valaki bárhová kattint a billentyűzeten kívül és nincs aktív mező, ne maradjon nyitva.
 document.addEventListener("pointerdown", (e) => {
   const t = VKB.target;
